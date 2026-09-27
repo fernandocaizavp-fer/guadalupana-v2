@@ -1,3 +1,4 @@
+import { VoiceflowChat } from './voiceflow-chat';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -5,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-landing',
-  imports: [MatIconModule, MatButtonModule],
+  imports: [MatIconModule, MatButtonModule, VoiceflowChat],
   templateUrl: './landing.html',
   styleUrl: './landing.scss'
 })

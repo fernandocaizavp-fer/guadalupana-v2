@@ -1,6 +1,5 @@
-Actúa como mi desarrollador frontend de Angular. Necesito integrar el widget de nuestro chatbot de Voiceflow en la aplicación.
+frontend\src\app\components\landing\landing.html aqui coloca el codigo de voice, esa es la landing page que asoma apenas se inicia
 
-Ubica el archivo principal index.html (normalmente en frontend/src/index.html). Inserta el siguiente script exactamente justo antes de la etiqueta de cierre </body>:
 
 <script type="text/javascript">
   (function(d, t) {
@@ -17,6 +16,3 @@ Ubica el archivo principal index.html (normalmente en frontend/src/index.html). 
       v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
   })(document, 'script');
 </script>
-
-
-Una vez que hayas insertado y guardado el archivo, ejecuta los comandos para subir esto a producción: git add ., luego git commit -m "feat: integrar chatbot de Voiceflow en index.html" y finalmente git push origin main.
