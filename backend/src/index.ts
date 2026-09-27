@@ -25,7 +25,7 @@ import { defensaDoS } from './middlewares/defensa.middleware';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "*" })); // Temporal: permitir cualquier origen.
 app.use(express.json());
 app.use(defensaDoS);
 
@@ -54,8 +54,8 @@ app.get('/', (req, res) => {
   res.json({ message: 'Backend CF Guadalupana funcionando' });
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+const PORT = Number(process.env.PORT || 3000);
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   // PID del proceso: se usa para medir CPU/RAM por PID con JMeter + PerfMon
   // (pruebas de eficiencia ISO/IEC 25010). Ver jmeter/analizar_perfmon.py.

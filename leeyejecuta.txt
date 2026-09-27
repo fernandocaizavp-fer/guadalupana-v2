@@ -1,0 +1,11 @@
+Actúa como mi asistente. Necesito que busques mi archivo .env (probablemente dentro de la carpeta backend o en la raíz) y reemplaces cualquier variable antigua de base de datos pegando exactamente estas dos líneas:
+
+DATABASE_URL="postgresql://postgres.dsgxvihowlzzmxpleszl:Fercho30203020@aws-0-us-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.dsgxvihowlzzmxpleszl:Fercho30203020@aws-0-us-west-2.pooler.supabase.com:5432/postgres"
+
+Luego, busca el archivo schema.prisma. Modifica el bloque datasource db para que quede exactamente así:
+provider = "postgresql"
+url = env("DATABASE_URL")
+directUrl = env("DIRECT_URL")
+
+Una vez guardados ambos archivos, ejecuta el comando npx prisma db push para sincronizar mi esquema con la base de datos
