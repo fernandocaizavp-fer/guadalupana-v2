@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://cf-guadalupana-production.up.railway.app/api'
+  apiUrl: 'https://guadalupana-v2.onrender.com/api'
 };

@@ -1,11 +1,5 @@
-Actúa como mi asistente. Necesito que busques mi archivo .env (probablemente dentro de la carpeta backend o en la raíz) y reemplaces cualquier variable antigua de base de datos pegando exactamente estas dos líneas:
+"Actúa como mi desarrollador frontend. Mi backend ya está desplegado exitosamente. Por favor, busca los archivos de configuración de entorno de Angular (normalmente ubicados en frontend/src/environments/environment.ts y environment.prod.ts).
 
-DATABASE_URL="postgresql://postgres.dsgxvihowlzzmxpleszl:Fercho30203020@aws-0-us-west-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres.dsgxvihowlzzmxpleszl:Fercho30203020@aws-0-us-west-2.pooler.supabase.com:5432/postgres"
+Necesito que actualices la variable de la URL de la API (usualmente llamada apiUrl, API_URL o similar). En el archivo environment.prod.ts, debes cambiar la URL antigua para que apunte exactamente a esta nueva dirección: [https://guadalupana-v2.onrender.com](https://guadalupana-v2.onrender.com) (asegúrate de no dejar una barra / al final si el código no la requiere).
 
-Luego, busca el archivo schema.prisma. Modifica el bloque datasource db para que quede exactamente así:
-provider = "postgresql"
-url = env("DATABASE_URL")
-directUrl = env("DIRECT_URL")
-
-Una vez guardados ambos archivos, ejecuta el comando npx prisma db push para sincronizar mi esquema con la base de datos
+Una vez que hayas guardado los cambios en los archivos, ejecuta los comandos necesarios para subir esto a GitHub (git add ., git commit -m "Actualizar URL de API a Render" y git push origin main)."
