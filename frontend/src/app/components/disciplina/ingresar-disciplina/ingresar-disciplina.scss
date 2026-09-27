@@ -1,0 +1,311 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$bg-body: #f4f7fa;
+$border: #e2e8f0;
+$white: #ffffff;
+
+// ── TOOLBAR ──────────────────────────────────────────
+.disciplina-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e) !important;
+  color: white !important;
+  height: 85px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+      &:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      span {
+        font-size: 12px;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+  }
+}
+
+.flex-spacer { flex: 1 1 auto; }
+
+.semestre-tabs {
+  display: flex;
+  gap: 8px;
+  margin-right: 16px;
+}
+
+.tab-btn {
+  padding: 6px 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  &.active {
+    background: $gold;
+    border-color: $gold;
+    color: $navy;
+  }
+
+  &:hover:not(.active) {
+    border-color: white;
+    color: white;
+  }
+}
+
+.students-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 14px;
+  padding: 10px 18px;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .chip-valor {
+    display: block;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+    color: white;
+  }
+
+  .chip-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.6);
+  }
+}
+
+// ── CONTENIDO ────────────────────────────────────────
+.page-wrapper {
+  padding: 30px 48px;
+  background: $bg-body;
+  min-height: calc(100vh - 85px);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 60px;
+  color: #aaa;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ddd;
+  }
+
+  p { font-size: 14px; }
+}
+
+// ── INFO CARD ─────────────────────────────────────────
+.info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #3b82f6;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 28px;
+
+  .info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #dbeafe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      color: #2563eb;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #1d4ed8;
+    line-height: 1.7;
+    padding-top: 6px;
+  }
+}
+
+// ── TABLA ─────────────────────────────────────────────
+.tabla-card {
+  background: $white;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid $border;
+  box-shadow: 0 4px 20px rgba($navy, 0.06);
+  margin-bottom: 24px;
+}
+
+.tabla-header {
+  display: grid;
+  grid-template-columns: 70px 1fr 180px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, $navy, #2a4f9f);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  .col-nota { text-align: center; }
+}
+
+.tabla-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 180px;
+  padding: 14px 24px;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover {
+    background: #f8fafc;
+
+    .nota-input {
+      border-color: rgba($navy, 0.3);
+    }
+  }
+}
+
+.col-num {
+  .num-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+}
+
+.col-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  color: $navy;
+}
+
+.col-nota {
+  display: flex;
+  justify-content: center;
+}
+
+.nota-input {
+  width: 90px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  color: $navy;
+  outline: none;
+  transition: all 0.2s;
+  background: #f8fafc;
+
+  &:focus {
+    border-color: $navy;
+    background: $white;
+    box-shadow: 0 0 0 3px rgba($navy, 0.08);
+  }
+
+  &::placeholder {
+    color: #cbd5e1;
+    font-weight: 400;
+  }
+
+  // Quitar flechas del input number
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; }
+}
+
+// ── GUARDAR ───────────────────────────────────────────
+.guardar-row {
+  display: flex;
+  justify-content: flex-end;
+
+  .guardar-btn {
+    background: linear-gradient(135deg, $navy, #2a4f9f) !important;
+    color: white !important;
+    border-radius: 50px;
+    padding: 0 36px;
+    height: 46px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+
+    mat-icon { margin-right: 8px; }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba($navy, 0.35);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

@@ -1,0 +1,287 @@
+<mat-toolbar class="admin-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Gestión de Docentes</h1>
+        <span>Administración de personal académico</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+
+  <div class="top-row-grid">
+
+    <!-- NUEVO REGISTRO -->
+    <mat-card class="premium-card">
+      <div class="card-edge navy"></div>
+      <mat-card-header>
+        <div class="header-icon navy">
+          <mat-icon>person_add</mat-icon>
+        </div>
+        <div class="header-text">
+          <h2>{{ editando ? 'Editar Perfil' : 'Nuevo Registro' }}</h2>
+          <p>Datos personales del docente</p>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres</mat-label>
+            <input matInput [(ngModel)]="nuevoDocente.nombre">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Apellidos</mat-label>
+            <input matInput [(ngModel)]="nuevoDocente.apellido">
+          </mat-form-field>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput type="email" [(ngModel)]="nuevoDocente.correo">
+          <mat-icon matPrefix>mail_outline</mat-icon>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Cédula de Identidad</mat-label>
+          <input matInput [(ngModel)]="nuevoDocente.cedula">
+          <mat-hint>Servirá como clave inicial</mat-hint>
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        @if (editando) {
+          <button mat-button color="warn" (click)="cancelarEdicion()">CANCELAR</button>
+        }
+        <button mat-flat-button class="btn-main navy" (click)="crearDocente()" [disabled]="guardando">
+          <mat-icon>{{ editando ? 'save' : 'add_circle' }}</mat-icon>
+          {{ editando ? 'GUARDAR' : 'REGISTRAR' }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- VINCULAR MATERIA -->
+    <mat-card class="premium-card">
+      <div class="card-edge blue"></div>
+      <mat-card-header>
+        <div class="header-icon blue">
+          <mat-icon>assignment_ind</mat-icon>
+        </div>
+        <div class="header-text">
+          <h2>Vincular Materia</h2>
+          <p>Asignación de carga horaria regular</p>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="asignacion.cursoId" (ngModelChange)="onCursoChange()">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Materia</mat-label>
+            <mat-select [(ngModel)]="asignacion.materiaId" [disabled]="!asignacion.cursoId">
+              @for (materia of materiasCurso; track materia.id) {
+                <mat-option [value]="materia.id">{{ materia.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Docente</mat-label>
+            <mat-select [(ngModel)]="asignacion.profesorId">
+              @for (docente of docentes; track docente.id) {
+                <mat-option [value]="docente.id">{{ docente.nombre }} {{ docente.apellido }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="sub-action-row">
+          <button mat-flat-button class="btn-main blue" (click)="asignarProfesor()">
+            <mat-icon>link</mat-icon> CONFIRMAR VÍNCULO
+          </button>
+        </div>
+
+        <div class="sub-divider">
+          <span>Práctica / Teoría</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="asignacionSub.cursoId" (ngModelChange)="onCursoSubChange()">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Submateria</mat-label>
+            <mat-select [(ngModel)]="asignacionSub.submateriaNombre" [disabled]="!asignacionSub.cursoId">
+              @for (sub of submateriasCurso; track sub.id) {
+                <mat-option [value]="sub.nombre">{{ sub.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Docente</mat-label>
+            <mat-select [(ngModel)]="asignacionSub.profesorId">
+              @for (docente of docentes; track docente.id) {
+                <mat-option [value]="docente.id">{{ docente.nombre }} {{ docente.apellido }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-flat-button class="btn-main blue" (click)="asignarProfesorSubmateria()">
+          <mat-icon>link</mat-icon> ASIGNAR A PRÁCTICA Y TEORÍA
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+  </div>
+
+  <!-- PROFESOR PRINCIPAL -->
+  <div class="full-width-row">
+    <mat-card class="premium-card principal">
+      <div class="card-edge gold"></div>
+      <mat-card-header>
+        <div class="header-icon gold">
+          <mat-icon>verified</mat-icon>
+        </div>
+        <div class="header-text">
+          <h2>Profesor Principal de Práctica y Teoría</h2>
+          <p>Designación oficial para documentos legales de la institución</p>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-row-triple">
+          <mat-form-field appearance="outline">
+            <mat-label>Seleccionar Curso</mat-label>
+            <mat-select [(ngModel)]="asignacionPrincipal.cursoId">
+              @for (curso of cursos; track curso.id) {
+                <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Docente Principal Designado</mat-label>
+            <mat-select [(ngModel)]="asignacionPrincipal.profesorId">
+              @for (docente of docentes; track docente.id) {
+                <mat-option [value]="docente.id">{{ docente.nombre }} {{ docente.apellido }} — {{ docente.cedula }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <div class="action-inline">
+            <button mat-flat-button class="btn-gold-full" (click)="asignarProfesorPrincipal()">
+              <mat-icon>star</mat-icon> ASIGNAR COMO PRINCIPAL
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- NÓMINA DOCENTES -->
+  <mat-card class="table-card">
+    <div class="table-header">
+      <h3>Nómina Docente <span>({{ docentes.length }} registros)</span></h3>
+    </div>
+    <div class="docentes-list">
+      @for (d of docentes; track d.id) {
+        <div class="docente-container" [class.is-expanded]="d.showMaterias">
+
+          <div class="docente-item" (click)="d.showMaterias = !d.showMaterias">
+            <div class="docente-avatar">
+              {{ d.nombre.charAt(0) }}{{ d.apellido.charAt(0) }}
+            </div>
+            <div class="docente-info">
+              <span class="docente-nombre">{{ d.nombre }} {{ d.apellido }}</span>
+              <span class="docente-correo">{{ d.correo }}</span>
+              @for (m of getMateriasDocente(d); track m.id) {
+                @if (m.tipo === 'principal') {
+                  <span class="principal-badge">★ Principal — {{ m.cursoNombre }}</span>
+                }
+              }
+            </div>
+            <div class="docente-materias-summary">
+              @if (getMateriasDocente(d).length > 0) {
+                <div class="badge-materias">
+                  <mat-icon>library_books</mat-icon>
+                  <span>{{ getMateriasDocente(d).length }} elemento{{ getMateriasDocente(d).length !== 1 ? 's' : '' }}</span>
+                  <mat-icon class="arrow-icon">expand_more</mat-icon>
+                </div>
+              } @else {
+                <span class="sin-asignacion">Sin materias asignadas</span>
+              }
+            </div>
+            <div class="docente-acciones" (click)="$event.stopPropagation()">
+              <button mat-icon-button (click)="editarDocente(d)" class="edit-btn">
+                <mat-icon>edit_note</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="eliminarDocente(d.id)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          @if (d.showMaterias) {
+            <div class="materias-detalle">
+              @for (m of getMateriasDocente(d); track m.id) {
+
+                @if (m.tipo === 'principal') {
+                  <div class="detalle-item principal-item">
+                    <mat-icon>star</mat-icon>
+                    <span>Docente principal — <strong>{{ m.cursoNombre }}</strong></span>
+                    <button mat-button color="warn" class="btn-quitar" (click)="quitarPrincipal(m)">
+                      <mat-icon>link_off</mat-icon> Quitar
+                    </button>
+                  </div>
+                }
+
+                @if (m.tipo === 'normal') {
+                  <div class="detalle-item">
+                    <span class="item-curso">{{ m.cursoNombre }}</span>
+                    <span class="item-sep">—</span>
+                    <span class="item-nombre">{{ m.nombre }}</span>
+                    <button mat-button color="warn" class="btn-quitar" (click)="quitarMateria(m)">
+                      <mat-icon>link_off</mat-icon> Quitar
+                    </button>
+                  </div>
+                }
+
+                @if (m.tipo === 'submateria-grupo') {
+                  <div class="detalle-item submateria-grupo">
+                    <div class="grupo-header">
+                      <span class="item-curso">{{ m.cursoNombre }}</span>
+                      <span class="item-sep">—</span>
+                      <span class="item-nombre">Práctica / Teoría</span>
+                      <button mat-button color="warn" class="btn-quitar" (click)="quitarSubmateriaGrupo(m)">
+                        <mat-icon>link_off</mat-icon> Quitar
+                      </button>
+                    </div>
+                    <div class="grupo-subs">
+                      @for (sub of m.subs; track sub) {
+                        <span class="sub-nombre">{{ sub }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+
+              }
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  </mat-card>
+
+</div>

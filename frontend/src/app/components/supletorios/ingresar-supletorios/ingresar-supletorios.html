@@ -1,0 +1,48 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Cuadro Final (AL15) — {{ curso?.ramaArtesanal }}</h1>
+        <span>Supletorios y nota final</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  }
+
+  @if (!loading) {
+    <div class="descarga-card">
+      <div class="descarga-icon">
+        <mat-icon>summarize</mat-icon>
+      </div>
+      <div class="descarga-info">
+        <h2>Cuadro Final de Notas (AL15)</h2>
+        <p>Completa los campos y descarga el documento oficial. Los supletorios son ingresados por los docentes desde su portal.</p>
+      </div>
+      <div class="descarga-form">
+        <div class="form-row">
+          <div class="field">
+            <label>Jornada</label>
+            <input type="text" [(ngModel)]="jornada" placeholder="MATUTINA">
+          </div>
+          <div class="field wide">
+            <label>Lugar y Fecha</label>
+            <input type="text" [(ngModel)]="lugarFecha" placeholder="Riobamba, 20 de abril del 2026">
+          </div>
+        </div>
+        <button mat-raised-button style="background: linear-gradient(135deg, #1a2a5e, #2a4f9f); color: white; width: 100%; margin-top: 16px; height: 44px;"
+          (click)="descargarAL15()">
+          <mat-icon>download</mat-icon> DESCARGAR CUADRO FINAL (AL15)
+        </button>
+      </div>
+    </div>
+  }
+</div>

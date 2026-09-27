@@ -1,0 +1,243 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$bg-body: #f4f7fa;
+$border: #e2e8f0;
+$white: #ffffff;
+
+// ── TOOLBAR ──────────────────────────────────────────
+.matriz-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e) !important;
+  color: white !important;
+  height: 85px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+      &:hover { background: rgba(255,255,255,0.2); transform: translateX(-3px); }
+    }
+
+    .title-meta {
+      h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      span { font-size: 12px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    }
+  }
+}
+
+.flex-spacer { flex: 1 1 auto; }
+
+.semestre-tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 5px;
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 18px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.25s;
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+    &.active { background: $gold; color: $navy; }
+    &:hover:not(.active) { color: rgba(255,255,255,0.9); }
+  }
+}
+
+// ── PÁGINA ──────────────────────────────────────────
+.page-wrapper {
+  padding: 26px 30px 60px;
+  background: $bg-body;
+  min-height: calc(100vh - 85px);
+}
+
+.estado-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 70px 20px;
+  color: #64748b;
+
+  p { margin: 0; font-size: 15px; }
+
+  &.vacio mat-icon {
+    font-size: 46px; width: 46px; height: 46px; color: #cbd5e1;
+  }
+}
+
+// ── LEYENDA ─────────────────────────────────────────
+.info-leyenda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 16px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: $navy; }
+}
+
+// ── TABLA MATRIZ ────────────────────────────────────
+.tabla-scroll {
+  overflow-x: auto;
+  border: 1px solid $border;
+  border-radius: 14px;
+  background: $white;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.05);
+}
+
+table.matriz {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  table-layout: fixed; // Estudiante/Promedio fijos; las tareas reparten el resto por igual
+  font-size: 13px;
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: $navy;
+    color: white;
+    font-weight: 700;
+    padding: 12px 10px;
+    text-align: center;
+    z-index: 2;
+    white-space: nowrap;
+
+    &.col-tarea {
+      cursor: pointer;
+      transition: background 0.15s;
+      &:hover { background: #24397a; }
+
+      .tarea-nombre {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .tarea-fecha {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        opacity: 0.7;
+        margin-top: 2px;
+      }
+    }
+  }
+
+  th.col-estudiante, td.col-estudiante {
+    text-align: left;
+    width: 250px;        // fija; el nombre se pega a la izquierda
+  }
+
+  // Columna de estudiante fija al hacer scroll horizontal
+  .sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+  }
+  thead th.sticky-col { z-index: 4; }
+  tbody td.sticky-col { background: $white; }
+
+  tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid $border;
+    text-align: center;
+  }
+
+
+  td.col-estudiante {
+    display: table-cell;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.35;
+    .num-matricula {
+      display: inline-block;
+      background: $navy;
+      color: white;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-right: 6px;
+    }
+    .nombre-est { font-weight: 600; color: #1e293b; }
+    .faltan {
+      display: inline-block;
+      margin-left: 8px;
+      background: #fdecea;
+      color: #c0392b;
+      border-radius: 12px;
+      padding: 1px 8px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+  }
+
+  td.celda {
+    cursor: pointer;
+    transition: background 0.15s;
+
+    .valor {
+      display: inline-block;
+      min-width: 42px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    &:hover { background: rgba(26,42,94,0.06); }
+
+    // Celda sin nota registrada: resaltada para verla a simple vista
+    &.vacia {
+      background: #fdecea;
+      .valor { color: #c0392b; }
+      &:hover { background: #fbddd8; }
+    }
+  }
+
+  td.col-promedio, th.col-promedio {
+    font-weight: 800;
+    color: $navy;
+    background: #f1f5f9;
+    width: 84px;
+  }
+  thead th.col-promedio { background: #0d1a3e; color: white; }
+
+  // Las tareas reparten el ancho restante (layout fijo); centro mínimo legible.
+  th.col-tarea, td.celda { min-width: 56px; }
+}
+
+@media (max-width: 640px) {
+  .page-wrapper { padding: 16px 12px 50px; }
+  .matriz-toolbar .toolbar-content { padding: 0 14px; }
+  table.matriz th.col-estudiante, table.matriz td.col-estudiante { width: 150px; }
+}

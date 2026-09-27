@@ -1,0 +1,182 @@
+.spacer { flex: 1 1 auto; }
+
+// ── ENCABEZADO ESTÁNDAR (flecha en cuadrito) ──────────
+.page-toolbar {
+  background: linear-gradient(135deg, #1a2a5e, #0d1a3e) !important;
+  color: white !important;
+  height: 85px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+    gap: 16px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+      &:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      span {
+        font-size: 12px;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+  }
+
+  .flex-spacer { flex: 1 1 auto; }
+}
+
+.content {
+  padding: 32px 48px;
+  background: #f0f2f8;
+  min-height: calc(100vh - 64px);
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+}
+
+.tarea-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+  border: 1px solid #e8eaf0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #555;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #c8a84b;
+  }
+}
+
+.table-wrapper {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid #e8eaf0;
+}
+
+.notas-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #1a2a5e;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 14px 16px;
+    text-align: left;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f2f8;
+    font-size: 14px;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f8f9fc; }
+  tr:hover td { background: #fff8e1 !important; }
+}
+
+.th-num { width: 50px; text-align: center !important; }
+.th-nombre { width: 280px; }
+.th-nota { width: 120px; }
+.th-obs { }
+
+.td-num { text-align: center; color: #666; font-weight: 600; }
+.td-nombre { font-weight: 500; color: #1a2a5e; }
+
+.nota-input {
+  width: 80px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: border 0.2s;
+
+  &:focus { border-color: #1a2a5e; background: white; }
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { opacity: 0; }
+}
+
+.obs-input {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  outline: none;
+  background: transparent;
+  transition: border 0.2s;
+
+  &:focus { border-color: #1a2a5e; background: white; }
+}
+// Indicador de guardado automático (en el toolbar)
+.estado-guardado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+
+  &.visible { opacity: 1; }
+  &.err { color: #ffb4a8; }
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  .girando { animation: girar 1s linear infinite; }
+}
+
+@keyframes girar { to { transform: rotate(360deg); } }

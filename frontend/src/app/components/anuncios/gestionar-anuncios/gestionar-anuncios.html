@@ -1,0 +1,156 @@
+<mat-toolbar class="admin-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Gestionar Anuncios</h1>
+        <span>Comunicación institucional y eventos</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+
+  <div class="form-card">
+    <div class="form-header">
+      <mat-icon>{{ editando ? 'edit' : 'add_circle' }}</mat-icon>
+      <h2>{{ editando ? 'Editar Anuncio' : 'Nuevo Anuncio' }}</h2>
+    </div>
+
+    <div class="form-body">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Título del anuncio</mat-label>
+        <input matInput [(ngModel)]="nuevo.titulo" placeholder="Ej: Reunión de padres de familia">
+        <mat-icon matSuffix>title</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Contenido</mat-label>
+        <textarea matInput [(ngModel)]="nuevo.contenido" rows="4"
+          placeholder="Describe el anuncio o evento..."></textarea>
+      </mat-form-field>
+
+      @if (materiasOpciones.length > 0) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Materia / paralelo (opcional)</mat-label>
+          <mat-select [(ngModel)]="nuevo.materiaNombre" (ngModelChange)="onMateriaChange()">
+            <mat-option value="">General (todos los estudiantes)</mat-option>
+            @for (op of materiasOpciones; track op.label) {
+              <mat-option [value]="op.label">{{ op.label }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix>menu_book</mat-icon>
+          <mat-hint>Si eliges una materia, solo la verán los estudiantes de ese paralelo.</mat-hint>
+        </mat-form-field>
+      }
+
+      <div class="imagen-section">
+        <label class="imagen-label">Imagen del anuncio (opcional)</label>
+        <div class="imagen-upload" (click)="fileInput.click()">
+          @if (imagenPreview) {
+            <img [src]="imagenPreview" alt="Preview" class="preview-img">
+            <div class="preview-overlay">
+              <mat-icon>edit</mat-icon>
+              <span>Cambiar imagen</span>
+            </div>
+          } @else {
+            <div class="upload-placeholder">
+              <mat-icon>add_photo_alternate</mat-icon>
+              <span>Click para subir imagen</span>
+              <small>JPG, PNG, WEBP — máx. 5MB</small>
+            </div>
+          }
+        </div>
+        <input #fileInput type="file" accept="image/*" style="display:none"
+          (change)="onImagenSeleccionada($event)">
+      </div>
+
+      <div class="form-actions">
+        @if (editando) {
+          <button mat-stroked-button (click)="resetForm()">
+            <mat-icon>close</mat-icon> CANCELAR
+          </button>
+        }
+        <button mat-raised-button
+          style="background: linear-gradient(135deg, #1a2a5e, #2a4f9f); color: white;"
+          (click)="guardar()" [disabled]="guardando">
+          <mat-icon>{{ editando ? 'save' : 'add' }}</mat-icon>
+          {{ guardando ? 'Guardando...' : (editando ? 'GUARDAR CAMBIOS' : 'PUBLICAR ANUNCIO') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Anuncios Publicados ({{ anuncios.length }})</h2>
+
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="40"></mat-spinner></div>
+  }
+
+  @if (!loading && anuncios.length === 0) {
+    <div class="center">
+      <mat-icon class="empty-icon">campaign</mat-icon>
+      <p>No hay anuncios publicados aún</p>
+    </div>
+  }
+
+  @if (!loading && anuncios.length > 0) {
+    <div class="anuncios-grid">
+      @for (anuncio of anuncios; track anuncio.id) {
+        <div class="anuncio-card" [class.inactivo]="!anuncio.activo">
+          @if (anuncio.imagen) {
+            <div class="anuncio-imagen">
+              <img [src]="getImagenUrl(anuncio.imagen)" alt="{{ anuncio.titulo }}"
+                (click)="abrirImagen(getImagenUrl(anuncio.imagen))">
+              @if (!anuncio.activo) {
+                <div class="inactivo-badge">Inactivo</div>
+              }
+            </div>
+          }
+          <div class="anuncio-body">
+            <div class="anuncio-meta">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ anuncio.createdAt | date:'dd/MM/yyyy' }}</span>
+              @if (!anuncio.activo) {
+                <span class="badge-inactivo">Inactivo</span>
+              }
+            </div>
+            <h3>{{ anuncio.titulo }}</h3>
+            @if (anuncio.materiaNombre) {
+              <div class="anuncio-materia">
+                <mat-icon>menu_book</mat-icon>
+                <span>{{ anuncio.materiaNombre }}</span>
+              </div>
+            }
+            <p>{{ anuncio.contenido }}</p>
+            @if (etiquetaAutor(anuncio)) {
+              <div class="anuncio-autor">
+                <mat-icon>person</mat-icon>
+                <span>Publicado por: {{ etiquetaAutor(anuncio) }}</span>
+              </div>
+            }
+          </div>
+          @if (puedeGestionar(anuncio)) {
+            <div class="anuncio-actions">
+              <button mat-stroked-button (click)="editar(anuncio)"
+                style="font-size: 12px; color: #1a2a5e; border-color: #1a2a5e;">
+                <mat-icon style="font-size: 16px;">edit</mat-icon> Editar
+              </button>
+              <button mat-stroked-button (click)="eliminar(anuncio.id)"
+                style="font-size: 12px; color: #c62828; border-color: #c62828;">
+                <mat-icon style="font-size: 16px;">delete</mat-icon> Eliminar
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<app-visor-imagen [src]="imagenAmpliada" (cerrar)="imagenAmpliada = null" />

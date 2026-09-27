@@ -1,0 +1,89 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Calificar — {{ tarea?.nombre }}</h1>
+        <span>Ingreso de notas</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <span class="estado-guardado" [class.err]="estado === 'error'" [class.visible]="estado !== 'idle'">
+      @if (estado === 'guardando') {
+        <mat-icon class="girando">sync</mat-icon> Guardando…
+      } @else if (estado === 'guardado') {
+        <mat-icon>check_circle</mat-icon> Cambios guardados
+      } @else if (estado === 'error') {
+        <mat-icon>error</mat-icon> Error al guardar
+      }
+    </span>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  }
+
+  @if (!loading) {
+    <div class="tarea-info-bar">
+      <div class="info-item">
+        <mat-icon>assignment</mat-icon>
+        <span>{{ tarea?.nombre }}</span>
+      </div>
+      @if (tarea?.descripcion) {
+        <div class="info-item">
+          <mat-icon>info</mat-icon>
+          <span>{{ tarea?.descripcion }}</span>
+        </div>
+      }
+      <div class="info-item">
+        <mat-icon>people</mat-icon>
+        <span>{{ matriculas.length }} estudiantes</span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="notas-table">
+        <thead>
+          <tr>
+            <th class="th-num">No.</th>
+            <th class="th-nombre">Nombres y Apellidos</th>
+            <th class="th-nota">Nota (0-10)</th>
+            <th class="th-obs">Observación</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (matricula of matriculas; track matricula.id; let i = $index) {
+            <tr>
+              <td class="td-num">{{ i + 1 }}</td>
+              <td class="td-nombre">{{ matricula.apellidos }} {{ matricula.nombres }}</td>
+              <td class="td-nota">
+                <input
+                  type="number"
+                  [min]="notaMin"
+                  [max]="notaMax"
+                  step="0.1"
+                  class="nota-input"
+                  [(ngModel)]="notas[matricula.id].valor"
+                  (blur)="guardarUno(matricula.id)"
+                  (keyup.enter)="guardarUno(matricula.id)"
+                  placeholder="-">
+              </td>
+              <td class="td-obs">
+                <input
+                  type="text"
+                  class="obs-input"
+                  [(ngModel)]="notas[matricula.id].observacion"
+                  (blur)="guardarUno(matricula.id)"
+                  placeholder="Observación opcional">
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

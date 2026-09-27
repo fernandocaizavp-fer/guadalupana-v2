@@ -1,0 +1,112 @@
+<mat-toolbar class="admin-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Gestión de Documentos</h1>
+        <span>Emisión de formularios AL12 y certificados AL13</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+
+  <div class="filter-panel">
+    <div class="filter-grid">
+      <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+        <mat-label>Búsqueda inteligente</mat-label>
+        <input matInput [(ngModel)]="busqueda" (ngModelChange)="filtrar()"
+          placeholder="Nombre del estudiante o número de cédula...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="select-field" subscriptSizing="dynamic">
+        <mat-label>Filtrar por Curso</mat-label>
+        <mat-select [(ngModel)]="cursoFiltro" (ngModelChange)="filtrar()">
+          <mat-option value="">Todos los cursos disponibles</mat-option>
+          @for (curso of cursos; track curso.id) {
+            <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>filter_list</mat-icon>
+      </mat-form-field>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  }
+
+  @if (!loading && matriculasFiltradas.length === 0) {
+    <div class="center">
+      <mat-icon class="empty-icon">search_off</mat-icon>
+      <p>No se encontraron estudiantes</p>
+    </div>
+  }
+
+  @if (!loading && matriculasFiltradas.length > 0) {
+    <div class="results-container">
+      <div class="table-info-header">
+        <span>Se encontraron <strong>{{ matriculasFiltradas.length }}</strong> registros</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th class="col-no">No.</th>
+              <th class="col-estudiante">Estudiante</th>
+              <th class="col-id">Cédula</th>
+              <th class="col-mat">Matrícula</th>
+              <th class="col-curso">Curso</th>
+              <th class="col-acciones">Documentos</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of matriculasFiltradas; track m.id; let i = $index) {
+              <tr>
+                <td class="col-no">{{ i + 1 }}</td>
+                <td class="col-estudiante">
+                  <span class="full-name">{{ m.apellidos }} {{ m.nombres }}</span>
+                </td>
+                <td class="col-id">
+                  <span class="id-badge-soft">{{ m.cedula }}</span>
+                </td>
+                <td class="col-mat">
+                  <span class="mat-badge-soft">{{ m.matriculaNo }}</span>
+                </td>
+                <td class="col-curso">
+                  <div class="course-cell">
+                    <span class="course-name">{{ m.curso?.ramaArtesanal }}</span>
+                    <span class="course-year">{{ m.curso?.anioFormativo }}</span>
+                  </div>
+                </td>
+                <td class="col-acciones">
+                  <div class="action-pills">
+                    <button mat-flat-button class="pill-btn al12"
+                      title="Descargar Matrícula"
+                      (click)="descargarMatricula(m)"
+                      [disabled]="descargando === m.id">
+                      <mat-icon>description</mat-icon> Matrícula
+                    </button>
+                    <button mat-flat-button class="pill-btn al13"
+                      title="Descargar Certificado"
+                      (click)="descargarCertificado(m)"
+                      [disabled]="descargando === m.id">
+                      <mat-icon>workspace_premium</mat-icon> Certificado
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+</div>

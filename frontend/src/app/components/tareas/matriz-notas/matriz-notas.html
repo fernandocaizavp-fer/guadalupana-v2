@@ -1,0 +1,92 @@
+<mat-toolbar class="matriz-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ materia?.nombre || 'Materia' }}</h1>
+        <span>Matriz de notas · Semestre {{ semestreSeleccionado }}</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="semestre-tabs">
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 1" (click)="cambiarSemestre(1)">
+        <mat-icon>looks_one</mat-icon> 1er Semestre
+      </button>
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 2" (click)="cambiarSemestre(2)">
+        <mat-icon>looks_two</mat-icon> 2do Semestre
+      </button>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+
+  @if (loading) {
+    <div class="estado-centro">
+      <mat-spinner diameter="46"></mat-spinner>
+      <p>Cargando matriz…</p>
+    </div>
+  } @else {
+
+    <div class="info-leyenda">
+      <mat-icon>info</mat-icon>
+      <span>Haz clic en cualquier casilla para abrir esa tarea e ingresar o corregir la nota. Las casillas vacías están resaltadas.</span>
+    </div>
+
+    @if (tareas.length === 0) {
+      <div class="estado-centro vacio">
+        <mat-icon>grid_off</mat-icon>
+        <p>No hay tareas en este semestre. Crea tareas para calificar.</p>
+      </div>
+    } @else if (matriculas.length === 0) {
+      <div class="estado-centro vacio">
+        <mat-icon>person_off</mat-icon>
+        <p>No hay estudiantes matriculados en este curso.</p>
+      </div>
+    } @else {
+
+      <div class="tabla-scroll">
+        <table class="matriz">
+          <thead>
+            <tr>
+              <th class="col-estudiante sticky-col">Estudiante</th>
+              @for (t of tareas; track t.id) {
+                <th class="col-tarea" (click)="irATarea(t.id)"
+                    [matTooltip]="'Abrir: ' + t.nombre">
+                  <span class="tarea-nombre">{{ t.nombre }}</span>
+                  <span class="tarea-fecha">{{ (t.fechaFin || t.fechaInicio || t.fecha) | date:'dd/MM' }}</span>
+                </th>
+              }
+              <th class="col-promedio">Promedio</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of matriculas; track m.id) {
+              <tr>
+                <td class="col-estudiante sticky-col">
+                  <span class="num-matricula">{{ m.matriculaNo }}</span>
+                  <span class="nombre-est">{{ m.apellidos }} {{ m.nombres }}</span>
+                  @if (faltantesEstudiante(m.id) > 0) {
+                    <span class="faltan" [matTooltip]="faltantesEstudiante(m.id) + ' nota(s) sin registrar'">
+                      faltan {{ faltantesEstudiante(m.id) }}
+                    </span>
+                  }
+                </td>
+                @for (t of tareas; track t.id) {
+                  <td class="celda" [class.vacia]="!tieneNota(m.id, t.id)"
+                      (click)="irATarea(t.id)"
+                      [matTooltip]="tieneNota(m.id, t.id) ? 'Abrir tarea para editar' : 'Sin nota — clic para ingresar'">
+                    <span class="valor">{{ getNota(m.id, t.id) || '·' }}</span>
+                  </td>
+                }
+                <td class="col-promedio">{{ promedioEstudiante(m.id) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

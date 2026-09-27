@@ -1,0 +1,683 @@
+
+<mat-toolbar class="admin-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Centro de Reportes</h1>
+        <span>Administración de documentos oficiales</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+
+  @if (!seccionActiva) {
+    <div class="reportes-welcome">
+      <h2>Panel de Selección</h2>
+      <p>Elija el tipo de reporte oficial que desea generar</p>
+    </div>
+
+    <div class="reportes-grid">
+      <div class="reporte-card-modern" (click)="abrirSeccion('asistencia')">
+        <div class="card-accent asistencia"></div>
+        <div class="icon-box asistencia"><mat-icon>how_to_reg</mat-icon></div>
+        <div class="info">
+          <h3>Reporte de Asistencia</h3>
+          <p>Porcentaje de asistencia por estudiante. Documento oficial <strong>AL18</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('calificaciones')">
+        <div class="card-accent calificaciones"></div>
+        <div class="icon-box calificaciones"><mat-icon>grade</mat-icon></div>
+        <div class="info">
+          <h3>Reporte de Calificaciones</h3>
+          <p>Promedios por materia y semestre. Documento oficial <strong>AL14</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('cuadrofinal')">
+        <div class="card-accent cuadrofinal"></div>
+        <div class="icon-box cuadrofinal"><mat-icon>summarize</mat-icon></div>
+        <div class="info">
+          <h3>Cuadro Final de Notas</h3>
+          <p>Consolidado anual y supletorios. Documento oficial <strong>AL15</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('nomina')">
+        <div class="card-accent nomina"></div>
+        <div class="icon-box nomina"><mat-icon>people</mat-icon></div>
+        <div class="info">
+          <h3>Nómina de Participantes</h3>
+          <p>Listado de matriculados. Documento oficial <strong>AL9</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('examenGrado')">
+        <div class="card-accent examen"></div>
+        <div class="icon-box examen"><mat-icon>assignment_turned_in</mat-icon></div>
+        <div class="info">
+          <h3>Examen Escrito de Grado</h3>
+          <p>Cuadro de exámenes escritos de grado. Documento oficial <strong>AL23</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('proyectos')">
+        <div class="card-accent proyectos"></div>
+        <div class="icon-box proyectos"><mat-icon>science</mat-icon></div>
+        <div class="info">
+          <h3>Notas Proyectos Productivos</h3>
+          <p>Cuadro de notas de proyectos productivos. Documento oficial <strong>AL19</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('certificado')">
+        <div class="card-accent certificado"></div>
+        <div class="icon-box certificado"><mat-icon>workspace_premium</mat-icon></div>
+        <div class="info">
+          <h3>Certificado de Promoción</h3>
+          <p>Certificado individual por estudiante. Documento oficial <strong>AL16</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('aprobados')">
+        <div class="card-accent aprobados"></div>
+        <div class="icon-box aprobados"><mat-icon>fact_check</mat-icon></div>
+        <div class="info">
+          <h3>Aprobados y No Aprobados</h3>
+          <p>Cuadro de participantes aprobados y no aprobados (grados). Documento oficial <strong>AL22</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+    </div>
+  }
+
+  <!-- ── ASISTENCIA ─────────────────────────────────── -->
+  @if (seccionActiva === 'asistencia') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Reporte de Asistencia</h2>
+        <span class="badge asistencia">OFICIAL AL18</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoSeleccionado" (ngModelChange)="seleccionarCurso()">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornada">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFecha" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoSeleccionado) {
+            <button mat-flat-button class="btn-download navy" (click)="descargarAL18()">
+              <mat-icon>download</mat-icon> AL18
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (loading) {
+      <div class="center-box"><mat-spinner diameter="40"></mat-spinner></div>
+    }
+    @if (!loading && cursoSeleccionado && resumen.length === 0) {
+      <div class="empty-box">
+        <mat-icon>event_busy</mat-icon>
+        <p>Sin registros de asistencia</p>
+      </div>
+    }
+    @if (!loading && resumen.length > 0) {
+      <div class="table-container-modern">
+        <div class="table-info-bar">
+          <div class="info-item">
+            <mat-icon>calendar_today</mat-icon>
+            <span>Clases registradas: <strong>{{ totalClases }}</strong></span>
+          </div>
+          <div class="info-item">
+            <mat-icon>people</mat-icon>
+            <span><strong>{{ resumen.length }}</strong> estudiantes</span>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th class="text-left">Apellidos y Nombres</th>
+                <th>Cédula</th>
+                <th>Presentes</th>
+                <th>Faltas</th>
+                <th>% Asist.</th>
+                <th>Observación</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (est of resumen; track est.id; let i = $index) {
+                <tr>
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td class="text-left font-bold">{{ est.apellidos }} {{ est.nombres }}</td>
+                  <td class="text-center"><code>{{ est.cedula }}</code></td>
+                  <td class="text-center">{{ est.totalPresente }}</td>
+                  <td class="text-center">{{ est.totalFaltas }}</td>
+                  <td class="text-center">
+                    <span class="chip"
+                      [style.color]="getColorPorcentaje(est.porcentaje)"
+                      [style.background]="getColorPorcentaje(est.porcentaje) + '15'">
+                      {{ est.porcentaje }}%
+                    </span>
+                  </td>
+                  <td>
+                    <input type="text" class="table-input"
+                      [(ngModel)]="observaciones[est.id]"
+                      placeholder="Ingrese observación...">
+                  </td>
+                  <td class="text-center">
+                    <button mat-icon-button class="save-btn" (click)="guardarObservacion(est.id)">
+                      <mat-icon>save</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ── CALIFICACIONES AL14 ────────────────────────── -->
+  @if (seccionActiva === 'calificaciones') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Reporte de Calificaciones</h2>
+        <span class="badge gold">OFICIAL AL14</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoCalificaciones" (ngModelChange)="seleccionarCursoCalificaciones()">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Semestre</mat-label>
+          <mat-select [(ngModel)]="semestreCalificaciones" (ngModelChange)="seleccionarCursoCalificaciones()">
+            <mat-option [value]="1">1er Semestre</mat-option>
+            <mat-option [value]="2">2do Semestre</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaCalificaciones" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoCalificaciones) {
+            <button mat-flat-button class="btn-download gold" (click)="descargarAL14()">
+              <mat-icon>download</mat-icon> AL14
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (loadingCalificaciones) {
+      <div class="center-box"><mat-spinner diameter="40"></mat-spinner></div>
+    }
+    @if (!loadingCalificaciones && resumenCalificaciones.length > 0) {
+      <div class="table-container-modern">
+        <div class="table-scroll">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th class="th-fixed">No.</th>
+                <th class="text-left th-nombre-fixed">Apellidos y Nombres</th>
+                @for (materia of materiasCalificaciones; track materia.id) {
+                  <th class="v-text-column">
+                    <div class="v-text-wrapper"><span>{{ materia.nombre }}</span></div>
+                  </th>
+                }
+                @if (!tieneMateriaDiscipilna) {
+                  <th class="v-text-column">
+                    <div class="v-text-wrapper"><span>Disciplina</span></div>
+                  </th>
+                }
+                <th class="th-fixed">Promedio</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (est of resumenCalificaciones; track est.id; let i = $index) {
+                <tr>
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td class="text-left font-bold">{{ est.apellidos }} {{ est.nombres }}</td>
+                  @for (materia of materiasCalificaciones; track materia.id) {
+                    <td class="text-center">
+                      @if (materia.nombre.toLowerCase().includes('disciplina')) {
+                        {{ getNotaDisciplina(est) }}
+                      } @else {
+                        {{ getPromedioMateria(est, materia.id) }}
+                      }
+                    </td>
+                  }
+                  @if (!tieneMateriaDiscipilna) {
+                    <td class="text-center">{{ getNotaDisciplina(est) }}</td>
+                  }
+                  <td class="text-center highlight-cell">{{ getPromedioGeneral(est) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+    @if (!loadingCalificaciones && cursoCalificaciones && resumenCalificaciones.length === 0) {
+      <div class="empty-box">
+        <mat-icon>grade</mat-icon>
+        <p>Sin calificaciones registradas para este semestre</p>
+      </div>
+    }
+  }
+
+  <!-- ── CUADRO FINAL AL15 ──────────────────────────── -->
+  @if (seccionActiva === 'cuadrofinal') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Cuadro Final de Notas</h2>
+        <span class="badge purple">OFICIAL AL15</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoAL15">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornadaAL15">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaAL15" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoAL15) {
+            <button mat-flat-button class="btn-download purple" (click)="descargarAL15()">
+              <mat-icon>download</mat-icon> AL15
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="info-note-box purple">
+      <mat-icon>info</mat-icon>
+      <span>El documento AL15 consolida notas de ambos semestres y exámenes supletorios.</span>
+    </div>
+  }
+
+  <!-- ── NÓMINA AL9 ─────────────────────────────────── -->
+  @if (seccionActiva === 'nomina') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Nómina de Participantes</h2>
+        <span class="badge orange">OFICIAL AL9</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoAL9">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Régimen</mat-label>
+          <mat-select [(ngModel)]="regimenAL9">
+            <mat-option value="SIERRA">Sierra</mat-option>
+            <mat-option value="COSTA">Costa</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornadaAL9">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaAL9" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoAL9) {
+            <button mat-flat-button class="btn-download orange" (click)="descargarAL9()">
+              <mat-icon>download</mat-icon> AL9
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="info-note-box orange">
+      <mat-icon>info</mat-icon>
+      <span>El AL9 incluye todos los estudiantes matriculados con sus datos personales y académicos.</span>
+    </div>
+  }
+
+  <!-- ── EXAMEN GRADO AL23 ──────────────────────────── -->
+  @if (seccionActiva === 'examenGrado') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Examen Escrito de Grado</h2>
+        <span class="badge examen">OFICIAL AL23</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoAL23" (ngModelChange)="seleccionarCursoAL23()">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornadaAL23">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaAL23" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoAL23) {
+            <button mat-flat-button class="btn-download examen" (click)="descargarAL23()">
+              <mat-icon>download</mat-icon> AL23
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (loadingAL23) {
+      <div class="center-box"><mat-spinner diameter="40"></mat-spinner></div>
+    }
+    @if (!loadingAL23 && resumenAL23.length > 0) {
+      <div class="table-container-modern">
+        <div class="table-scroll">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th class="th-fixed">No.</th>
+                <th class="text-left th-nombre-fixed">Apellidos y Nombres</th>
+                @for (materia of materiasAL23; track materia.id) {
+                  <th class="v-text-column">
+                    <div class="v-text-wrapper"><span>{{ materia.nombre }}</span></div>
+                  </th>
+                }
+                <th class="th-fixed">Promedio</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (est of resumenAL23; track est.id; let i = $index) {
+                <tr>
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td class="text-left font-bold">{{ est.apellidos }} {{ est.nombres }}</td>
+                  @for (materia of materiasAL23; track materia.id) {
+                    <td class="text-center">{{ getExamenMateria(est, materia.id) }}</td>
+                  }
+                  <td class="text-center highlight-cell">{{ getPromedioExamen(est) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+    @if (!loadingAL23 && cursoAL23 && resumenAL23.length === 0) {
+      <div class="empty-box">
+        <mat-icon>assignment_turned_in</mat-icon>
+        <p>Sin exámenes registrados para este curso</p>
+      </div>
+    }
+  }
+
+  <!-- ── PROYECTOS PRODUCTIVOS AL19 ─────────────────── -->
+  @if (seccionActiva === 'proyectos') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Notas Proyectos Productivos</h2>
+        <span class="badge proyectos">OFICIAL AL19</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoAL19">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornadaAL19">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaAL19" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoAL19) {
+            <button mat-flat-button class="btn-download proyectos" (click)="descargarAL19()">
+              <mat-icon>download</mat-icon> AL19
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="info-note-box proyectos">
+      <mat-icon>info</mat-icon>
+      <span>El AL19 incluye la nota final de Elaboración de Proyectos Productivos de ambos semestres.</span>
+    </div>
+  }
+
+  <!-- ── CERTIFICADO DE PROMOCIÓN AL16 ──────────────── -->
+  @if (seccionActiva === 'certificado') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Certificado de Promoción</h2>
+        <span class="badge red">OFICIAL AL16</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoAL16" (ngModelChange)="seleccionarCursoAL16()">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornadaAL16">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="span-2">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaAL16" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="info-note-box red">
+      <mat-icon>info</mat-icon>
+      <span>El AL16 es individual: elige el curso, completa lugar y fecha, y descarga el certificado de cada estudiante.</span>
+    </div>
+
+    @if (loadingAL16) {
+      <div class="center-box"><mat-spinner diameter="40"></mat-spinner></div>
+    }
+    @if (!loadingAL16 && estudiantesAL16.length > 0) {
+      <div class="table-container-modern">
+        <div class="table-info-bar">
+          <div class="info-item">
+            <mat-icon>people</mat-icon>
+            <span><strong>{{ estudiantesAL16.length }}</strong> estudiantes</span>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th class="text-left">Apellidos y Nombres</th>
+                <th>Cédula</th>
+                <th>Certificado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (est of estudiantesAL16; track est.id; let i = $index) {
+                <tr>
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td class="text-left font-bold">{{ est.apellidos }} {{ est.nombres }}</td>
+                  <td class="text-center"><code>{{ est.cedula }}</code></td>
+                  <td class="text-center">
+                    <button mat-flat-button class="btn-download red" (click)="descargarAL16(est)"
+                      [disabled]="descargandoAL16 === est.id">
+                      <mat-icon>download</mat-icon> AL16
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+    @if (!loadingAL16 && cursoAL16 && estudiantesAL16.length === 0) {
+      <div class="empty-box">
+        <mat-icon>workspace_premium</mat-icon>
+        <p>No hay estudiantes matriculados en este curso</p>
+      </div>
+    }
+  }
+
+  <!-- ── APROBADOS Y NO APROBADOS AL22 ──────────────── -->
+  @if (seccionActiva === 'aprobados') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Aprobados y No Aprobados</h2>
+        <span class="badge indigo">OFICIAL AL22</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoAL22">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Régimen</mat-label>
+          <mat-select [(ngModel)]="regimenAL22">
+            <mat-option value="SIERRA">Sierra</mat-option>
+            <mat-option value="COSTA">Costa</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornadaAL22">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaAL22" placeholder="Riobamba, 24 de abril del 2026">
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoAL22) {
+            <button mat-flat-button class="btn-download indigo" (click)="descargarAL22()">
+              <mat-icon>download</mat-icon> AL22
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="info-note-box indigo">
+      <mat-icon>info</mat-icon>
+      <span>El AL22 marca APROBADO o NO APROBADO según las notas finales: si alguna materia es menor a 7, el participante queda NO APROBADO.</span>
+    </div>
+  }
+
+</div>

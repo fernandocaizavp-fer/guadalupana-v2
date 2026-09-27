@@ -1,0 +1,147 @@
+<mat-toolbar class="tareas-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ tarea?.nombre || 'Tarea' }}</h1>
+        <span>Detalle de la tarea</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <span class="estado-guardado" [class.err]="estado === 'error'" [class.visible]="estado !== 'idle'">
+      @if (estado === 'guardando') {
+        <mat-icon class="girando">sync</mat-icon> Guardando…
+      } @else if (estado === 'guardado') {
+        <mat-icon>check_circle</mat-icon> Cambios guardados
+      } @else if (estado === 'error') {
+        <mat-icon>error</mat-icon> Error al guardar
+      }
+    </span>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+  }
+
+  @if (!loading && tarea) {
+
+    <!-- INFORMACIÓN DE LA TAREA -->
+    <div class="panel info-panel">
+      <div class="info-main">
+        <span class="chip-semestre">Semestre {{ tarea.semestre }}</span>
+        <h2>{{ tarea.nombre }}</h2>
+        @if (tarea.descripcion) {
+          <p class="info-desc">{{ tarea.descripcion }}</p>
+        } @else {
+          <p class="info-desc muted">Sin descripción.</p>
+        }
+      </div>
+      <div class="info-side">
+        <div class="info-dato">
+          <mat-icon>event</mat-icon>
+          <div>
+            <span class="dato-label">Inicio</span>
+            <span class="dato-valor">{{ (tarea.fechaInicio || tarea.fecha) | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+        <div class="info-dato">
+          <mat-icon>event_busy</mat-icon>
+          <div>
+            <span class="dato-label">Fecha límite</span>
+            <span class="dato-valor">{{ tarea.fechaFin ? (tarea.fechaFin | date:'dd/MM/yyyy') : 'Sin límite' }}</span>
+          </div>
+        </div>
+        <div class="info-dato">
+          <mat-icon>group</mat-icon>
+          <div>
+            <span class="dato-label">Estudiantes</span>
+            <span class="dato-valor">{{ estudiantes.length }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTOS DE LA TAREA -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><mat-icon>folder</mat-icon> Documentos de la tarea</div>
+        <label class="subir-label">
+          <mat-icon>upload_file</mat-icon>
+          {{ subiendo ? 'Subiendo...' : 'Subir archivos' }}
+          <input type="file" multiple hidden (change)="onArchivosSeleccionados($event)" [disabled]="subiendo">
+        </label>
+      </div>
+
+      @if (tarea.archivos?.length > 0) {
+        <div class="files-grid">
+          @for (a of tarea.archivos; track a.id) {
+            <div class="file-chip">
+              <a [href]="a.url" target="_blank" rel="noopener" class="file-link">
+                <mat-icon>description</mat-icon>
+                <span class="file-name">{{ a.nombreOriginal }}</span>
+              </a>
+              <button mat-icon-button class="file-del" (click)="eliminarArchivo(a)" title="Eliminar">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="vacio">Aún no has subido documentos para esta tarea.</p>
+      }
+    </div>
+
+    <!-- ESTUDIANTES: CALIFICAR + ENTREGAS -->
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><mat-icon>grading</mat-icon> Estudiantes</div>
+      </div>
+
+      @if (estudiantes.length > 0) {
+        <div class="alumnos-table">
+          <div class="alumno-row alumno-head">
+            <span class="col-nombre">Estudiante</span>
+            <span class="col-entrega">Entrega</span>
+            <span class="col-nota">Nota</span>
+            <span class="col-obs">Observación</span>
+          </div>
+          @for (e of estudiantes; track e.id) {
+            <div class="alumno-row">
+              <span class="col-nombre">{{ e.apellidos }} {{ e.nombres }}</span>
+              <span class="col-entrega">
+                @if (e.entrega?.archivos?.length > 0) {
+                  <div class="entrega-files">
+                    @for (a of e.entrega.archivos; track a.id) {
+                      <a [href]="a.url" target="_blank" rel="noopener" class="entrega-file">
+                        <mat-icon>insert_drive_file</mat-icon>
+                        <span class="file-name">{{ a.nombreOriginal }}</span>
+                      </a>
+                    }
+                  </div>
+                } @else {
+                  <span class="sin-entrega">Sin entrega</span>
+                }
+              </span>
+              <span class="col-nota">
+                <input type="number" [min]="notaMin" [max]="notaMax" step="0.1"
+                  class="nota-input" [(ngModel)]="notas[e.id].valor" placeholder="—"
+                  (blur)="guardarUno(e.id)" (keyup.enter)="guardarUno(e.id)">
+              </span>
+              <span class="col-obs">
+                <input type="text" class="obs-input" [(ngModel)]="notas[e.id].observacion" placeholder="Opcional"
+                  (blur)="guardarUno(e.id)">
+              </span>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="vacio">No hay estudiantes matriculados en este curso.</p>
+      }
+    </div>
+
+  }
+</div>

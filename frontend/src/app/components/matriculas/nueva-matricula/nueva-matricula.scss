@@ -1,0 +1,228 @@
+$navy: #1a2a5e;
+$navy-light: #2a4f9f;
+$gold: #c8a84b;
+$bg-body: #f4f7fa;
+$border: #e2e8f0;
+$white: #ffffff;
+
+.admin-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e);
+  color: $white;
+  height: 85px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      span { font-size: 13px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    }
+  }
+
+  .toolbar-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 500;
+  }
+}
+
+.flex-spacer { flex: 1; }
+
+.page-wrapper {
+  padding: 40px;
+  background-color: $bg-body;
+  min-height: calc(100vh - 85px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.enrollment-card {
+  border-radius: 20px !important;
+  border: 1px solid $border !important;
+  box-shadow: 0 10px 30px rgba($navy, 0.05) !important;
+  overflow: hidden;
+
+  .main-card-header {
+    background: linear-gradient(135deg, $navy, $navy-light);
+    padding: 24px 40px !important;
+    
+    mat-card-title {
+      color: white !important;
+      font-size: 18px !important;
+      font-weight: 700 !important;
+      margin: 0 !important;
+    }
+  }
+
+  mat-card-content { padding: 40px !important; }
+}
+
+.form-section {
+  margin-bottom: 20px;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    mat-icon {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 10px;
+      &.icon-navy { background: rgba($navy, 0.1); color: $navy; }
+      &.icon-gold { background: rgba($gold, 0.1); color: $gold; }
+    }
+
+    h3 { margin: 0; font-size: 15px; font-weight: 700; color: $navy; text-transform: uppercase; letter-spacing: 1px; }
+  }
+
+  .sub-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: $gold;
+    text-transform: uppercase;
+    margin: 18px 0 12px;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &::after { content: ''; flex: 1; height: 1px; background: #eee; }
+  }
+
+  // Encabezado del representante: título + botones "Padre / Madre" a la derecha
+  .rep-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 18px 0 12px;
+
+    .sub-label {
+      margin: 0;
+      &::after { display: none; }
+    }
+
+    .rep-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .rep-hint {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .rep-btn {
+        min-width: 0;
+        height: 34px;
+        line-height: 34px;
+        padding: 0 14px !important;
+        border-radius: 8px;
+        font-weight: 600;
+        border-color: $border !important;
+        color: $navy;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          margin-right: 4px;
+        }
+
+        &:hover { background: rgba($navy, 0.05); }
+      }
+    }
+  }
+}
+
+// Grids Responsivos
+.row-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.row-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.row-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.full-width { width: 100%; }
+
+mat-form-field {
+  width: 100%;
+  ::ng-deep .mat-mdc-text-field-wrapper { background: #fdfdfd; border-radius: 8px; }
+}
+
+mat-divider { margin: 22px 0 !important; border-color: #f1f1f1 !important; }
+
+.form-actions {
+  padding: 0 40px 40px !important;
+  gap: 15px;
+
+  .btn-cancel {
+    color: #64748b;
+    font-weight: 600;
+    height: 52px;
+    padding: 0 25px !important;
+    border-radius: 12px;
+    &:hover { background: #f1f5f9; }
+  }
+
+  .btn-submit {
+    background: linear-gradient(135deg, $navy, $navy-light) !important;
+    color: white !important;
+    padding: 0 35px !important;
+    height: 52px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba($navy, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      margin-right: 8px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+  }
+}
+
+// Mobile adjust
+@media (max-width: 900px) {
+  .row-grid-3, .row-grid-4 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .row-grid-2, .row-grid-3, .row-grid-4 { grid-template-columns: 1fr; }
+  .page-wrapper { padding: 15px; }
+  .enrollment-card mat-card-content { padding: 20px !important; }
+}

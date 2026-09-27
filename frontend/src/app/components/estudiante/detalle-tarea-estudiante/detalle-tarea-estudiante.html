@@ -1,0 +1,101 @@
+<mat-toolbar class="tarea-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ tarea?.nombre || 'Tarea' }}</h1>
+        <span>Detalle de la tarea</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="nota-box" [class.nota-low]="miNota !== null && +miNota < 7">
+      <span class="nota-label">NOTA</span>
+      <span class="nota-valor">{{ miNota !== null ? miNota : '-' }}</span>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+  }
+
+  @if (!loading && tarea) {
+
+    <!-- INFORMACIÓN -->
+    <div class="panel info-panel">
+      <span class="chip-semestre">Semestre {{ tarea.semestre }}</span>
+      <h2>{{ tarea.nombre }}</h2>
+      @if (tarea.descripcion) {
+        <p class="info-desc">{{ tarea.descripcion }}</p>
+      } @else {
+        <p class="info-desc muted">Sin descripción.</p>
+      }
+      <div class="info-fecha">
+        <mat-icon>event</mat-icon> Inicio: {{ (tarea.fechaInicio || tarea.fecha) | date:'dd/MM/yyyy' }}
+        @if (tarea.fechaFin) {
+          <span class="limite" [class.vencido]="plazoVencido">
+            <mat-icon>event_busy</mat-icon> Entrega hasta: {{ tarea.fechaFin | date:'dd/MM/yyyy' }}
+            @if (plazoVencido) { <strong>(plazo finalizado)</strong> }
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- MATERIAL DEL DOCENTE -->
+    <div class="panel">
+      <div class="panel-title"><mat-icon>folder</mat-icon> Material de la tarea</div>
+      @if (tarea.archivos?.length > 0) {
+        <div class="files-grid">
+          @for (a of tarea.archivos; track a.id) {
+            <a [href]="a.url" target="_blank" rel="noopener" class="file-chip">
+              <mat-icon>description</mat-icon>
+              <span class="file-name">{{ a.nombreOriginal }}</span>
+            </a>
+          }
+        </div>
+      } @else {
+        <p class="vacio">El docente no adjuntó material para esta tarea.</p>
+      }
+    </div>
+
+    <!-- MI ENTREGA -->
+    <div class="panel entrega-panel">
+      <div class="panel-head">
+        <div class="panel-title"><mat-icon>cloud_upload</mat-icon> Mi entrega</div>
+        @if (plazoVencido) {
+          <span class="subir-bloqueado">
+            <mat-icon>lock</mat-icon> Plazo finalizado
+          </span>
+        } @else {
+          <label class="subir-label">
+            <mat-icon>upload_file</mat-icon>
+            {{ subiendo ? 'Subiendo...' : 'Subir archivos' }}
+            <input type="file" multiple hidden (change)="onSeleccionEntrega($event)" [disabled]="subiendo">
+          </label>
+        }
+      </div>
+
+      @if (miEntrega?.archivos?.length > 0) {
+        <div class="files-grid">
+          @for (a of miEntrega.archivos; track a.id) {
+            <div class="file-chip own">
+              <a [href]="a.url" target="_blank" rel="noopener" class="file-link">
+                <mat-icon>insert_drive_file</mat-icon>
+                <span class="file-name">{{ a.nombreOriginal }}</span>
+              </a>
+              <button mat-icon-button class="file-del" (click)="eliminarArchivoEntrega(a)" title="Eliminar">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="vacio">Aún no has subido tu entrega. Usa "Subir archivos" para enviar tu trabajo.</p>
+      }
+    </div>
+
+  }
+</div>

@@ -1,0 +1,87 @@
+<mat-toolbar class="disciplina-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ materia?.nombre || 'Materia' }}</h1>
+        <span>Registro de nota de disciplina</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="semestre-tabs">
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 1" (click)="cambiarSemestre(1)">
+        1er Semestre
+      </button>
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 2" (click)="cambiarSemestre(2)">
+        2do Semestre
+      </button>
+    </div>
+    <div class="students-chip">
+      <mat-icon>group</mat-icon>
+      <div>
+        <span class="chip-valor">{{ matriculas.length }}</span>
+        <span class="chip-label">Estudiantes</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+  }
+
+  @if (!loading) {
+
+    <div class="info-card">
+      <div class="info-icon">
+        <mat-icon>info</mat-icon>
+      </div>
+      <p>Ingresa la nota de disciplina de tu materia para cada estudiante en el semestre seleccionado. El sistema ponderará las notas de disciplina de todos los profesores para obtener la nota final.</p>
+    </div>
+
+    @if (matriculas.length === 0) {
+      <div class="center">
+        <mat-icon class="empty-icon">people</mat-icon>
+        <p>No hay estudiantes matriculados</p>
+      </div>
+    }
+
+    @if (matriculas.length > 0) {
+
+      <div class="tabla-card">
+        <div class="tabla-header">
+          <span class="col-num">No.</span>
+          <span class="col-nombre">Apellidos y Nombres</span>
+          <span class="col-nota">Nota Disciplina</span>
+        </div>
+
+        @for (matricula of matriculas; track matricula.id; let i = $index) {
+          <div class="tabla-row">
+            <span class="col-num">
+              <span class="num-badge">{{ i + 1 }}</span>
+            </span>
+            <span class="col-nombre">{{ matricula.apellidos }} {{ matricula.nombres }}</span>
+            <span class="col-nota">
+              <input type="number" class="nota-input"
+                [(ngModel)]="notas[matricula.id]"
+                [min]="notaMin" [max]="notaMax" step="0.1"
+                placeholder="—">
+            </span>
+          </div>
+        }
+      </div>
+
+      <div class="guardar-row">
+        <button mat-flat-button class="guardar-btn"
+          (click)="guardar()" [disabled]="guardando">
+          <mat-icon>save</mat-icon>
+          {{ guardando ? 'Guardando...' : 'Guardar Notas de Disciplina' }}
+        </button>
+      </div>
+
+    }
+  }
+</div>

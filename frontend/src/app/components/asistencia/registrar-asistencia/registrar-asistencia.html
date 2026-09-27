@@ -1,0 +1,140 @@
+<mat-toolbar class="asistencia-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ materia?.nombre || 'Materia' }}</h1>
+        <span>Registro y historial de asistencia</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="stats-chips">
+      <div class="stat-chip presente">
+        <span class="chip-valor">{{ totalPresentes }}</span>
+        <span class="chip-label">Presentes</span>
+      </div>
+      <div class="stat-chip ausente">
+        <span class="chip-valor">{{ totalAusentes }}</span>
+        <span class="chip-label">Ausentes</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+  }
+
+  @if (!loading) {
+
+    <!-- REGISTRO -->
+    <div class="registro-card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="card-icon">
+            <mat-icon>edit_calendar</mat-icon>
+          </div>
+          <div>
+            <h2>{{ editandoId ? 'Editar Asistencia' : 'Registrar Nueva Asistencia' }}</h2>
+            <p>Selecciona la fecha y marca el estado de cada estudiante</p>
+          </div>
+        </div>
+        <div class="fecha-row">
+          <mat-icon class="fecha-icon">event</mat-icon>
+          <input type="date" [(ngModel)]="fecha" class="fecha-input">
+        </div>
+      </div>
+
+      <div class="acciones-masivas">
+        <button mat-stroked-button class="accion-btn verde" (click)="marcarTodos()">
+          <mat-icon>check_box</mat-icon> Todos presentes
+        </button>
+        <button mat-stroked-button class="accion-btn rojo" (click)="desmarcarTodos()">
+          <mat-icon>check_box_outline_blank</mat-icon> Desmarcar todos
+        </button>
+      </div>
+
+      <div class="estudiantes-lista">
+        @for (matricula of matriculas; track matricula.id; let i = $index) {
+          <div class="estudiante-row"
+            [class.presente]="presentes[matricula.id]"
+            [class.ausente]="!presentes[matricula.id]"
+            (click)="togglePresente(matricula.id)">
+            <div class="row-num">{{ i + 1 }}</div>
+            <div class="row-nombre">{{ matricula.apellidos }} {{ matricula.nombres }}</div>
+            <div class="row-estado">
+              <span class="estado-label">
+                {{ presentes[matricula.id] ? 'PRESENTE' : 'AUSENTE' }}
+              </span>
+              <mat-icon class="row-icon">
+                {{ presentes[matricula.id] ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="guardar-row">
+        @if (editandoId) {
+          <button mat-stroked-button class="cancelar-btn" (click)="cancelarEdicion()" [disabled]="guardando">
+            <mat-icon>close</mat-icon>
+            Cancelar edición
+          </button>
+        }
+        <button mat-flat-button class="guardar-btn" (click)="guardar()" [disabled]="guardando">
+          <mat-icon>save</mat-icon>
+          {{ guardando ? 'Guardando...' : (editandoId ? 'Guardar Cambios' : 'Guardar Asistencia') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="section-header">
+      <div class="section-title">
+        <mat-icon>history</mat-icon>
+        Historial de Asistencias
+      </div>
+      <span class="section-count">{{ asistencias.length }} registro{{ asistencias.length !== 1 ? 's' : '' }}</span>
+    </div>
+
+    @if (asistencias.length === 0) {
+      <div class="center">
+        <mat-icon class="empty-icon">event_busy</mat-icon>
+        <p>No hay registros de asistencia aún</p>
+      </div>
+    }
+
+    @if (asistencias.length > 0) {
+      <div class="historial-list">
+        @for (asistencia of asistencias; track asistencia.id) {
+          <div class="historial-item">
+            <div class="historial-fecha">
+              <mat-icon>event</mat-icon>
+              <span>{{ asistencia.fecha | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="historial-stats">
+              <span class="stat presente">
+                <mat-icon>check_circle</mat-icon>
+                {{ contarPresentes(asistencia) }} presentes
+              </span>
+              <span class="stat ausente">
+                <mat-icon>cancel</mat-icon>
+                {{ contarAusentes(asistencia) }} ausentes
+              </span>
+            </div>
+            <button mat-icon-button class="edit-btn" (click)="editarAsistencia(asistencia)" title="Editar registro">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="delete-btn" (click)="eliminarAsistencia(asistencia.id)">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+  }
+</div>

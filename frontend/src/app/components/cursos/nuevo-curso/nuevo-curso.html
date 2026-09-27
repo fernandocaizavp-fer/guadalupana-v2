@@ -1,0 +1,58 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ cursoId ? 'Editar Curso' : 'Nuevo Curso' }}</h1>
+        <span>{{ cursoId ? 'Actualización de curso' : 'Registro de curso' }}</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ cursoId ? 'Editar Curso' : 'Crear Curso' }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ cursoId ? 'Modifica los datos del curso' : 'Se crearán automáticamente las 10 materias del curso' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Rama Artesanal</mat-label>
+        <input matInput [(ngModel)]="datos.ramaArtesanal" placeholder="Ej: Corte y Confección">
+        <mat-icon matSuffix>build</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Región</mat-label>
+        <input matInput [(ngModel)]="datos.anioFormativo" placeholder="Ej: Sierra">
+        <mat-icon matSuffix>public</mat-icon>
+      </mat-form-field>
+
+      <div class="row">
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de Inicio</mat-label>
+          <input matInput type="date" [(ngModel)]="datos.fechaInicio">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha de Fin</mat-label>
+          <input matInput type="date" [(ngModel)]="datos.fechaFin">
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="guardar()" [disabled]="loading">
+        <mat-icon>save</mat-icon> {{ cursoId ? 'GUARDAR CAMBIOS' : 'CREAR CURSO' }}
+      </button>
+      <button mat-stroked-button (click)="volver()">CANCELAR</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

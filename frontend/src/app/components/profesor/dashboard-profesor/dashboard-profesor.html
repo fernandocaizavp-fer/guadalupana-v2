@@ -1,0 +1,382 @@
+<mat-toolbar class="topbar">
+
+  <div class="brand">
+
+    <img src="logo.jpg" alt="logo">
+
+    <div class="brand-text">
+      <h2>Portal Docente</h2>
+      <span>Centro de Formación Artesanal</span>
+    </div>
+
+  </div>
+
+  <span class="spacer"></span>
+
+  <div class="topbar-right">
+
+    <div class="user-box">
+
+      <div class="avatar">
+        {{ usuario?.nombre?.charAt(0) }}
+      </div>
+
+      <div class="user-info">
+        <small>Docente</small>
+        <strong>
+          {{ usuario?.nombre }}
+        </strong>
+      </div>
+
+    </div>
+
+    <button mat-icon-button class="logout-btn" (click)="logout()">
+
+      <mat-icon>
+        logout
+      </mat-icon>
+
+    </button>
+
+  </div>
+
+</mat-toolbar>
+
+<div class="content">
+
+  <!-- HEADER -->
+
+  <div class="page-header">
+
+    <div>
+      <h1>Mis Cursos Asignados</h1>
+      <p>
+        Administra tareas, asistencia y calificaciones
+      </p>
+    </div>
+
+    <div class="stats">
+
+      <div class="stat-card">
+        <mat-icon>school</mat-icon>
+
+        <div>
+          <strong>{{ cursosAgrupados.length }}</strong>
+          <span>Cursos</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <mat-icon>campaign</mat-icon>
+
+        <div>
+          <strong>{{ anuncios.length }}</strong>
+          <span>Anuncios</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+
+  <div class="main-layout">
+
+    <!-- CURSOS -->
+
+    <div class="left-column">
+
+      @if (loading) {
+        <div class="center">
+          <mat-spinner></mat-spinner>
+        </div>
+      }
+
+      @if (!loading && cursosAgrupados.length === 0) {
+
+        <div class="empty-state">
+
+          <mat-icon>school</mat-icon>
+
+          <h3>No tienes materias asignadas</h3>
+
+          <p>
+            Contacta con administración
+          </p>
+
+        </div>
+
+      }
+
+      @if (!loading && cursosAgrupados.length > 0) {
+
+        <div class="courses-list">
+
+          @for (curso of cursosAgrupados; track curso.id) {
+
+            <div class="course-card">
+
+              <!-- HEADER CURSO -->
+
+              <div class="course-header">
+
+                <div class="course-icon">
+                  <mat-icon>menu_book</mat-icon>
+                </div>
+
+                <div class="course-info">
+
+                  <h3>{{ curso.ramaArtesanal }}</h3>
+
+                  <span class="period">
+                    {{ curso.anioFormativo }}
+                  </span>
+
+                </div>
+
+              </div>
+
+              <!-- MATERIAS -->
+
+              <div class="subjects">
+
+                @for (materia of curso.materias; track materia.id) {
+
+                  <div class="subject-row">
+
+                    <!-- INFO -->
+
+                    <div class="subject-info">
+
+                      <div class="subject-icon">
+                        <mat-icon>book</mat-icon>
+                      </div>
+
+                      <div>
+
+                        <span class="subject-name">
+                          {{ materia.nombre }}
+                        </span>
+
+                        @if (materia.esSubmateria) {
+
+                          <div class="badges">
+
+                            <span class="badge practice">
+                              Práctica
+                            </span>
+
+                            <span class="badge theory">
+                              Teoría
+                            </span>
+
+                          </div>
+
+                        }
+
+                      </div>
+
+                    </div>
+
+                    <!-- BOTONES -->
+
+                    <div class="actions">
+
+                      @if (materia.esSubmateria) {
+
+                        <button mat-flat-button
+                          class="btn primary"
+                          (click)="irANotas(curso.id, materia.id)">
+                          <mat-icon>build</mat-icon>
+                          Tareas de Práctica
+                        </button>
+
+                        <button mat-flat-button
+                          class="btn secondary"
+                          (click)="irANotas(curso.id, materia.idGemela)">
+                          <mat-icon>menu_book</mat-icon>
+                          Tareas de Teoría
+                        </button>
+
+                      } @else {
+
+                        <button mat-flat-button
+                          class="btn primary"
+                          (click)="irANotas(curso.id, materia.id)">
+                          <mat-icon>assignment</mat-icon>
+                          Tareas
+                        </button>
+
+                        <button mat-flat-button
+                          class="btn gold"
+                          (click)="irASupletorio(materia.id)">
+                          <mat-icon>grade</mat-icon>
+                          Supletorio
+                        </button>
+
+                      }
+
+                      <button mat-flat-button
+                        class="btn success"
+                        (click)="irAAsistencia(materia.id)">
+                        <mat-icon>how_to_reg</mat-icon>
+                        Asistencia
+                      </button>
+
+                      <button mat-flat-button
+                        class="btn purple"
+                        (click)="irADisciplina(materia.id)">
+                        <mat-icon>star</mat-icon>
+                        Disciplina
+                      </button>
+
+                      @if (materia.esSubmateria) {
+
+                        <button mat-flat-button
+                          class="btn orange"
+                          [matMenuTriggerFor]="examenMenu">
+                          <mat-icon>school</mat-icon>
+                          Examen de grado
+                          <mat-icon>arrow_drop_down</mat-icon>
+                        </button>
+
+                        <mat-menu #examenMenu="matMenu">
+                          <button mat-menu-item (click)="irAExamenGrado(materia.id)">
+                            <mat-icon>build</mat-icon>
+                            <span>Examen de grado — Práctica</span>
+                          </button>
+                          <button mat-menu-item (click)="irAExamenGrado(materia.idGemela)">
+                            <mat-icon>menu_book</mat-icon>
+                            <span>Examen de grado — Teoría</span>
+                          </button>
+                        </mat-menu>
+
+                      } @else {
+
+                        <button mat-flat-button
+                          class="btn orange"
+                          (click)="irAExamenGrado(materia.id)">
+                          <mat-icon>school</mat-icon>
+                          Examen de grado
+                        </button>
+
+                      }
+
+                    </div>
+
+                  </div>
+
+                }
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      }
+
+    </div>
+
+    <!-- ANUNCIOS -->
+
+    <div class="right-column">
+
+      <div class="announcements">
+
+        <div class="announcement-header">
+
+          <mat-icon>campaign</mat-icon>
+
+          <h2>Anuncios</h2>
+
+          <span class="spacer"></span>
+
+          <button mat-flat-button class="manage-btn" (click)="irAAnuncios()">
+            <mat-icon>add</mat-icon>
+            Gestionar
+          </button>
+
+        </div>
+
+        @if (anuncios.length === 0) {
+
+          <div class="empty-announcements">
+
+            <div class="empty-announcements-icono">
+              <mat-icon>campaign</mat-icon>
+            </div>
+
+            <p>Aún no hay anuncios</p>
+
+            <span>Crea uno con el botón “Gestionar”</span>
+
+          </div>
+
+        }
+
+        @if (anuncios.length > 0) {
+
+          <div class="announcement-list">
+
+            @for (anuncio of anuncios; track anuncio.id) {
+
+              <div class="announcement-card">
+
+                @if (anuncio.imagen) {
+
+                  <img
+                    [src]="urlImagen(anuncio.imagen)"
+                    class="announcement-image"
+                    alt="{{ anuncio.titulo }}"
+                    (click)="abrirImagen(urlImagen(anuncio.imagen))"
+                  >
+
+                }
+
+                <div class="announcement-body">
+
+                  <span class="announcement-date">
+                    {{ anuncio.createdAt | date:'dd/MM/yyyy' }}
+                  </span>
+
+                  <h4>{{ anuncio.titulo }}</h4>
+
+                  @if (anuncio.materiaNombre) {
+                    <div class="anuncio-materia-chip">
+                      <mat-icon>menu_book</mat-icon>
+                      <span>{{ anuncio.materiaNombre }}</span>
+                    </div>
+                  }
+
+                  <p>{{ anuncio.contenido }}</p>
+
+                  @if (etiquetaAutor(anuncio)) {
+                    <div class="announcement-author">
+                      <mat-icon>person</mat-icon>
+                      <span>Publicado por: {{ etiquetaAutor(anuncio) }}</span>
+                    </div>
+                  }
+
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<app-visor-imagen [src]="imagenAmpliada" (cerrar)="imagenAmpliada = null" />

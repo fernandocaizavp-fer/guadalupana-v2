@@ -1,0 +1,91 @@
+<mat-toolbar class="examen-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ materia?.nombre || 'Materia' }}</h1>
+        <span>Examen Escrito de Grado@if (materia?.materiaParent) { &nbsp;·&nbsp;{{ materia.materiaParent }} }</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="students-chip">
+      <mat-icon>assignment_turned_in</mat-icon>
+      <div>
+        <span class="chip-valor">{{ estudiantesConNota }}/{{ estudiantes.length }}</span>
+        <span class="chip-label">Calificados</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+  }
+
+  @if (!loading) {
+    <div class="info-card">
+      <div class="info-icon">
+        <mat-icon>info</mat-icon>
+      </div>
+      @if (ventanaAbierta) {
+        <p>El plazo de exámenes de grado está <strong>abierto</strong>. Ingresa la nota de cada estudiante; esta nota corresponde al examen final del curso.</p>
+      } @else {
+        <p>El plazo general de exámenes de grado está <strong>cerrado</strong>. Solo podrás registrar notas de estudiantes con una recalificación individual vigente (habilitada por administración).</p>
+      }
+    </div>
+
+    @if (estudiantes.length === 0) {
+      <div class="center">
+        <mat-icon class="empty-icon">people</mat-icon>
+        <p>No hay estudiantes matriculados</p>
+      </div>
+    }
+
+    @if (estudiantes.length > 0) {
+      <div class="tabla-card">
+        <div class="tabla-header">
+          <span class="col-num">No.</span>
+          <span class="col-nombre">Apellidos y Nombres</span>
+          <span class="col-nota">Nota Examen</span>
+        </div>
+
+        @for (est of estudiantes; track est.id; let i = $index) {
+          <div class="tabla-row" [class.habilitado]="est.habilitado">
+            <span class="col-num">
+              <span class="num-badge" [class.num-gold]="notas[est.id] !== null && notas[est.id] !== undefined">
+                {{ i + 1 }}
+              </span>
+            </span>
+            <span class="col-nombre">
+              {{ est.apellidos }} {{ est.nombres }}
+              @if (!ventanaAbierta && est.habilitado) {
+                <span class="habilitado-badge">Recalificación</span>
+              }
+            </span>
+            <span class="col-nota">
+              @if (est.habilitado) {
+                <input type="number" class="nota-input"
+                  [(ngModel)]="notas[est.id]"
+                  [min]="notaMin" [max]="notaMax" step="0.1"
+                  placeholder="—">
+              } @else {
+                <span class="no-sup">No habilitado</span>
+              }
+            </span>
+          </div>
+        }
+      </div>
+
+      <div class="guardar-row">
+        <button mat-flat-button class="guardar-btn"
+          (click)="guardar()" [disabled]="guardando">
+          <mat-icon>save</mat-icon>
+          {{ guardando ? 'Guardando...' : 'Guardar Exámenes de Grado' }}
+        </button>
+      </div>
+    }
+  }
+</div>

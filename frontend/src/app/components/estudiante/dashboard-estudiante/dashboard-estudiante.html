@@ -1,0 +1,151 @@
+<mat-toolbar style="background: linear-gradient(135deg, #1a2a5e, #0d1a3e); color: white;">
+  <img src="logo.jpg" alt="Logo" style="height: 40px; margin-right: 12px;">
+  <span>Portal Estudiantil</span>
+  <span class="spacer"></span>
+  <div class="semestre-tabs">
+    <button class="tab-btn" [class.active]="semestreSeleccionado === 1" (click)="cambiarSemestre(1)">
+      1er Semestre
+    </button>
+    <button class="tab-btn" [class.active]="semestreSeleccionado === 2" (click)="cambiarSemestre(2)">
+      2do Semestre
+    </button>
+  </div>
+  <span style="color: #c8a84b; margin: 0 12px; font-size: 14px;">
+    <mat-icon style="vertical-align: middle; font-size: 18px;">account_circle</mat-icon>
+    {{ usuario?.nombre }}
+  </span>
+  <button mat-icon-button style="color: white;" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="content">
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  }
+
+  @if (!loading && !matricula) {
+    <div class="center">
+      <mat-icon class="empty-icon">school</mat-icon>
+      <p>No tienes matrícula registrada</p>
+    </div>
+  }
+
+  @if (!loading && matricula) {
+    <div class="main-layout">
+
+      <!-- COLUMNA IZQUIERDA: CALIFICACIONES -->
+      <div class="columna-notas">
+        <div class="estudiante-header">
+          <div class="avatar"><mat-icon>person</mat-icon></div>
+          <div class="estudiante-info">
+            <h1>{{ matricula.apellidos }} {{ matricula.nombres }}</h1>
+            <p>{{ matricula.curso?.ramaArtesanal }} — {{ matricula.curso?.anioFormativo }}</p>
+            <span class="cedula">CI: {{ matricula.cedula }}</span>
+          </div>
+          <div class="header-actions">
+            <div class="doc-card" (click)="descargarCertificado()">
+              <div class="doc-icon"><mat-icon>workspace_premium</mat-icon></div>
+              <div>
+                <h4>Certificado de Matrícula</h4>
+                <span class="download-hint">Click para descargar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="section-title">Mis Calificaciones — Semestre {{ semestreSeleccionado }}</h2>
+
+        @if (materiasConTareas.length === 0) {
+          <div class="center">
+            <mat-icon class="empty-icon">grade</mat-icon>
+            <p>No hay tareas registradas en el semestre {{ semestreSeleccionado }}</p>
+          </div>
+        }
+
+        @if (materiasConTareas.length > 0) {
+          <div class="materias-list">
+            @for (materia of materiasConTareas; track materia.id) {
+              <div class="materia-row" [class.fila-disciplina]="materia.esDisciplina" (click)="irAMateria(materia)">
+                <div class="materia-icon">
+                  <mat-icon>{{ materia.esDisciplina ? 'star' : 'menu_book' }}</mat-icon>
+                </div>
+                <div class="materia-info">
+                  <h3>{{ materia.nombre }}</h3>
+                  @if (!materia.esDisciplina) {
+                    <span class="tareas-count">{{ materia.tareas.length }} tareas registradas</span>
+                  }
+                </div>
+                <div class="materia-promedio">
+                  <span class="prom-label">Promedio</span>
+                  <span class="prom-valor">{{ materia.promedio }}</span>
+                </div>
+                @if (!materia.esDisciplina) {
+                  <mat-icon class="arrow">chevron_right</mat-icon>
+                } @else {
+                  <!-- Espacio invisible para alinear el cuadro de promedio con las demás filas -->
+                  <mat-icon class="arrow arrow-placeholder">chevron_right</mat-icon>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- COLUMNA DERECHA: ANUNCIOS -->
+      <div class="columna-anuncios">
+        <div class="anuncios-header">
+          <mat-icon>campaign</mat-icon>
+          <h2>Anuncios del Centro</h2>
+        </div>
+
+        @if (anuncios.length === 0) {
+          <div class="sin-anuncios">
+            <div class="sin-anuncios-icono">
+              <mat-icon>campaign</mat-icon>
+            </div>
+            <p>Aún no hay anuncios</p>
+            <span>Las novedades del centro aparecerán aquí</span>
+          </div>
+        }
+
+        @if (anuncios.length > 0) {
+          <div class="anuncios-list">
+            @for (anuncio of anuncios; track anuncio.id) {
+              <div class="anuncio-card">
+                @if (anuncio.imagen) {
+                  <img [src]="urlImagen(anuncio.imagen)"
+                    alt="{{ anuncio.titulo }}" class="anuncio-img"
+                    (click)="abrirImagen(urlImagen(anuncio.imagen))">
+                }
+                <div class="anuncio-body">
+                  <div class="anuncio-fecha">
+                    <mat-icon>calendar_today</mat-icon>
+                    {{ anuncio.createdAt | date:'dd/MM/yyyy' }}
+                  </div>
+                  <h4>{{ anuncio.titulo }}</h4>
+                  @if (anuncio.materiaNombre) {
+                    <div class="anuncio-materia-chip">
+                      <mat-icon>menu_book</mat-icon>
+                      <span>{{ anuncio.materiaNombre }}</span>
+                    </div>
+                  }
+                  <p>{{ anuncio.contenido }}</p>
+                  @if (etiquetaAutor(anuncio)) {
+                    <div class="anuncio-autor">
+                      <mat-icon>person</mat-icon>
+                      <span>Publicado por: {{ etiquetaAutor(anuncio) }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+</div>
+
+<app-visor-imagen [src]="imagenAmpliada" (cerrar)="imagenAmpliada = null" />

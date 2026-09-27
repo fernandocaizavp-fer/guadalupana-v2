@@ -1,0 +1,55 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ materiaParent }} — Semestre {{ semestre }}</h1>
+        <span>Submaterias</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  }
+
+  @if (!loading) {
+    <div class="header">
+      <h1>{{ materiaParent }}</h1>
+      <p>Selecciona una submateria para ver tus tareas y calificaciones</p>
+    </div>
+
+    @if (submaterias.length === 0) {
+      <div class="center">
+        <mat-icon class="empty-icon">book</mat-icon>
+        <p>No hay submaterias registradas</p>
+      </div>
+    }
+
+    @if (submaterias.length > 0) {
+      <div class="submaterias-list">
+        @for (sub of submaterias; track sub.id) {
+          <div class="submateria-row" (click)="verTareasSubmateria(sub.id)">
+            <div class="sub-icon">
+              <mat-icon>{{ materiaParent === 'Práctica' ? 'build' : 'menu_book' }}</mat-icon>
+            </div>
+            <div class="sub-info">
+              <h3>{{ sub.nombre }}</h3>
+              <span class="sub-tareas">{{ sub.tareas.length }} tareas registradas</span>
+            </div>
+            <div class="sub-promedio">
+              <span class="prom-label">Promedio</span>
+              <span class="prom-valor" [style.color]="getColor(sub.promedio)">{{ sub.promedio }}</span>
+            </div>
+            <mat-icon class="arrow">chevron_right</mat-icon>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

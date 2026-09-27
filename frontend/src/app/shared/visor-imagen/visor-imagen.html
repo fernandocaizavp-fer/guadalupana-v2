@@ -1,0 +1,10 @@
+@if (src) {
+  <div class="visor-backdrop" (click)="onCerrar()">
+    <button type="button" class="visor-cerrar" (click)="onCerrar()" aria-label="Cerrar">
+      &times;
+    </button>
+    <div class="visor-scroll" (click)="$event.stopPropagation()">
+      <img [src]="src" alt="Imagen del anuncio" class="visor-img">
+    </div>
+  </div>
+}

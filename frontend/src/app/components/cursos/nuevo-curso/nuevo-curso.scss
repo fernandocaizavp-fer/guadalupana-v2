@@ -1,0 +1,83 @@
+// ── ENCABEZADO ESTÁNDAR (flecha en cuadrito) ──────────
+.page-toolbar {
+  background: linear-gradient(135deg, #1a2a5e, #0d1a3e) !important;
+  color: white !important;
+  height: 85px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+    gap: 16px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+      &:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      span {
+        font-size: 12px;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+  }
+
+  .flex-spacer { flex: 1 1 auto; }
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.form-card {
+  width: 100%;
+  max-width: 600px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+mat-card-actions {
+  padding: 16px;
+  display: flex;
+  gap: 10px;
+}

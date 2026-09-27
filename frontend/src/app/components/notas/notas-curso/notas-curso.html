@@ -1,0 +1,70 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Notas — {{ curso?.ramaArtesanal }} {{ curso?.anioFormativo }}</h1>
+        <span>Gestión de materias y calificaciones</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="semestre-tabs">
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 1" (click)="cambiarSemestre(1)">
+        1er Semestre
+      </button>
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 2" (click)="cambiarSemestre(2)">
+        2do Semestre
+      </button>
+    </div>
+    <mat-form-field appearance="outline" class="lugar-fecha">
+      <mat-label>Lugar y Fecha</mat-label>
+      <input matInput [(ngModel)]="lugarFecha" placeholder="Ej: Riobamba, 20 de abril del 2026">
+    </mat-form-field>
+    <button mat-raised-button style="margin-left: 12px; background: #c8a84b; color: #1a2a5e; font-weight: 700;"
+      (click)="descargarAL14()">
+      <mat-icon>download</mat-icon> Descargar AL14
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  }
+
+  @if (!loading) {
+    <div class="info-bar">
+      <span>Semestre {{ semestreSeleccionado }} — Solo lectura</span>
+      <span>{{ matriculas.length }} estudiantes</span>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="notas-table">
+        <thead>
+          <tr>
+            <th class="th-num">No.</th>
+            <th class="th-nombre">Nombres y Apellidos</th>
+            @for (materia of materias; track materia.id) {
+              <th class="th-materia">{{ materia.nombre }}</th>
+            }
+            <th class="th-promedio">Promedio</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (matricula of matriculas; track matricula.id; let i = $index) {
+            <tr>
+              <td class="td-num">{{ i + 1 }}</td>
+              <td class="td-nombre">{{ matricula.apellidos }} {{ matricula.nombres }}</td>
+              @for (materia of materias; track materia.id) {
+                <td class="td-nota">{{ getPromedioPorMateria(matricula, materia.id) }}</td>
+              }
+              <td class="td-promedio">{{ getPromedioGeneral(matricula) }}</td>
+            </tr>
+          }
+      </tbody>
+      </table>
+    </div>
+  }
+</div>

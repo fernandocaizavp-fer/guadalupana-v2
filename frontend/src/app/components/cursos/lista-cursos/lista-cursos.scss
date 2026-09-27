@@ -1,0 +1,225 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 40px 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #1a2a5e;
+      margin: 0 0 2px;
+    }
+
+    p {
+      font-size: 13px;
+      color: #aaa;
+      margin: 0;
+    }
+  }
+}
+
+.back-btn {
+  background: #f0f2f8;
+  border: none;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #1a2a5e;
+  transition: background 0.2s;
+
+  &:hover { background: #e0e4f0; }
+}
+
+.new-btn {
+  background: linear-gradient(135deg, #1a2a5e, #2a3f8f);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: linear-gradient(135deg, #c8a84b, #e0c060);
+    color: #1a2a5e;
+    transform: translateY(-1px);
+  }
+}
+
+.content {
+  padding: 32px 40px;
+  background: #f0f2f8;
+  min-height: calc(100vh - 81px);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 80px;
+  gap: 16px;
+  color: #aaa;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ccc;
+  }
+}
+
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 22px;
+}
+
+.curso-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #e8eaf0;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(26,42,94,0.14);
+    border-color: #c8a84b;
+
+    .ver-mas { color: #c8a84b; }
+  }
+}
+
+.curso-card-top {
+  padding: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+
+  .curso-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: white;
+  }
+
+  &.color-0 { background: linear-gradient(135deg, #c8a84b, #e0c060); }
+  &.color-1 { background: linear-gradient(135deg, #1a2a5e, #2a4f9f); }
+  &.color-2 { background: linear-gradient(135deg, #00897b, #26a69a); }
+  &.color-3 { background: linear-gradient(135deg, #7b1fa2, #ab47bc); }
+  &.color-4 { background: linear-gradient(135deg, #c62828, #ef5350); }
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: background 0.2s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.edit-btn:hover { background: rgba(255,255,255,0.4); }
+
+.delete-btn:hover { background: rgba(255,0,0,0.4); }
+
+.curso-card-body {
+  padding: 18px 20px 12px;
+  flex: 1;
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a2a5e;
+    margin: 0 0 8px;
+  }
+}
+
+.badge {
+  background: #f0f2f8;
+  color: #1a2a5e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.curso-info {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 12px;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; color: #aaa; }
+}
+
+.curso-card-footer {
+  padding: 12px 20px;
+  font-size: 12px;
+  color: #aaa;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #43a047;
+  display: inline-block;
+}
+
+.ver-mas {
+  margin-left: auto;
+  font-size: 12px;
+  color: #ccc;
+  transition: color 0.2s;
+}

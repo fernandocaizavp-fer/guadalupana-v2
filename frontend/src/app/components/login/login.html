@@ -1,0 +1,43 @@
+<div class="login-wrapper">
+  <div class="login-left">
+    <div class="brand-content">
+      <img src="logo.jpg" alt="Logo CFA Guadalupana" class="logo-img">
+      <p class="brand-tagline">Formando artesanos con excelencia</p>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-form-container">
+      <div class="login-header">
+        <h2>Bienvenido</h2>
+        <p>Ingrese sus credenciales para continuar</p>
+      </div>
+
+      <form (ngSubmit)="login()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo electrónico</mat-label>
+          <input matInput type="email" [(ngModel)]="correo" name="correo" placeholder="correo@ejemplo.com">
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput type="password" [(ngModel)]="password" name="password">
+          <mat-icon matSuffix>lock</mat-icon>
+        </mat-form-field>
+
+        @if (error) {
+          <p class="error-msg">{{ error }}</p>
+        }
+
+        <button type="submit" class="login-btn" [disabled]="loading">
+          {{ loading ? 'Ingresando...' : 'INGRESAR' }}
+        </button>
+      </form>
+
+      <p class="olvido-link" (click)="irARecuperar()">¿Olvidó su contraseña?</p>
+
+      <p class="footer-text">Centro de Formación Artesanal Guadalupana © 2026</p>
+    </div>
+  </div>
+</div>

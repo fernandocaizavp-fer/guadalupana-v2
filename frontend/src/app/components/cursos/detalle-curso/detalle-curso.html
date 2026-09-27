@@ -1,0 +1,202 @@
+<mat-toolbar class="toolbar">
+  <button mat-icon-button class="btn-back" (click)="volver()">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+  <div class="toolbar-title">
+    <span class="titulo">{{ curso?.ramaArtesanal }}</span>
+    <span class="subtitulo">{{ curso?.anioFormativo }}</span>
+  </div>
+  <span class="spacer"></span>
+  <div class="toolbar-actions">
+    <button mat-button class="btn-outline-gold" (click)="irANotas()">
+      <mat-icon>grade</mat-icon> NOTAS
+    </button>
+    <button mat-button class="btn-outline-purple" (click)="irACuadroFinal()">
+      <mat-icon>summarize</mat-icon> CUADRO FINAL
+    </button>
+    <button mat-button class="btn-gold" (click)="irAMatricular()">
+      <mat-icon>person_add</mat-icon> MATRICULAR
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  }
+
+  @if (!loading && curso) {
+
+    <div class="info-cards">
+      <div class="info-item">
+        <mat-icon>school</mat-icon>
+        <div>
+          <span class="info-label">Rama Artesanal</span>
+          <span class="info-value">{{ curso.ramaArtesanal }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <mat-icon>public</mat-icon>
+        <div>
+          <span class="info-label">Región</span>
+          <span class="info-value">{{ curso.anioFormativo }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <mat-icon>event</mat-icon>
+        <div>
+          <span class="info-label">Fecha Inicio</span>
+          <span class="info-value">{{ curso.fechaInicio | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <mat-icon>event_available</mat-icon>
+        <div>
+          <span class="info-label">Fecha Fin</span>
+          <span class="info-value">{{ curso.fechaFin | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATERIAS DEL CURSO -->
+    <div class="section-header">
+      <h3 class="section-title">Materias del curso</h3>
+    </div>
+
+    <div class="materias-card">
+      <!-- Práctica y Teoría: una sola fila desplegable con sus submaterias -->
+      <div class="materia-row parent" (click)="toggleParent('disciplina')">
+        <div class="mat-main">
+          <mat-icon class="chev">{{ expandido['disciplina'] ? 'expand_more' : 'chevron_right' }}</mat-icon>
+          <span class="mat-nombre">Práctica y Teoría</span>
+        </div>
+        <span class="mat-count">{{ getSubmateriasDe('Práctica').length }} submateria(s)</span>
+      </div>
+
+      @if (expandido['disciplina']) {
+        @for (sub of getSubmateriasDe('Práctica'); track sub.id) {
+          <div class="materia-row child">
+            <div class="mat-main">
+              <span class="bullet">•</span>
+              <span class="mat-nombre">{{ sub.nombre }}</span>
+            </div>
+            <span class="mat-docente" [class.sin]="!sub.profesor">Docente: {{ docenteDe(sub) }}</span>
+          </div>
+        }
+        @if (getSubmateriasDe('Práctica').length === 0) {
+          <div class="materia-row child vacio">Sin submaterias configuradas</div>
+        }
+      }
+
+      <!-- Materias normales: estáticas -->
+      @for (m of getMateriasNormales(); track m.id) {
+        <div class="materia-row">
+          <div class="mat-main">
+            <mat-icon class="mat-ico">menu_book</mat-icon>
+            <span class="mat-nombre">{{ m.nombre }}</span>
+          </div>
+          <span class="mat-docente" [class.sin]="!m.profesor">Docente: {{ docenteDe(m) }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- SUBMATERIAS (gestión) -->
+    <div class="section-header">
+      <h3 class="section-title">Submaterias de Práctica y Teoría</h3>
+    </div>
+
+    <div class="submateria-unica-card">
+      <div class="submateria-header">
+        <mat-icon>build_circle</mat-icon>
+        <h4>Submaterias (se crean automáticamente en Práctica y Teoría)</h4>
+      </div>
+
+      <div class="submateria-list">
+        @for (sub of getSubmateriasUnicas(); track sub.nombre) {
+          <div class="submateria-item">
+            <div class="sub-info">
+              <span class="sub-nombre">{{ sub.nombre }}</span>
+              <span class="sub-tags">
+                <span class="tag practica">Práctica</span>
+                <span class="tag teoria">Teoría</span>
+              </span>
+            </div>
+            <button mat-icon-button color="warn" (click)="eliminarSubmateriaDoble(sub.nombre)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+        @if (getSubmateriasUnicas().length === 0) {
+          <p class="sin-submaterias">No hay submaterias configuradas</p>
+        }
+      </div>
+
+      <div class="agregar-submateria">
+        <mat-form-field appearance="outline" class="sub-field" subscriptSizing="dynamic">
+          <mat-label>Nueva submateria</mat-label>
+          <input matInput [(ngModel)]="nuevaSubmateriaUnica" placeholder="Ej: Maquillaje, Barbería...">
+        </mat-form-field>
+        <button mat-raised-button
+          style="background: linear-gradient(135deg, #1a2a5e, #2a4f9f); color: white;"
+          (click)="agregarSubmateriaDoble()">
+          <mat-icon>add</mat-icon> Agregar
+        </button>
+      </div>
+    </div>
+
+    <!-- ESTUDIANTES -->
+    <div class="section-header" style="margin-top: 32px;">
+      <h3 class="section-title">Estudiantes Matriculados</h3>
+      <span class="badge">{{ curso.matriculas?.length || 0 }}</span>
+    </div>
+
+    @if (curso.matriculas?.length === 0) {
+      <div class="center">
+        <div class="empty-state">
+          <mat-icon>people</mat-icon>
+          <h3>Sin estudiantes</h3>
+          <p>No hay estudiantes matriculados en este curso</p>
+          <button mat-raised-button class="btn-gold" (click)="irAMatricular()">
+            <mat-icon>person_add</mat-icon> Matricular primer estudiante
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (curso.matriculas?.length > 0) {
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="curso.matriculas">
+          <ng-container matColumnDef="nombres">
+            <th mat-header-cell *matHeaderCellDef>Nombres</th>
+            <td mat-cell *matCellDef="let m">{{ m.nombres }}</td>
+          </ng-container>
+          <ng-container matColumnDef="apellidos">
+            <th mat-header-cell *matHeaderCellDef>Apellidos</th>
+            <td mat-cell *matCellDef="let m">{{ m.apellidos }}</td>
+          </ng-container>
+          <ng-container matColumnDef="cedula">
+            <th mat-header-cell *matHeaderCellDef>Cédula</th>
+            <td mat-cell *matCellDef="let m">{{ m.cedula }}</td>
+          </ng-container>
+          <ng-container matColumnDef="telefono">
+            <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+            <td mat-cell *matCellDef="let m">{{ m.telefono }}</td>
+          </ng-container>
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let m">
+              <button mat-icon-button class="btn-action dark" (click)="editarMatricula(m)" title="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="btn-action red" (click)="eliminarEstudiante(m)" title="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+        </table>
+      </div>
+    }
+  }
+</div>

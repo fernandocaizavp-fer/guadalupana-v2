@@ -1,0 +1,186 @@
+<mat-toolbar class="tareas-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ materia?.nombre || 'Materia' }}</h1>
+        <span>Gestión de tareas y calificaciones</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="semestre-tabs">
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 1" (click)="cambiarSemestre(1)">
+        <mat-icon>looks_one</mat-icon> 1er Semestre
+      </button>
+      <button class="tab-btn" [class.active]="semestreSeleccionado === 2" (click)="cambiarSemestre(2)">
+        <mat-icon>looks_two</mat-icon> 2do Semestre
+      </button>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+
+  <!-- CREAR TAREA -->
+  <div class="crear-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <mat-icon>{{ editandoId ? 'edit' : 'add_task' }}</mat-icon>
+      </div>
+      <div>
+        <h2>{{ editandoId ? 'Editar Tarea' : 'Nueva Tarea' }}</h2>
+        <p>Semestre {{ semestreSeleccionado }}</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Nombre de la tarea</mat-label>
+        <input matInput [(ngModel)]="nuevaTarea.nombre" placeholder="Ej: Speaking — Saludos">
+        <mat-icon matPrefix>assignment</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Fecha de inicio</mat-label>
+        <input matInput type="date" [(ngModel)]="nuevaTarea.fechaInicio">
+        <mat-icon matPrefix>event</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Fecha límite (entrega)</mat-label>
+        <input matInput type="date" [(ngModel)]="nuevaTarea.fechaFin" [min]="nuevaTarea.fechaInicio">
+        <mat-icon matPrefix>event_busy</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="col-span-2">
+        <mat-label>Descripción / Observación</mat-label>
+        <input matInput [(ngModel)]="nuevaTarea.descripcion" placeholder="Opcional">
+        <mat-icon matPrefix>notes</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- DOCUMENTOS DE LA TAREA (opcional, el docente decide) -->
+    <div class="form-archivos">
+      <mat-checkbox [(ngModel)]="mostrarAdjuntar" color="primary">
+        Adjuntar documentos de apoyo
+      </mat-checkbox>
+
+      @if (mostrarAdjuntar) {
+        <label class="adjuntar-label">
+          <mat-icon>upload_file</mat-icon>
+          Seleccionar documentos
+          <input type="file" multiple hidden (change)="onSeleccionArchivosForm($event)">
+        </label>
+      }
+      @if (mostrarAdjuntar && archivosNuevos.length > 0) {
+        <div class="staged-files">
+          @for (f of archivosNuevos; track $index) {
+            <span class="staged-chip">
+              <mat-icon>description</mat-icon>
+              <span class="staged-name">{{ f.name }}</span>
+              <button type="button" (click)="quitarArchivoNuevo($index)" title="Quitar">
+                <mat-icon>close</mat-icon>
+              </button>
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="card-footer">
+      @if (editandoId) {
+        <button mat-stroked-button class="cancelar-btn" (click)="cancelarEdicion()" [disabled]="guardando">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+      }
+      <button mat-flat-button class="crear-btn" (click)="guardarTarea()" [disabled]="guardando">
+        <mat-icon>{{ editandoId ? 'save' : 'add_task' }}</mat-icon>
+        {{ guardando ? 'Guardando...' : (editandoId ? 'Guardar Cambios' : 'Crear Tarea') }}
+      </button>
+    </div>
+  </div>
+
+  <!-- CABECERA LISTA -->
+  <div class="section-header">
+    <div class="section-title">
+      <mat-icon>list_alt</mat-icon>
+      Tareas del Semestre {{ semestreSeleccionado }}
+    </div>
+    <div class="section-actions">
+      <span class="section-count">{{ tareas.length }} tarea{{ tareas.length !== 1 ? 's' : '' }}</span>
+      <button mat-flat-button class="matriz-btn" (click)="irAMatriz()">
+        <mat-icon>grid_on</mat-icon> Matriz de notas
+      </button>
+      <button mat-flat-button class="al14-btn" (click)="descargarAL14()">
+        <mat-icon>download</mat-icon> AL14
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+  }
+
+  @if (!loading && tareas.length === 0) {
+    <div class="center">
+      <mat-icon class="empty-icon">assignment</mat-icon>
+      <p>No hay tareas en el semestre {{ semestreSeleccionado }}</p>
+    </div>
+  }
+
+  @if (!loading && tareas.length > 0) {
+    <div class="tareas-grid">
+      @for (tarea of tareas; track tarea.id) {
+        <div class="tarea-card" (click)="abrirTarea(tarea.id)">
+
+          <div class="tarea-card-top">
+            <div class="tarea-info">
+              <h3>{{ tarea.nombre }}</h3>
+              <p class="tarea-fecha">
+                <mat-icon>event</mat-icon>
+                {{ (tarea.fechaInicio || tarea.fecha) | date:'dd/MM/yyyy' }}
+                @if (tarea.fechaFin) {
+                  <span class="hasta">→ {{ tarea.fechaFin | date:'dd/MM/yyyy' }}</span>
+                }
+              </p>
+              <p class="tarea-desc">{{ tarea.descripcion || 'Sin descripción' }}</p>
+            </div>
+            <div class="tarea-promedio">
+              <span class="promedio-label">Promedio</span>
+              <span class="promedio-valor">{{ calcularPromedioTarea(tarea) }}</span>
+            </div>
+          </div>
+
+          <div class="tarea-footer">
+            <div class="tarea-meta">
+              <span class="meta-chip">
+                <mat-icon>people</mat-icon>
+                {{ tarea.notas?.length || 0 }} calificados
+              </span>
+              @if (tarea.archivos?.length > 0) {
+                <span class="meta-chip">
+                  <mat-icon>attach_file</mat-icon>
+                  {{ tarea.archivos.length }} documento{{ tarea.archivos.length !== 1 ? 's' : '' }}
+                </span>
+              }
+            </div>
+            <div class="tarea-actions" (click)="$event.stopPropagation()">
+              <button mat-icon-button class="edit-btn" (click)="editarTarea(tarea)" title="Editar tarea">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="delete-btn" (click)="eliminarTarea(tarea.id)" title="Eliminar tarea">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+              <mat-icon class="abrir-arrow">chevron_right</mat-icon>
+            </div>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

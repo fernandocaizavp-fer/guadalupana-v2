@@ -1,0 +1,336 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$bg-body: #f4f7fa;
+$border: #e2e8f0;
+$white: #ffffff;
+
+// ── TOOLBAR ──────────────────────────────────────────
+.supletorio-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e) !important;
+  color: white !important;
+  height: 85px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+      &:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      span {
+        font-size: 12px;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+  }
+}
+
+.flex-spacer { flex: 1 1 auto; }
+
+.guardar-btn-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $gold;
+  color: $navy;
+  border: none;
+  border-radius: 50px;
+  padding: 0 24px;
+  height: 44px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover:not(:disabled) {
+    background: darken($gold, 8%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba($gold, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ── CONTENIDO ────────────────────────────────────────
+.page-wrapper {
+  padding: 30px 48px;
+  background: $bg-body;
+  min-height: calc(100vh - 85px);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 60px;
+  color: #aaa;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ddd;
+  }
+
+  p { font-size: 14px; }
+}
+
+// ── INFO CARD ─────────────────────────────────────────
+.info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 4px solid $gold;
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 28px;
+
+  .info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #fef3c7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      color: darken($gold, 10%);
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #92400e;
+    line-height: 1.7;
+    padding-top: 6px;
+
+    strong { color: darken($gold, 15%); }
+  }
+}
+
+// ── TABLA CONTAINER ───────────────────────────────────
+.results-container {
+  background: $white;
+  border-radius: 20px;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba($navy, 0.06);
+}
+
+.table-info-header {
+  padding: 16px 24px;
+  background: #fafbfc;
+  border-bottom: 1px solid $border;
+  font-size: 13px;
+  color: #64748b;
+
+  .txt-gold { color: darken($gold, 10%); }
+}
+
+.table-wrapper { overflow-x: auto; }
+
+// ── TABLA ─────────────────────────────────────────────
+.sup-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: linear-gradient(135deg, $navy, #2a4f9f);
+  }
+
+  th {
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 16px 12px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+
+    &:hover { background: #f8fafc; }
+
+    &.habilitado {
+      background: #fffbeb;
+
+      &:hover { background: #fef9e7; }
+
+      td { border-bottom-color: #fde68a; }
+    }
+
+    &:last-child td { border-bottom: none; }
+  }
+}
+
+.col-num { width: 60px; }
+.col-nombre { width: 35%; text-align: left !important; padding-left: 20px !important; }
+.col-nota { width: 90px; }
+.col-sup { width: 120px; }
+.col-final { width: 110px; }
+
+// ── CELDAS ────────────────────────────────────────────
+.num-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+
+  &.num-gold {
+    background: #fef3c7;
+    color: darken($gold, 15%);
+  }
+}
+
+.col-nombre {
+  .nombre-text {
+    font-weight: 700;
+    color: $navy;
+    font-size: 14px;
+    display: block;
+  }
+
+  .habilitado-badge {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #fef3c7;
+    color: darken($gold, 15%);
+    border: 1px solid #fde68a;
+    border-radius: 20px;
+    padding: 1px 8px;
+  }
+}
+
+.nota-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+
+  &.nota-baja {
+    background: #fff1f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+  }
+}
+
+.nota-input {
+  width: 80px;
+  border: 2px solid #fcd34d;
+  border-radius: 10px;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: $navy;
+  outline: none;
+  background: $white;
+  transition: all 0.2s;
+
+  &:focus {
+    border-color: $gold;
+    box-shadow: 0 0 0 3px rgba($gold, 0.15);
+  }
+
+  &::placeholder { color: #d1d5db; font-weight: 400; }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; }
+}
+
+.no-sup {
+  font-size: 11px;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+.final-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+
+  &.calculado {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #86efac;
+  }
+}

@@ -1,0 +1,14 @@
+# Configuración de despliegue de Netlify para el frontend Angular
+# Ejecutar los comandos de Netlify desde la carpeta frontend/
+
+[build]
+  # Comando de compilación de producción (ng build)
+  command = "npm run build"
+  # Carpeta publicada: salida del build de Angular
+  publish = "dist/frontend/browser"
+
+# Soporte de rutas del SPA: cualquier ruta cae en index.html (Angular Router la resuelve)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

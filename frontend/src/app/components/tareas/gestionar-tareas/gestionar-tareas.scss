@@ -1,0 +1,615 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$bg-body: #f4f7fa;
+$border: #e2e8f0;
+$white: #ffffff;
+
+// ── TOOLBAR ──────────────────────────────────────────
+.tareas-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e) !important;
+  color: white !important;
+  height: 85px !important;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+      &:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      span {
+        font-size: 12px;
+        opacity: 0.6;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+  }
+}
+
+.flex-spacer { flex: 1 1 auto; }
+
+.semestre-tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 24px;
+  padding: 5px;
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 18px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.25s;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    &.active {
+      background: $gold;
+      color: $navy;
+    }
+
+    &:hover:not(.active) {
+      background: rgba(255,255,255,0.12);
+      color: white;
+    }
+  }
+}
+
+// ── CONTENIDO ────────────────────────────────────────
+.page-wrapper {
+  padding: 30px 48px;
+  background: $bg-body;
+  min-height: calc(100vh - 85px);
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px;
+  color: #aaa;
+
+  .empty-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ddd;
+  }
+
+  p { font-size: 14px; }
+}
+
+// ── CREAR CARD ────────────────────────────────────────
+.crear-card {
+  background: $white;
+  border-radius: 20px;
+  border: 1px solid $border;
+  box-shadow: 0 4px 20px rgba($navy, 0.06);
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 28px;
+  background: linear-gradient(135deg, $navy, #2a4f9f);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      color: $gold;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  h2 {
+    margin: 0 0 2px;
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+  }
+
+  p {
+    margin: 0;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 24px 28px;
+
+  mat-form-field { width: 100%; }
+
+  .col-span-2 { grid-column: span 2; }
+}
+
+.card-footer {
+  padding: 16px 28px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  border-top: 1px solid #f1f5f9;
+
+  .crear-btn {
+    background: linear-gradient(135deg, $navy, #2a4f9f) !important;
+    color: white !important;
+    border-radius: 50px;
+    padding: 0 28px;
+    height: 44px;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.3s;
+
+    mat-icon { margin-right: 6px; }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba($navy, 0.3);
+    }
+  }
+}
+
+// ── SECTION HEADER ────────────────────────────────────
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: $navy;
+
+    &::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: linear-gradient(135deg, $gold, #e0c060);
+      border-radius: 2px;
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: $gold;
+    }
+  }
+
+  .section-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .section-count {
+      background: $white;
+      border: 1px solid $border;
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .matriz-btn {
+      background: $gold !important;
+      color: $navy !important;
+      border-radius: 50px;
+      height: 36px;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.2s;
+
+      mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+
+      &:hover { filter: brightness(0.95); }
+    }
+
+    .al14-btn {
+      background: rgba($navy, 0.08) !important;
+      color: $navy !important;
+      border-radius: 50px;
+      height: 36px;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.2s;
+
+      mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+
+      &:hover {
+        background: $navy !important;
+        color: white !important;
+      }
+    }
+  }
+}
+
+// ── GRID DE TAREAS ────────────────────────────────────
+.tareas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+}
+
+.tarea-card {
+  background: $white;
+  border-radius: 18px;
+  border: 1px solid $border;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  overflow: hidden;
+  transition: all 0.25s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    border-color: rgba($gold, 0.5);
+    box-shadow: 0 10px 30px rgba($gold, 0.12);
+    transform: translateY(-4px);
+
+    .abrir-arrow { color: $gold; transform: translateX(2px); }
+  }
+}
+
+.tarea-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #94a3b8;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.abrir-arrow {
+  color: #cbd5e1;
+  transition: all 0.2s;
+}
+
+// Control de archivos en el formulario de tarea
+.form-archivos {
+  padding: 0 28px 4px;
+}
+
+.adjuntar-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: $gold;
+  padding: 9px 16px;
+  border: 1px dashed #e7d9ad;
+  border-radius: 10px;
+  background: #fdf9ef;
+  transition: background 0.2s;
+  &:hover { background: #f9f1dc; }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.staged-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.staged-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: $bg-body;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 5px 8px 5px 10px;
+  font-size: 12px;
+  color: #334155;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; color: #94a3b8; }
+  .staged-name { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    color: #cbd5e1;
+    padding: 0;
+    &:hover { color: #dc2626; }
+    mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  }
+}
+
+.tarea-card-top {
+  padding: 20px 22px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.tarea-info {
+  flex: 1;
+
+  h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: $navy;
+    margin: 0 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tarea-fecha {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: $gold;
+    font-weight: 600;
+    margin: 0 0 5px;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // Descripción acotada a 2 líneas con puntos suspensivos, y altura fija
+  // reservada para que todas las tarjetas queden simétricas.
+  .tarea-desc {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 36px;
+  }
+}
+
+.tarea-promedio {
+  text-align: center;
+  background: linear-gradient(135deg, $navy, #2a4f9f);
+  border-radius: 14px;
+  padding: 12px 18px;
+  flex-shrink: 0;
+  min-width: 72px;
+
+  .promedio-label {
+    display: block;
+    font-size: 9px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .promedio-valor {
+    display: block;
+    font-size: 24px;
+    font-weight: 900;
+    color: $gold;
+    line-height: 1;
+  }
+}
+
+.tarea-footer {
+  padding: 12px 22px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafbfc;
+  margin-top: auto; // empuja el pie al fondo para alinear todas las tarjetas
+}
+
+.estudiantes-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.tarea-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  .calificar-btn {
+    background: rgba($gold, 0.12) !important;
+    color: darken($gold, 15%) !important;
+    border-radius: 50px;
+    height: 34px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s;
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+
+    &:hover {
+      background: $gold !important;
+      color: white !important;
+    }
+  }
+
+  .edit-btn {
+    color: #cbd5e1 !important;
+    transition: all 0.2s;
+
+    &:hover {
+      color: $navy !important;
+      background: #eef2ff !important;
+    }
+  }
+
+  .delete-btn {
+    color: #cbd5e1 !important;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #dc2626 !important;
+      background: #fff1f2 !important;
+    }
+  }
+
+// ---- Archivos adjuntos y entregas ----
+.tarea-archivos {
+  border-top: 1px solid #eef0f5;
+  padding: 12px 0;
+  margin-top: 8px;
+
+  .archivos-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+
+    span { display: flex; align-items: center; gap: 4px; }
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  }
+}
+
+.subir-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c8a84b;
+  padding: 4px 10px;
+  border: 1px solid #e7d9ad;
+  border-radius: 8px;
+  background: #fdf9ef;
+
+  &:hover { background: #f9f1dc; }
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.archivos-list, .entregas-panel .archivos-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #334155;
+      text-decoration: none;
+      font-size: 13px;
+      word-break: break-all;
+      &:hover { color: #1a2a5e; text-decoration: underline; }
+      mat-icon { font-size: 16px; width: 16px; height: 16px; color: #94a3b8; }
+    }
+  }
+}
+
+.sin-archivos { font-size: 12px; color: #94a3b8; margin: 6px 0 0; }
+
+.entregas-panel {
+  border-top: 1px dashed #e2e8f0;
+  margin-top: 10px;
+  padding-top: 10px;
+
+  .entrega-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+    strong { font-size: 13px; color: #1a2a5e; }
+    .entrega-com { display: block; font-size: 12px; color: #64748b; margin-top: 2px; }
+  }
+}
+}

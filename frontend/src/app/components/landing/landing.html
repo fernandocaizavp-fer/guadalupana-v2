@@ -1,0 +1,179 @@
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <img src="logo.jpg" alt="Logo" class="nav-logo">
+    <div class="nav-text">
+      <span class="nav-title">CFA Guadalupana</span>
+      <span class="nav-sub">Centro de Formación Artesanal</span>
+    </div>
+  </div>
+  <button class="btn-login" (click)="irALogin()">
+    <mat-icon>login</mat-icon> Iniciar Sesión
+  </button>
+</nav>
+
+<!-- HERO SLIDER -->
+<section class="hero">
+  @for (slide of slides; track $index) {
+    <div class="slide" [class.active]="currentSlide === $index" [style.backgroundImage]="'url(' + slide.img + ')'">
+      <div class="slide-overlay">
+        <div class="slide-content">
+          <h1>{{ slide.title }}</h1>
+          <p>{{ slide.subtitle }}</p>
+          <button class="btn-hero" (click)="irALogin()">Conoce más →</button>
+        </div>
+      </div>
+    </div>
+  }
+  <div class="slide-dots">
+    @for (slide of slides; track $index) {
+      <span class="dot" [class.active]="currentSlide === $index" (click)="goToSlide($index)"></span>
+    }
+  </div>
+</section>
+
+<!-- SOBRE NOSOTROS -->
+<section class="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <span class="section-tag">Sobre Nosotros</span>
+      <h2>Una institución nacida para transformar vidas</h2>
+      <p>El <strong>Centro de Formación Artesanal Particular Guadalupana</strong> nació en 2017 como una idea visionaria, impulsada por la convicción de que la educación técnica puede ser una herramienta poderosa para transformar vidas y fortalecer la economía local.</p>
+      <p>Autorizado el <strong>07 de Diciembre de 2022</strong> mediante Resolución Interinstitucional N.- JNDA-MDT-2022-135 por el Ministerio de Trabajo y la Junta Nacional de Defensa del Artesano, el CFA Guadalupana se ha consolidado como un referente de formación artesanal en la región.</p>
+      <div class="about-stats">
+        <div class="stat">
+          <span class="stat-number">2017</span>
+          <span class="stat-label">Año de fundación</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">3</span>
+          <span class="stat-label">Especialidades</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Compromiso</span>
+        </div>
+      </div>
+    </div>
+    <div class="about-img">
+      <img src="graduados.jpg" alt="Graduados CFA">
+      <div class="about-badge">
+        <mat-icon>verified</mat-icon>
+        <span>Avalado por la JNDA</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ESPECIALIDADES -->
+<section class="especialidades">
+  <div class="section-header">
+    <span class="section-tag light">Lo que ofrecemos</span>
+    <h2>Nuestras Especialidades</h2>
+    <p>Formación técnica de calidad con titulación oficial</p>
+  </div>
+  <div class="esp-grid">
+    @for (esp of especialidades; track esp.nombre) {
+      <div class="esp-card">
+        <div class="esp-icon">
+          <mat-icon>{{ esp.icon }}</mat-icon>
+        </div>
+        <h3>{{ esp.nombre }}</h3>
+        <p>{{ esp.desc }}</p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- POR QUÉ ELEGIRNOS -->
+<section class="why">
+  <div class="why-grid">
+    <div class="why-img">
+      <img src="graduados2.jpg" alt="Estudiantes">
+    </div>
+    <div class="why-text">
+      <span class="section-tag">¿Por qué elegirnos?</span>
+      <h2>Formación con propósito y excelencia</h2>
+      <div class="why-items">
+        <div class="why-item">
+          <div class="why-icon gold"><mat-icon>school</mat-icon></div>
+          <div>
+            <h4>Titulación oficial</h4>
+            <p>Avalada por la Junta Nacional de Defensa del Artesano.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon blue"><mat-icon>people</mat-icon></div>
+          <div>
+            <h4>Docentes especializados</h4>
+            <p>Personal capacitado con experiencia en cada especialidad.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon teal"><mat-icon>emoji_events</mat-icon></div>
+          <div>
+            <h4>Formación integral</h4>
+            <p>Ética profesional, técnica y espíritu emprendedor.</p>
+          </div>
+        </div>
+        <div class="why-item">
+          <div class="why-icon navy"><mat-icon>location_on</mat-icon></div>
+          <div>
+            <h4>Ubicación estratégica</h4>
+            <p>Alfredo Pareja y Agustín Cueva, sector ECU 911, Riobamba.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="contact">
+  <div class="section-header">
+    <span class="section-tag light">Contáctanos</span>
+    <h2>Estamos aquí para ayudarte</h2>
+    <p>Visítanos o escríbenos, con gusto te orientamos</p>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-card">
+      <mat-icon>location_on</mat-icon>
+      <h4>Dirección</h4>
+      <p>Alfredo Pareja y Agustín Cueva<br>Sector ECU 911, Riobamba, Ecuador</p>
+    </div>
+    <a class="contact-card contact-link" [href]="whatsappUrl" target="_blank" rel="noopener">
+      <svg class="wa-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.359.101 11.892c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 005.71 1.454h.005c6.581 0 11.943-5.359 11.945-11.892a11.821 11.821 0 00-3.495-8.411"/>
+      </svg>
+      <h4>WhatsApp</h4>
+      <p>099 688 3085</p>
+    </a>
+    <div class="contact-card">
+      <mat-icon>email</mat-icon>
+      <h4>Correo</h4>
+      <p>guadalupanacfa&#64;gmail.com</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <img src="logo.jpg" alt="Logo" class="footer-logo">
+      <div>
+        <p class="footer-title">CFA Guadalupana</p>
+        <p class="footer-sub">Centro de Formación Artesanal Particular</p>
+      </div>
+    </div>
+    <p class="footer-copy">© 2026 Centro de Formación Artesanal Guadalupana. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<!-- BOTÓN FLOTANTE DE WHATSAPP -->
+<a class="whatsapp-float" [href]="whatsappUrl" target="_blank" rel="noopener"
+   aria-label="Escríbenos por WhatsApp" title="Escríbenos por WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.359.101 11.892c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 005.71 1.454h.005c6.581 0 11.943-5.359 11.945-11.892a11.821 11.821 0 00-3.495-8.411"/>
+  </svg>
+</a>

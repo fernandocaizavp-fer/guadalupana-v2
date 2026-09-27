@@ -1,0 +1,114 @@
+<mat-toolbar class="supletorio-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>{{ materia?.nombre || 'Materia' }}</h1>
+        <span>Registro de examen supletorio</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <button class="guardar-btn-toolbar" (click)="guardar()" [disabled]="guardando">
+      <mat-icon>save</mat-icon>
+      {{ guardando ? 'Guardando...' : 'Guardar' }}
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+  @if (loading) {
+    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+  }
+
+  @if (!loading && estudiantes.length === 0) {
+    <div class="center">
+      <mat-icon class="empty-icon">people</mat-icon>
+      <p>No hay estudiantes en esta materia</p>
+    </div>
+  }
+
+  @if (!loading && estudiantes.length > 0) {
+
+    <div class="info-card">
+      <div class="info-icon">
+        <mat-icon>tips_and_updates</mat-icon>
+      </div>
+      @if (ventanaAbierta) {
+        <p>El plazo de supletorios está <strong>abierto</strong>. Puedes registrar las notas de los estudiantes habilitados.</p>
+      } @else {
+        <p>El plazo general de supletorios está <strong>cerrado</strong>. Solo podrás registrar notas de estudiantes con un permiso individual vigente (habilitado por administración).</p>
+      }
+    </div>
+
+    <div class="results-container">
+      <div class="table-info-header">
+        <span>
+          <strong>{{ estudiantes.length }}</strong> estudiante{{ estudiantes.length !== 1 ? 's' : '' }} en esta materia —
+          <strong class="txt-gold">{{ estudiantesHabilitados }}</strong> habilitado{{ estudiantesHabilitados !== 1 ? 's' : '' }} para supletorio
+        </span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="sup-table">
+          <thead>
+            <tr>
+              <th class="col-num">No.</th>
+              <th class="col-nombre">Apellidos y Nombres</th>
+              <th class="col-nota">Prom. S1</th>
+              <th class="col-nota">Prom. S2</th>
+              <th class="col-nota">Suma</th>
+              <th class="col-sup">Supletorio</th>
+              <th class="col-final">Prom. Final</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (est of estudiantes; track est.id; let i = $index) {
+              <tr [class.habilitado]="est.habilitarSup">
+                <td class="col-num">
+                  <span class="num-badge" [class.num-gold]="est.habilitarSup">{{ i + 1 }}</span>
+                </td>
+                <td class="col-nombre">
+                  <span class="nombre-text">{{ est.apellidos }} {{ est.nombres }}</span>
+                  @if (est.habilitarSup) {
+                    <span class="habilitado-badge">Habilitado</span>
+                  }
+                </td>
+                <td class="col-nota">
+                  <span class="nota-badge">{{ est.promedioS1 }}</span>
+                </td>
+                <td class="col-nota">
+                  <span class="nota-badge">{{ est.promedioS2 }}</span>
+                </td>
+                <td class="col-nota">
+                  <span class="nota-badge" [class.nota-baja]="est.habilitarSup">{{ est.suma }}</span>
+                </td>
+                <td class="col-sup">
+                  @if (est.habilitarSup) {
+                    <input type="number" [min]="notaMin" [max]="notaMax" step="0.1"
+                      class="nota-input"
+                      [(ngModel)]="supletorios[est.id]"
+                      placeholder="—">
+                  } @else {
+                    <span class="no-sup">No habilitado</span>
+                  }
+                </td>
+                <td class="col-final">
+                  @if (est.habilitarSup && supletorios[est.id]) {
+                    <span class="final-badge calculado">
+                      {{ ((+est.suma + +supletorios[est.id]) / 2).toFixed(1) }}
+                    </span>
+                  } @else {
+                    <span class="final-badge">{{ est.suma }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  }
+</div>

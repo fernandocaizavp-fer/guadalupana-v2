@@ -1,0 +1,2 @@
+ALTER TABLE "NotaDisciplina" ADD COLUMN "semestre" INTEGER NOT NULL DEFAULT 1;
+CREATE UNIQUE INDEX "NotaDisciplina_matriculaId_materiaId_semestre_key" ON "NotaDisciplina"("matriculaId", "materiaId", "semestre");

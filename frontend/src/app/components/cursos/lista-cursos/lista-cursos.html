@@ -1,0 +1,63 @@
+<div class="page-header">
+  <div class="header-left">
+    <button class="back-btn" (click)="volver()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>Cursos</h1>
+      <p>Gestiona los cursos por período académico</p>
+    </div>
+  </div>
+  <button class="new-btn" (click)="irANuevoCurso()">
+    <mat-icon>add</mat-icon> Nuevo Curso
+  </button>
+</div>
+
+<div class="content">
+  @if (loading) {
+    <div class="center"><mat-spinner></mat-spinner></div>
+  } @else if (cursos.length === 0) {
+    <div class="center">
+      <mat-icon class="empty-icon">school</mat-icon>
+      <p>No hay cursos registrados</p>
+      <button class="new-btn" (click)="irANuevoCurso()">Crear primer curso</button>
+    </div>
+  } @else {
+    <div class="cursos-grid">
+      @for (curso of cursos; track curso.id) {
+        <div class="curso-card" (click)="irADetalle(curso.id)">
+          <div class="curso-card-top" [class]="'color-' + (curso.id % 5)">
+            <mat-icon class="curso-icon">school</mat-icon>
+            <div class="card-actions">
+              <button class="edit-btn" (click)="editar($event, curso.id)" title="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="delete-btn" (click)="eliminar($event, curso.id)" title="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="curso-card-body">
+            <h3>{{ curso.ramaArtesanal }}</h3>
+            <span class="badge">{{ curso.anioFormativo }}</span>
+            <div class="curso-info">
+              <div class="info-row">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ curso.fechaInicio | date:'dd/MM/yyyy' }} — {{ curso.fechaFin | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="info-row">
+                <mat-icon>people</mat-icon>
+                <span>{{ curso._count?.matriculas || 0 }} estudiantes</span>
+              </div>
+            </div>
+          </div>
+          <div class="curso-card-footer">
+            <span class="status-dot"></span>
+            {{ curso.activo ? 'Activo' : 'Inactivo' }}
+            <span class="ver-mas">Ver detalle →</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

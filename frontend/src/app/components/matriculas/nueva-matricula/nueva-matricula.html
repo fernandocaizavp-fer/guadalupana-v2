@@ -1,0 +1,332 @@
+<mat-toolbar class="admin-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Nueva Matrícula</h1>
+        <span>Administración de personal académico</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="toolbar-hint">
+      <mat-icon>info_outline</mat-icon>
+      Complete todos los campos del formulario
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="page-wrapper">
+  <mat-card class="enrollment-card">
+    <mat-card-header class="main-card-header">
+      <mat-card-title>Registro de Matrícula</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="icon-navy">assignment</mat-icon>
+          <h3>Datos de Matrícula</h3>
+        </div>
+        <div class="row-grid-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Matrícula</mat-label>
+            <input matInput [(ngModel)]="datos.matriculaNo" readonly placeholder="Automática">
+            <mat-hint>Se asigna sola según el curso</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Tomo</mat-label>
+            <input matInput [(ngModel)]="datos.tomo" placeholder="Ej. 1">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Página</mat-label>
+            <input matInput [(ngModel)]="datos.pagina" readonly placeholder="Automática">
+            <mat-hint>Se calcula automáticamente</mat-hint>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Curso</mat-label>
+            <mat-select [(ngModel)]="datos.cursoId" (selectionChange)="onCursoChange()">
+              @for (curso of cursos; track curso.id) {
+                <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="icon-navy">person_outline</mat-icon>
+          <h3>Datos Personales</h3>
+        </div>
+        <div class="row-grid-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Cédula / Pasaporte</mat-label>
+            <input matInput [(ngModel)]="datos.cedula" (ngModelChange)="onCedulaChange()"
+              (keyup.enter)="buscarPorCedula()" maxlength="10">
+            @if (consultandoCedula) {
+              <mat-spinner matSuffix diameter="20"></mat-spinner>
+            } @else {
+              <button matSuffix mat-icon-button type="button" title="Consultar"
+                aria-label="Consultar cédula" (click)="buscarPorCedula()">
+                <mat-icon>search</mat-icon>
+              </button>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Apellidos</mat-label>
+            <input matInput [(ngModel)]="datos.apellidos">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres</mat-label>
+            <input matInput [(ngModel)]="datos.nombres">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Sexo</mat-label>
+            <mat-select [(ngModel)]="datos.sexo">
+                <mat-option value="Masculino">Masculino</mat-option>
+                <mat-option value="Femenino">Femenino</mat-option>
+                <mat-option value="Otro">Otro</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div class="row-grid-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de Nacimiento</mat-label>
+            <input matInput type="date" [(ngModel)]="datos.fechaNacimiento">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>País</mat-label>
+            <input matInput [(ngModel)]="datos.pais">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Provincia</mat-label>
+            <input matInput [(ngModel)]="datos.provincia">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Cantón</mat-label>
+            <input matInput [(ngModel)]="datos.canton">
+          </mat-form-field>
+        </div>
+
+        <div class="row-grid-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Parroquia</mat-label>
+            <input matInput [(ngModel)]="datos.parroquia">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Ciudad</mat-label>
+            <input matInput [(ngModel)]="datos.ciudad">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Nacionalidad</mat-label>
+            <input matInput [(ngModel)]="datos.nacionalidad">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput [(ngModel)]="datos.telefono">
+          </mat-form-field>
+        </div>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo Electrónico del Estudiante</mat-label>
+          <input matInput [(ngModel)]="datos.correoestudiante">
+          <mat-icon matPrefix>mail_outline</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="icon-gold">home_work</mat-icon>
+          <h3>Domicilio</h3>
+        </div>
+        <div class="row-grid-3">
+          <mat-form-field appearance="outline">
+            <mat-label>Calle Principal</mat-label>
+            <input matInput [(ngModel)]="datos.calle">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Número</mat-label>
+            <input matInput [(ngModel)]="datos.num">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Transversal</mat-label>
+            <input matInput [(ngModel)]="datos.transversal">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="icon-navy">school</mat-icon>
+          <h3>Datos Académicos</h3>
+        </div>
+        <div class="row-grid-3">
+          <mat-form-field appearance="outline">
+            <mat-label>Nivel de Estudio</mat-label>
+            <mat-select [(ngModel)]="datos.nivelEstudio">
+              <mat-option value="a1">A.1 — Primaria o 7mo Año de EBC</mat-option>
+              <mat-option value="a2">A.2 — Ciclo Básico o 10mo Año de EBC</mat-option>
+              <mat-option value="a4">A.4 — Título (Bachiller / Superior / Otro)</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Curso Anterior</mat-label>
+            <input matInput [(ngModel)]="datos.cursoanterior">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Centro de Formación Anterior</mat-label>
+            <input matInput [(ngModel)]="datos.centroformacionanterior">
+          </mat-form-field>
+        </div>
+
+        @if (datos.nivelEstudio === 'a1') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Conferido por (Establecimiento A.1)</mat-label>
+            <input matInput [(ngModel)]="datos.conferidoPorA1">
+          </mat-form-field>
+        }
+
+        @if (datos.nivelEstudio === 'a2') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Conferido por (Establecimiento A.2)</mat-label>
+            <input matInput [(ngModel)]="datos.conferidoPorA2">
+          </mat-form-field>
+        }
+
+        @if (datos.nivelEstudio === 'a4') {
+          <div class="row-grid-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo de Título</mat-label>
+              <mat-select [(ngModel)]="datos.tipoBachiller">
+                <mat-option value="Bachiller">Bachiller</mat-option>
+                <mat-option value="Superior">Superior</mat-option>
+                <mat-option value="Otro">Otro</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Especialidad</mat-label>
+              <input matInput [(ngModel)]="datos.especialidad">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Unidad Educativa (Conferido por)</mat-label>
+              <input matInput [(ngModel)]="datos.unidadeducativa">
+            </mat-form-field>
+          </div>
+        }
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="icon-navy">family_restroom</mat-icon>
+          <h3>Entorno Familiar</h3>
+        </div>
+
+        <p class="sub-label">Datos del Padre</p>
+        <div class="row-grid-3">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre Completo</mat-label>
+            <input matInput [(ngModel)]="datos.nombrepapa">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Profesión</mat-label>
+            <input matInput [(ngModel)]="datos.profesionpapa">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Ocupación</mat-label>
+            <input matInput [(ngModel)]="datos.ocupacionpapa">
+          </mat-form-field>
+        </div>
+
+        <p class="sub-label">Datos de la Madre</p>
+        <div class="row-grid-3">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre Completo</mat-label>
+            <input matInput [(ngModel)]="datos.nombremama">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Profesión</mat-label>
+            <input matInput [(ngModel)]="datos.profesionmama">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Ocupación</mat-label>
+            <input matInput [(ngModel)]="datos.ocupacionmama">
+          </mat-form-field>
+        </div>
+
+        <div class="rep-header">
+          <p class="sub-label">Datos del Representante</p>
+          <div class="rep-actions">
+            <span class="rep-hint">Copiar datos de:</span>
+            <button mat-stroked-button type="button" class="rep-btn" (click)="usarRepresentante('padre')">
+              <mat-icon>man</mat-icon> Padre
+            </button>
+            <button mat-stroked-button type="button" class="rep-btn" (click)="usarRepresentante('madre')">
+              <mat-icon>woman</mat-icon> Madre
+            </button>
+          </div>
+        </div>
+        <div class="row-grid-4">
+          <mat-form-field appearance="outline">
+            <mat-label>Nombre del Representante</mat-label>
+            <input matInput [(ngModel)]="datos.nombrerepresentante">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Ocupación</mat-label>
+            <input matInput [(ngModel)]="datos.ocupacionrepresentante">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Domicilio</mat-label>
+            <input matInput [(ngModel)]="datos.domiciliorepresentante">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput [(ngModel)]="datos.telefonorepresentante">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon class="icon-gold">place</mat-icon>
+          <h3>Lugar y Fecha</h3>
+        </div>
+        <div class="row-grid-2">
+          <mat-form-field appearance="outline">
+            <mat-label>Lugar y Fecha de Matrícula</mat-label>
+            <input matInput [(ngModel)]="datos.lugarfechamatricula" placeholder="Ej. Riobamba, 03 de marzo del 2026">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Lugar y Fecha de Certificado</mat-label>
+            <input matInput [(ngModel)]="datos.lugarfechacertificado" placeholder="Ej. Riobamba, 03 de marzo del 2026">
+          </mat-form-field>
+        </div>
+      </div>
+
+    </mat-card-content>
+
+    <mat-card-actions align="end" class="form-actions">
+      <button mat-button class="btn-cancel" (click)="volver()">CANCELAR</button>
+      <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="loading">
+        @if (loading) {
+          <mat-spinner diameter="20"></mat-spinner>
+        } @else {
+          <mat-icon>save</mat-icon> GUARDAR MATRÍCULA
+        }
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
