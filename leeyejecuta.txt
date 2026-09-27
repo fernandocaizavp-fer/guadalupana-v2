@@ -1,5 +1,22 @@
-"Actúa como mi desarrollador frontend. Mi backend ya está desplegado exitosamente. Por favor, busca los archivos de configuración de entorno de Angular (normalmente ubicados en frontend/src/environments/environment.ts y environment.prod.ts).
+Actúa como mi desarrollador frontend de Angular. Necesito integrar el widget de nuestro chatbot de Voiceflow en la aplicación.
 
-Necesito que actualices la variable de la URL de la API (usualmente llamada apiUrl, API_URL o similar). En el archivo environment.prod.ts, debes cambiar la URL antigua para que apunte exactamente a esta nueva dirección: [https://guadalupana-v2.onrender.com](https://guadalupana-v2.onrender.com) (asegúrate de no dejar una barra / al final si el código no la requiere).
+Ubica el archivo principal index.html (normalmente en frontend/src/index.html). Inserta el siguiente script exactamente justo antes de la etiqueta de cierre </body>:
 
-Una vez que hayas guardado los cambios en los archivos, ejecuta los comandos necesarios para subir esto a GitHub (git add ., git commit -m "Actualizar URL de API a Render" y git push origin main)."
+<script type="text/javascript">
+  (function(d, t) {
+      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+      v.onload = function() {
+        window.voiceflow.chat.load({
+          verify: { projectID: '6ab894ab6920e1782997de07' },
+          url: 'https://general-runtime.voiceflow.com',
+          voice: {
+            url: "https://runtime-api.voiceflow.com"
+          }
+        });
+      }
+      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+  })(document, 'script');
+</script>
+
+
+Una vez que hayas insertado y guardado el archivo, ejecuta los comandos para subir esto a producción: git add ., luego git commit -m "feat: integrar chatbot de Voiceflow en index.html" y finalmente git push origin main.
