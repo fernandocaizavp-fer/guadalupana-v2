@@ -66,7 +66,7 @@ test('la ruta real devuelve el JSON plano, sin persistir matrícula', async () =
   assert.equal(response.status, 200);
   assert.deepEqual(response.body, { nombres: 'Ana', cedula: '0012345678', nombrepapa: 'Luis' });
 });
-test('entrada inválida no invoca Gemini', async () => {
+test('entrada inválida no invoca Groq', async () => {
   const antes = llamadas;
   assert.equal((await request({ texto: '  ' })).status, 400);
   assert.equal(llamadas, antes);
@@ -83,7 +83,7 @@ test('JSON inválido y respuesta vacía no llegan al formulario', async () => {
 test('cuota, modelo inaccesible y timeout dan errores controlados sin filtrar secretos', async () => {
   const anterior = generar;
   try {
-    for (const [status, esperado] of [[429, 429], [403, 503], [404, 503], [503, 503], [504, 504], [500, 502]]) {
+    for (const [status, esperado] of [[429, 429], [403, 503], [404, 503], [503, 503], [408, 504], [504, 504], [500, 502]]) {
       generar = async () => { throw { status, message: 'CLAVE_PRIVADA_Y_DATOS' }; };
       const response = await request({ texto: 'Ana' });
       assert.equal(response.status, esperado);
@@ -91,12 +91,53 @@ test('cuota, modelo inaccesible y timeout dan errores controlados sin filtrar se
     }
   } finally { generar = anterior; }
 });
-test('el marcador de API Key devuelve 503 sin llamar a Google', async () => {
-  const anterior = process.env.GEMINI_API_KEY;
-  process.env.GEMINI_API_KEY = 'REEMPLAZA_ESTE_TEXTO_CON_TU_CLAVE';
+test('el marcador de API Key devuelve 503 sin llamar a Groq', async () => {
+  const anterior = process.env.GROQ_API_KEY;
+  process.env.GROQ_API_KEY = 'REEMPLAZA_ESTE_TEXTO_CON_TU_CLAVE';
   try {
     const response = await request({ texto: 'Ana' }, 'ADMIN', '/configuracion-ausente');
     assert.equal(response.status, 503);
-    assert.match(response.body.error, /GEMINI_API_KEY/);
-  } finally { if (anterior === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = anterior; }
+    assert.match(response.body.error, /GROQ_API_KEY/);
+  } finally { if (anterior === undefined) delete process.env.GROQ_API_KEY; else process.env.GROQ_API_KEY = anterior; }
+});
+
+test('el SDK de Groq envia el prompt y esquema originales en modo JSON', async () => {
+  const { PROMPT_EXTRACCION, ESQUEMA_EXTRACCION } = require('../src/lib/matricula-extraccion');
+  const fetchOriginal = globalThis.fetch;
+  const claveAnterior = process.env.GROQ_API_KEY;
+  const modeloAnterior = process.env.GROQ_MODEL;
+  process.env.GROQ_API_KEY = 'clave-ficticia-solo-para-test';
+  delete process.env.GROQ_MODEL;
+  let peticion;
+  globalThis.fetch = async (input, init) => {
+    const url = typeof input === 'string' ? input : input.url || String(input);
+    if (!url.startsWith('https://api.groq.com/')) return fetchOriginal(input, init);
+    peticion = JSON.parse(init.body);
+    assert.equal(new Headers(init.headers).get('Authorization'), 'Bearer clave-ficticia-solo-para-test');
+    return new Response(JSON.stringify({
+      id: 'prueba', object: 'chat.completion', created: 0, model: 'openai/gpt-oss-20b',
+      choices: [{ index: 0, message: { role: 'assistant', content: '{"nombres":"Ana"}' }, finish_reason: 'stop' }],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  };
+  try {
+    assert.equal(await controller.generarConGroq('Nombres Ana'), '{"nombres":"Ana"}');
+    assert.deepEqual(peticion.response_format, { type: 'json_object' });
+    assert.equal(peticion.model, 'openai/gpt-oss-20b');
+    assert.equal(peticion.messages[0].content, PROMPT_EXTRACCION);
+    assert.ok(peticion.messages[1].content.endsWith(JSON.stringify(ESQUEMA_EXTRACCION)));
+    assert.deepEqual(peticion.messages[2], { role: 'user', content: 'Nombres Ana' });
+  } finally {
+    globalThis.fetch = fetchOriginal;
+    if (claveAnterior === undefined) delete process.env.GROQ_API_KEY; else process.env.GROQ_API_KEY = claveAnterior;
+    if (modeloAnterior === undefined) delete process.env.GROQ_MODEL; else process.env.GROQ_MODEL = modeloAnterior;
+  }
+});
+test('el timeout propio del SDK devuelve 504 sin filtrar datos', async () => {
+  const anterior = generar;
+  try {
+    generar = async () => { throw { name: 'APIConnectionTimeoutError', message: 'CLAVE_PRIVADA_Y_DATOS' }; };
+    const response = await request({ texto: 'Ana' });
+    assert.equal(response.status, 504);
+    assert.equal(JSON.stringify(response.body).includes('CLAVE_PRIVADA_Y_DATOS'), false);
+  } finally { generar = anterior; }
 });

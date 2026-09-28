@@ -53,12 +53,12 @@ describe('LlenadoInteligenteDialog', () => {
   });
 
   it('muestra el error del backend y conserva el texto para reintentar', () => {
-    extraerDatos.mockReturnValue(throwError(() => ({ error: { error: 'Configura GEMINI_API_KEY' } })));
+    extraerDatos.mockReturnValue(throwError(() => ({ error: { error: 'Configura GROQ_API_KEY' } })));
     component.texto.setValue('Datos ficticios de Ana');
     component.extraer();
     fixture.detectChanges();
     expect(component.procesando).toBe(false);
-    expect(fixture.nativeElement.textContent).toContain('Configura GEMINI_API_KEY');
+    expect(fixture.nativeElement.textContent).toContain('Configura GROQ_API_KEY');
     expect(component.texto.value).toBe('Datos ficticios de Ana');
   });
 
