@@ -1,3 +1,4 @@
+import { DatosExtraidosMatricula } from './matricula-datos';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -15,6 +16,12 @@ export class MatriculaService {
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({
       'Authorization': `Bearer ${this.authService.getToken()}`
+    });
+  }
+
+  extraerDatos(texto: string): Observable<DatosExtraidosMatricula> {
+    return this.http.post<DatosExtraidosMatricula>(`${this.apiUrl}/matriculas/extraer-datos`, { texto }, {
+      headers: this.getHeaders()
     });
   }
 

@@ -1,0 +1,54 @@
+<h2 mat-dialog-title><mat-icon>auto_awesome</mat-icon> Llenado inteligente</h2>
+<mat-dialog-content>
+  <p>Dicta o escribe la información del estudiante. Podrás revisar el resultado antes de completar el formulario.</p>
+  <p class="aviso">Al extraer, el texto se envía a Google Gemini. El dictado utiliza el servicio de voz de tu navegador.</p>
+  <div class="voice-actions">
+    @if (escuchando) {
+      <button mat-stroked-button type="button" (click)="detenerDictado()"><mat-icon>stop</mat-icon> Detener dictado</button>
+      <span class="voice-status" role="status">Micrófono activo…</span>
+    } @else {
+      <button mat-stroked-button type="button" (click)="iniciarDictado()" [disabled]="!soporteVoz || procesando">
+        <mat-icon>mic</mat-icon> Dictar en español
+      </button>
+    }
+  </div>
+  @if (!soporteVoz) {
+    <p class="aviso" role="status">El dictado no está disponible en este navegador. Escribe o pega el texto.</p>
+  }
+  @if (errorVoz) { <p class="aviso" role="status">{{ errorVoz }}</p> }
+  @if (parcial) { <p class="parcial" aria-live="polite">{{ parcial }}</p> }
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Datos dictados o escritos</mat-label>
+    <textarea matInput [formControl]="texto" rows="7" maxlength="12000" [readonly]="escuchando || procesando"
+      placeholder="Ejemplo ficticio: nombres Ana María, apellidos Pérez López. Nació el 15 de abril de 2003. Su madre se llama Carmen López y es docente. Terminó el bachillerato."></textarea>
+    <mat-hint align="end">{{ texto.value.length }} / 12000</mat-hint>
+    @if (texto.hasError('maxlength')) { <mat-error>Máximo 12000 caracteres.</mat-error> }
+  </mat-form-field>
+  <p class="aviso">Menciona solo datos que conozcas. El curso y la numeración de matrícula se conservan.</p>
+  <button mat-flat-button type="button" class="primary" (click)="extraer()"
+    [disabled]="procesando || escuchando || texto.invalid || !texto.value.trim()">
+    @if (procesando) { <mat-spinner diameter="18" aria-label="Extrayendo datos"></mat-spinner> }
+    @else { <mat-icon>auto_fix_high</mat-icon> }
+    {{ procesando ? 'Extrayendo…' : 'Extraer datos' }}
+  </button>
+  @if (error) { <p class="error" role="alert">{{ error }}</p> }
+  @if (vistaPrevia.length) {
+    <section class="preview" aria-label="Datos encontrados">
+      <h3>Revisa los {{ vistaPrevia.length }} datos encontrados</h3>
+      <dl>
+        @for (dato of vistaPrevia; track dato.campo) {
+          <div><dt>{{ dato.etiqueta }}</dt><dd>{{ dato.valor }}</dd></div>
+        }
+      </dl>
+      <mat-checkbox [formControl]="reemplazar">Reemplazar también los campos que ya tienen datos</mat-checkbox>
+      <p class="aviso">Sin marcar, se completan campos vacíos o valores predeterminados. Los datos que no se mencionaron permanecen como están.</p>
+    </section>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>Cancelar</button>
+  <button mat-flat-button type="button" class="primary" (click)="aplicar()"
+    [disabled]="!vistaPrevia.length || procesando || escuchando">
+    <mat-icon>check</mat-icon> Completar formulario
+  </button>
+</mat-dialog-actions>

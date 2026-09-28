@@ -1,5 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, ChangeDetectorRef, inject, DestroyRef } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { LlenadoInteligenteDialog } from './llenado-inteligente-dialog';
+import { DATOS_MATRICULA_INICIALES, ETIQUETAS_EXTRACCION, ResultadoLlenado } from '../../../services/matricula-datos';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,7 +21,7 @@ import { Title } from '@angular/platform-browser';
 @Component({
   selector: 'app-nueva-matricula',
   imports: [
-    FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule,
+    ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatCardModule, MatSelectModule, MatDividerModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatToolbarModule
   ],
@@ -30,24 +34,49 @@ export class NuevaMatricula implements OnInit {
   ultimaCedulaConsultada = '';
   cursos: any[] = [];
 
-  datos: any = {
-    matriculaNo: '', tomo: '', pagina: '', cursoId: '',
-    apellidos: '', nombres: '', cedula: '',
-    sexo: '',
-    fechaNacimiento: '', pais: 'ECUADOR', provincia: '', canton: '',
-    parroquia: '', ciudad: '', nacionalidad: 'ECUATORIANA',
-    calle: '', num: '', transversal: '', telefono: '',
-    correo: '', correoestudiante: '',
-    nivelEstudio: '',
-    tipoBachiller: '',
-    cursoanterior: '', unidadeducativa: '', centroformacionanterior: '',
-    conferidoPorA1: '', conferidoPorA2: '',
-    nombrepapa: '', profesionpapa: '', ocupacionpapa: '',
-    nombremama: '', profesionmama: '', ocupacionmama: '',
-    nombrerepresentante: '', ocupacionrepresentante: '',
-    domiciliorepresentante: '', telefonorepresentante: '',
-    lugarfechamatricula: '', especialidad: '', lugarfechacertificado: ''
-  };
+  private readonly fb = inject(FormBuilder);
+  private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly form = this.fb.nonNullable.group({
+    ...DATOS_MATRICULA_INICIALES,
+    cursoId: [DATOS_MATRICULA_INICIALES.cursoId, Validators.required],
+    nombres: ['', [Validators.required, Validators.maxLength(100)]],
+    apellidos: ['', [Validators.required, Validators.maxLength(100)]],
+    cedula: ['', [Validators.required, Validators.maxLength(10)]],
+    correoestudiante: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+  });
+
+  get datos() { return this.form.getRawValue(); }
+
+  abrirLlenadoInteligente(): void {
+    this.dialog.open<LlenadoInteligenteDialog, void, ResultadoLlenado>(LlenadoInteligenteDialog, {
+      width: '720px', maxWidth: '95vw', autoFocus: 'first-tabbable',
+    }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((resultado) => {
+      if (resultado) this.aplicarDatosExtraidos(resultado);
+    });
+  }
+
+  aplicarDatosExtraidos(resultado: ResultadoLlenado): void {
+    const cambios: Record<string, string> = {};
+    for (const campo of Object.keys(ETIQUETAS_EXTRACCION) as (keyof typeof ETIQUETAS_EXTRACCION)[]) {
+      const valor = resultado.datos[campo];
+      if (typeof valor !== 'string' || !valor.trim()) continue;
+      const control = this.form.controls[campo];
+      const esPredeterminado = !control.dirty && control.value === DATOS_MATRICULA_INICIALES[campo];
+      if (resultado.reemplazar || !control.value.trim() || esPredeterminado) cambios[campo] = valor.trim();
+    }
+    if (!Object.keys(cambios).length) {
+      this.snackBar.open('Los campos detectados ya están completos. Activa reemplazar si deseas cambiarlos.', 'OK', { duration: 4500 });
+      return;
+    }
+    if (cambios['cedula'] && cambios['cedula'] !== this.datos.cedula) this.ultimaCedulaConsultada = '';
+    // No dispara la consulta de cédula ni borra otros campos al aplicar una extracción.
+    this.form.patchValue(cambios, { emitEvent: false });
+    for (const campo of Object.keys(cambios)) this.form.get(campo)?.markAsDirty();
+    this.form.markAsDirty();
+    this.cdr.markForCheck();
+    this.snackBar.open('Datos aplicados. Revísalos antes de guardar la matrícula.', 'OK', { duration: 4500 });
+  }
 
   constructor(
     private matriculaService: MatriculaService,
@@ -60,12 +89,15 @@ export class NuevaMatricula implements OnInit {
 
   ngOnInit() {
     this.titleService.setTitle('Matrícula');
+    this.form.controls.cedula.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.onCedulaChange());
     this.matriculaService.getCursos().subscribe({
       next: (cursos) => {
         this.cursos = cursos;
+        this.cdr.markForCheck();
         const cursoId = this.route.snapshot.queryParams['cursoId'];
         if (cursoId) {
-          this.datos.cursoId = Number(cursoId);
+          this.form.controls.cursoId.setValue(Number(cursoId));
           this.onCursoChange();
         }
       },
@@ -78,11 +110,11 @@ export class NuevaMatricula implements OnInit {
   // solo verifica; no debe cambiar nada.
   onCursoChange() {
     if (!this.datos.cursoId) return;
-    this.matriculaService.getSiguienteMatricula(this.datos.cursoId).subscribe({
+    this.matriculaService.getSiguienteMatricula(Number(this.datos.cursoId)).subscribe({
       next: (p: any) => {
-        this.datos.matriculaNo = p.matriculaNo;
-        this.datos.tomo = p.tomo;
-        this.datos.pagina = p.pagina;
+        this.form.controls.matriculaNo.setValue(p.matriculaNo);
+        this.form.controls.tomo.setValue(p.tomo);
+        this.form.controls.pagina.setValue(p.pagina);
         // App zoneless: forzar el refresco de la vista al llegar la respuesta.
         this.cdr.markForCheck();
       },
@@ -101,14 +133,21 @@ export class NuevaMatricula implements OnInit {
   }
 
   guardar() {
+    if (this.loading || this.consultandoCedula) return;
     if (!this.datos.cursoId) {
       this.snackBar.open('Selecciona un curso', 'OK', { duration: 3000 });
+      return;
+    }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snackBar.open('Revisa los campos obligatorios: curso, nombres, apellidos, cédula y correo del estudiante.', 'OK', { duration: 4500 });
       return;
     }
     this.loading = true;
     this.matriculaService.crearMatricula(this.datos).subscribe({
       next: () => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.snackBar.open('Matrícula guardada exitosamente', 'OK', { duration: 3000 });
         // Vuelve al detalle del curso, donde ya aparece el nuevo estudiante.
         // La matrícula se puede descargar después desde ahí.
@@ -116,6 +155,7 @@ export class NuevaMatricula implements OnInit {
       },
       error: (err) => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.snackBar.open(err.error?.error || 'Error al crear matrícula', 'OK', { duration: 4000 });
       }
     });
@@ -148,26 +188,26 @@ export class NuevaMatricula implements OnInit {
         const { nivelEstudio, tipoBachiller } = this.mapearInstruccion(d.instruccion);
         // Se asignan TODOS los campos, con '' cuando la respuesta no los trae.
         // Usar `d.x || this.datos.x` dejaría residuos de la cédula anterior.
-        this.datos.cedula = d.cedula ?? this.datos.cedula;
-        this.datos.apellidos = d.apellidos ?? '';
-        this.datos.nombres = d.nombres ?? '';
-        this.datos.sexo = d.sexo ?? '';
-        this.datos.fechaNacimiento = d.fechaNacimiento ?? '';
-        this.datos.pais = d.pais ?? 'ECUADOR';
-        this.datos.nacionalidad = d.nacionalidad ?? '';
-        this.datos.provincia = d.provincia ?? '';
-        this.datos.canton = d.canton ?? '';
-        this.datos.parroquia = d.parroquia ?? '';
-        this.datos.ciudad = d.ciudad ?? '';
-        this.datos.calle = d.calle ?? '';
-        this.datos.num = d.num ?? '';
-        this.datos.transversal = d.transversal ?? '';
-        this.datos.telefono = d.telefono ?? '';
-        this.datos.correoestudiante = d.correo ?? '';
-        this.datos.nivelEstudio = nivelEstudio;
-        this.datos.tipoBachiller = tipoBachiller;
-        this.datos.nombrepapa = d.nombrepapa ?? '';
-        this.datos.nombremama = d.nombremama ?? '';
+        this.form.controls.cedula.setValue(d.cedula ?? this.datos.cedula);
+        this.form.controls.apellidos.setValue(d.apellidos ?? '');
+        this.form.controls.nombres.setValue(d.nombres ?? '');
+        this.form.controls.sexo.setValue(d.sexo ?? '');
+        this.form.controls.fechaNacimiento.setValue(d.fechaNacimiento ?? '');
+        this.form.controls.pais.setValue(d.pais ?? 'ECUADOR');
+        this.form.controls.nacionalidad.setValue(d.nacionalidad ?? '');
+        this.form.controls.provincia.setValue(d.provincia ?? '');
+        this.form.controls.canton.setValue(d.canton ?? '');
+        this.form.controls.parroquia.setValue(d.parroquia ?? '');
+        this.form.controls.ciudad.setValue(d.ciudad ?? '');
+        this.form.controls.calle.setValue(d.calle ?? '');
+        this.form.controls.num.setValue(d.num ?? '');
+        this.form.controls.transversal.setValue(d.transversal ?? '');
+        this.form.controls.telefono.setValue(d.telefono ?? '');
+        this.form.controls.correoestudiante.setValue(d.correo ?? '');
+        this.form.controls.nivelEstudio.setValue(nivelEstudio);
+        this.form.controls.tipoBachiller.setValue(tipoBachiller);
+        this.form.controls.nombrepapa.setValue(d.nombrepapa ?? '');
+        this.form.controls.nombremama.setValue(d.nombremama ?? '');
         this.consultandoCedula = false;
         this.cdr.markForCheck();
         this.snackBar.open('Datos cargados desde el Registro Civil', 'OK', { duration: 3000 });
@@ -197,25 +237,25 @@ export class NuevaMatricula implements OnInit {
   // tomo, página, curso ni ningún otro dato administrativo, porque esos no
   // pertenecen a la persona consultada.
   private limpiarDatosConsultaCedula(): void {
-    this.datos.apellidos = '';
-    this.datos.nombres = '';
-    this.datos.sexo = '';
-    this.datos.fechaNacimiento = '';
-    this.datos.pais = 'ECUADOR';
-    this.datos.nacionalidad = '';
-    this.datos.provincia = '';
-    this.datos.canton = '';
-    this.datos.parroquia = '';
-    this.datos.ciudad = '';
-    this.datos.calle = '';
-    this.datos.num = '';
-    this.datos.transversal = '';
-    this.datos.telefono = '';
-    this.datos.correoestudiante = '';
-    this.datos.nivelEstudio = '';
-    this.datos.tipoBachiller = '';
-    this.datos.nombrepapa = '';
-    this.datos.nombremama = '';
+    this.form.controls.apellidos.setValue('');
+    this.form.controls.nombres.setValue('');
+    this.form.controls.sexo.setValue('');
+    this.form.controls.fechaNacimiento.setValue('');
+    this.form.controls.pais.setValue('ECUADOR');
+    this.form.controls.nacionalidad.setValue('');
+    this.form.controls.provincia.setValue('');
+    this.form.controls.canton.setValue('');
+    this.form.controls.parroquia.setValue('');
+    this.form.controls.ciudad.setValue('');
+    this.form.controls.calle.setValue('');
+    this.form.controls.num.setValue('');
+    this.form.controls.transversal.setValue('');
+    this.form.controls.telefono.setValue('');
+    this.form.controls.correoestudiante.setValue('');
+    this.form.controls.nivelEstudio.setValue('');
+    this.form.controls.tipoBachiller.setValue('');
+    this.form.controls.nombrepapa.setValue('');
+    this.form.controls.nombremama.setValue('');
   }
 
   // Traduce el texto libre de instrucción del Registro Civil a los valores
@@ -251,11 +291,11 @@ export class NuevaMatricula implements OnInit {
   // El domicilio del representante no se toca (puede ser distinto).
   usarRepresentante(quien: 'padre' | 'madre'): void {
     if (quien === 'padre') {
-      this.datos.nombrerepresentante = this.datos.nombrepapa || this.datos.nombrerepresentante;
-      this.datos.ocupacionrepresentante = this.datos.ocupacionpapa || this.datos.ocupacionrepresentante;
+      this.form.controls.nombrerepresentante.setValue(this.datos.nombrepapa || this.datos.nombrerepresentante);
+      this.form.controls.ocupacionrepresentante.setValue(this.datos.ocupacionpapa || this.datos.ocupacionrepresentante);
     } else {
-      this.datos.nombrerepresentante = this.datos.nombremama || this.datos.nombrerepresentante;
-      this.datos.ocupacionrepresentante = this.datos.ocupacionmama || this.datos.ocupacionrepresentante;
+      this.form.controls.nombrerepresentante.setValue(this.datos.nombremama || this.datos.nombrerepresentante);
+      this.form.controls.ocupacionrepresentante.setValue(this.datos.ocupacionmama || this.datos.ocupacionrepresentante);
     }
     this.cdr.markForCheck();
   }
@@ -270,9 +310,11 @@ export class NuevaMatricula implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.snackBar.open('Error al descargar documento', 'OK', { duration: 3000 });
       }
     });

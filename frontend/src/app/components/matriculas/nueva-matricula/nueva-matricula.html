@@ -18,12 +18,22 @@
 </mat-toolbar>
 
 <div class="page-wrapper">
+  <section class="smart-fill-banner" aria-label="Llenado inteligente">
+    <div>
+      <h2><mat-icon>auto_awesome</mat-icon> Llenado inteligente</h2>
+      <p>Dicta o escribe los datos del estudiante y revísalos antes de guardarlos.</p>
+    </div>
+    <button mat-flat-button type="button" class="btn-smart-fill" (click)="abrirLlenadoInteligente()"
+      [disabled]="loading || consultandoCedula">
+      <mat-icon>mic</mat-icon> Llenar por voz o texto
+    </button>
+  </section>
   <mat-card class="enrollment-card">
     <mat-card-header class="main-card-header">
       <mat-card-title>Registro de Matrícula</mat-card-title>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content [formGroup]="form">
       
       <div class="form-section">
         <div class="section-header">
@@ -33,21 +43,21 @@
         <div class="row-grid-4">
           <mat-form-field appearance="outline">
             <mat-label>Matrícula</mat-label>
-            <input matInput [(ngModel)]="datos.matriculaNo" readonly placeholder="Automática">
+            <input matInput formControlName="matriculaNo" readonly placeholder="Automática">
             <mat-hint>Se asigna sola según el curso</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Tomo</mat-label>
-            <input matInput [(ngModel)]="datos.tomo" placeholder="Ej. 1">
+            <input matInput formControlName="tomo" placeholder="Ej. 1">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Página</mat-label>
-            <input matInput [(ngModel)]="datos.pagina" readonly placeholder="Automática">
+            <input matInput formControlName="pagina" readonly placeholder="Automática">
             <mat-hint>Se calcula automáticamente</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Curso</mat-label>
-            <mat-select [(ngModel)]="datos.cursoId" (selectionChange)="onCursoChange()">
+            <mat-select formControlName="cursoId" (selectionChange)="onCursoChange()">
               @for (curso of cursos; track curso.id) {
                 <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
               }
@@ -66,7 +76,7 @@
         <div class="row-grid-4">
           <mat-form-field appearance="outline">
             <mat-label>Cédula / Pasaporte</mat-label>
-            <input matInput [(ngModel)]="datos.cedula" (ngModelChange)="onCedulaChange()"
+            <input matInput formControlName="cedula"
               (keyup.enter)="buscarPorCedula()" maxlength="10">
             @if (consultandoCedula) {
               <mat-spinner matSuffix diameter="20"></mat-spinner>
@@ -79,15 +89,15 @@
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Apellidos</mat-label>
-            <input matInput [(ngModel)]="datos.apellidos">
+            <input matInput formControlName="apellidos">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Nombres</mat-label>
-            <input matInput [(ngModel)]="datos.nombres">
+            <input matInput formControlName="nombres">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Sexo</mat-label>
-            <mat-select [(ngModel)]="datos.sexo">
+            <mat-select formControlName="sexo">
                 <mat-option value="Masculino">Masculino</mat-option>
                 <mat-option value="Femenino">Femenino</mat-option>
                 <mat-option value="Otro">Otro</mat-option>
@@ -98,44 +108,44 @@
         <div class="row-grid-4">
           <mat-form-field appearance="outline">
             <mat-label>Fecha de Nacimiento</mat-label>
-            <input matInput type="date" [(ngModel)]="datos.fechaNacimiento">
+            <input matInput type="date" formControlName="fechaNacimiento">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>País</mat-label>
-            <input matInput [(ngModel)]="datos.pais">
+            <input matInput formControlName="pais">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Provincia</mat-label>
-            <input matInput [(ngModel)]="datos.provincia">
+            <input matInput formControlName="provincia">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Cantón</mat-label>
-            <input matInput [(ngModel)]="datos.canton">
+            <input matInput formControlName="canton">
           </mat-form-field>
         </div>
 
         <div class="row-grid-4">
           <mat-form-field appearance="outline">
             <mat-label>Parroquia</mat-label>
-            <input matInput [(ngModel)]="datos.parroquia">
+            <input matInput formControlName="parroquia">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Ciudad</mat-label>
-            <input matInput [(ngModel)]="datos.ciudad">
+            <input matInput formControlName="ciudad">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Nacionalidad</mat-label>
-            <input matInput [(ngModel)]="datos.nacionalidad">
+            <input matInput formControlName="nacionalidad">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Teléfono</mat-label>
-            <input matInput [(ngModel)]="datos.telefono">
+            <input matInput formControlName="telefono">
           </mat-form-field>
         </div>
         
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Correo Electrónico del Estudiante</mat-label>
-          <input matInput [(ngModel)]="datos.correoestudiante">
+          <input matInput type="email" formControlName="correoestudiante">
           <mat-icon matPrefix>mail_outline</mat-icon>
         </mat-form-field>
       </div>
@@ -150,15 +160,15 @@
         <div class="row-grid-3">
           <mat-form-field appearance="outline">
             <mat-label>Calle Principal</mat-label>
-            <input matInput [(ngModel)]="datos.calle">
+            <input matInput formControlName="calle">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Número</mat-label>
-            <input matInput [(ngModel)]="datos.num">
+            <input matInput formControlName="num">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Transversal</mat-label>
-            <input matInput [(ngModel)]="datos.transversal">
+            <input matInput formControlName="transversal">
           </mat-form-field>
         </div>
       </div>
@@ -173,7 +183,7 @@
         <div class="row-grid-3">
           <mat-form-field appearance="outline">
             <mat-label>Nivel de Estudio</mat-label>
-            <mat-select [(ngModel)]="datos.nivelEstudio">
+            <mat-select formControlName="nivelEstudio">
               <mat-option value="a1">A.1 — Primaria o 7mo Año de EBC</mat-option>
               <mat-option value="a2">A.2 — Ciclo Básico o 10mo Año de EBC</mat-option>
               <mat-option value="a4">A.4 — Título (Bachiller / Superior / Otro)</mat-option>
@@ -181,25 +191,25 @@
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Curso Anterior</mat-label>
-            <input matInput [(ngModel)]="datos.cursoanterior">
+            <input matInput formControlName="cursoanterior">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Centro de Formación Anterior</mat-label>
-            <input matInput [(ngModel)]="datos.centroformacionanterior">
+            <input matInput formControlName="centroformacionanterior">
           </mat-form-field>
         </div>
 
         @if (datos.nivelEstudio === 'a1') {
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Conferido por (Establecimiento A.1)</mat-label>
-            <input matInput [(ngModel)]="datos.conferidoPorA1">
+            <input matInput formControlName="conferidoPorA1">
           </mat-form-field>
         }
 
         @if (datos.nivelEstudio === 'a2') {
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Conferido por (Establecimiento A.2)</mat-label>
-            <input matInput [(ngModel)]="datos.conferidoPorA2">
+            <input matInput formControlName="conferidoPorA2">
           </mat-form-field>
         }
 
@@ -207,7 +217,7 @@
           <div class="row-grid-3">
             <mat-form-field appearance="outline">
               <mat-label>Tipo de Título</mat-label>
-              <mat-select [(ngModel)]="datos.tipoBachiller">
+              <mat-select formControlName="tipoBachiller">
                 <mat-option value="Bachiller">Bachiller</mat-option>
                 <mat-option value="Superior">Superior</mat-option>
                 <mat-option value="Otro">Otro</mat-option>
@@ -215,11 +225,11 @@
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Especialidad</mat-label>
-              <input matInput [(ngModel)]="datos.especialidad">
+              <input matInput formControlName="especialidad">
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Unidad Educativa (Conferido por)</mat-label>
-              <input matInput [(ngModel)]="datos.unidadeducativa">
+              <input matInput formControlName="unidadeducativa">
             </mat-form-field>
           </div>
         }
@@ -237,15 +247,15 @@
         <div class="row-grid-3">
           <mat-form-field appearance="outline">
             <mat-label>Nombre Completo</mat-label>
-            <input matInput [(ngModel)]="datos.nombrepapa">
+            <input matInput formControlName="nombrepapa">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Profesión</mat-label>
-            <input matInput [(ngModel)]="datos.profesionpapa">
+            <input matInput formControlName="profesionpapa">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Ocupación</mat-label>
-            <input matInput [(ngModel)]="datos.ocupacionpapa">
+            <input matInput formControlName="ocupacionpapa">
           </mat-form-field>
         </div>
 
@@ -253,15 +263,15 @@
         <div class="row-grid-3">
           <mat-form-field appearance="outline">
             <mat-label>Nombre Completo</mat-label>
-            <input matInput [(ngModel)]="datos.nombremama">
+            <input matInput formControlName="nombremama">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Profesión</mat-label>
-            <input matInput [(ngModel)]="datos.profesionmama">
+            <input matInput formControlName="profesionmama">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Ocupación</mat-label>
-            <input matInput [(ngModel)]="datos.ocupacionmama">
+            <input matInput formControlName="ocupacionmama">
           </mat-form-field>
         </div>
 
@@ -280,19 +290,19 @@
         <div class="row-grid-4">
           <mat-form-field appearance="outline">
             <mat-label>Nombre del Representante</mat-label>
-            <input matInput [(ngModel)]="datos.nombrerepresentante">
+            <input matInput formControlName="nombrerepresentante">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Ocupación</mat-label>
-            <input matInput [(ngModel)]="datos.ocupacionrepresentante">
+            <input matInput formControlName="ocupacionrepresentante">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Domicilio</mat-label>
-            <input matInput [(ngModel)]="datos.domiciliorepresentante">
+            <input matInput formControlName="domiciliorepresentante">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Teléfono</mat-label>
-            <input matInput [(ngModel)]="datos.telefonorepresentante">
+            <input matInput formControlName="telefonorepresentante">
           </mat-form-field>
         </div>
       </div>
@@ -307,11 +317,11 @@
         <div class="row-grid-2">
           <mat-form-field appearance="outline">
             <mat-label>Lugar y Fecha de Matrícula</mat-label>
-            <input matInput [(ngModel)]="datos.lugarfechamatricula" placeholder="Ej. Riobamba, 03 de marzo del 2026">
+            <input matInput formControlName="lugarfechamatricula" placeholder="Ej. Riobamba, 03 de marzo del 2026">
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Lugar y Fecha de Certificado</mat-label>
-            <input matInput [(ngModel)]="datos.lugarfechacertificado" placeholder="Ej. Riobamba, 03 de marzo del 2026">
+            <input matInput formControlName="lugarfechacertificado" placeholder="Ej. Riobamba, 03 de marzo del 2026">
           </mat-form-field>
         </div>
       </div>
@@ -320,7 +330,7 @@
 
     <mat-card-actions align="end" class="form-actions">
       <button mat-button class="btn-cancel" (click)="volver()">CANCELAR</button>
-      <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="loading">
+      <button mat-flat-button class="btn-submit" (click)="guardar()" [disabled]="loading || consultandoCedula">
         @if (loading) {
           <mat-spinner diameter="20"></mat-spinner>
         } @else {
