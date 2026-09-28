@@ -86,4 +86,48 @@ describe('NuevaMatricula: formulario reactivo y llenado inteligente', () => {
     component.guardar();
     expect(service.crearMatricula).toHaveBeenCalledWith(expect.objectContaining({ cursoId: 8, nombres: 'Ana', correoestudiante: 'ana@example.com' }));
   });
+
+  it('limpia los datos extraídos antes de mostrarlos sin modificar el resultado original', () => {
+    const datos = {
+      nombres: '  MIGUEL   ANÍBAL  ',
+      apellidos: 'kaiza   VEGA',
+      canton: '  riobamba ',
+      provincia: 'CHIMBORAZO',
+      parroquia: 'san   juan',
+      nombrepapa: 'JOSÉ  DE LA CRUZ',
+      nombremama: 'maría-josé  pérez',
+      profesionpapa: '  mecánico   de CNC ',
+      ocupacionmama: 'docente\tde Inglés',
+    };
+    component.aplicarDatosExtraidos({ datos, reemplazar: true });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[formControlName="nombres"]').value).toBe('Miguel Aníbal');
+    expect(component.datos).toMatchObject({
+      apellidos: 'Kaiza Vega', canton: 'Riobamba', provincia: 'Chimborazo',
+      parroquia: 'San Juan', nombrepapa: 'José de la Cruz', nombremama: 'María-José Pérez',
+      profesionpapa: 'Mecánico de CNC', ocupacionmama: 'Docente de Inglés',
+    });
+    expect(datos.nombres).toBe('  MIGUEL   ANÍBAL  ');
+    expect(service.consultarCedula).not.toHaveBeenCalled();
+    expect(service.crearMatricula).not.toHaveBeenCalled();
+  });
+
+  it('conserva códigos, correo y campos existentes al normalizar únicamente los cambios aceptados', () => {
+    component.form.controls.nombres.setValue('Nombre  manual');
+    component.aplicarDatosExtraidos({
+      datos: {
+        nombres: 'otro  nombre', correoestudiante: 'Ana.Prueba@Example.com',
+        cedula: '0012345678', telefono: '0990000000', fechaNacimiento: '2003-04-15',
+        nivelEstudio: 'a4', sexo: 'Femenino', tipoBachiller: 'Bachiller',
+        domiciliorepresentante: '  Av.   Principal\n123 ',
+      },
+      reemplazar: false,
+    });
+    expect(component.datos).toMatchObject({
+      nombres: 'Nombre  manual', correoestudiante: 'Ana.Prueba@Example.com',
+      cedula: '0012345678', telefono: '0990000000', fechaNacimiento: '2003-04-15',
+      nivelEstudio: 'a4', sexo: 'Femenino', tipoBachiller: 'Bachiller',
+      domiciliorepresentante: 'Av. Principal 123',
+    });
+  });
 });

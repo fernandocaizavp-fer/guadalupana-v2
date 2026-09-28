@@ -1,18 +1,11 @@
-frontend\src\app\components\landing\landing.html aqui coloca el codigo de voice, esa es la landing page que asoma apenas se inicia
+La conexión con Groq funciona y el formulario se llena, pero los datos extraídos llegan con mala ortografía, sin mayúsculas y desordenados (ej: 'kaiza Vega', 'Miguel aníbalcaiza flores', 'mecánico').
 
+Modifica el archivo frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts. Crea una función de utilidad que recorra los datos de la variable cambios antes de pasarlos a patchValue. Esta función debe:
 
-<script type="text/javascript">
-  (function(d, t) {
-      var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
-      v.onload = function() {
-        window.voiceflow.chat.load({
-          verify: { projectID: '6ab894ab6920e1782997de07' },
-          url: 'https://general-runtime.voiceflow.com',
-          voice: {
-            url: "https://runtime-api.voiceflow.com"
-          }
-        });
-      }
-      v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
-  })(document, 'script');
-</script>
+Capitalizar correctamente los nombres propios (nombres, apellidos, cantón, provincia, parroquia).
+
+Poner en mayúscula la primera letra de campos descriptivos (profesión, ocupación).
+
+Asegurarse de que no haya dobles espacios en los textos.
+
+Aplica este filtro al objeto cambios en la función aplicarDatosExtraidos para que el formulario se vea limpio y profesional."

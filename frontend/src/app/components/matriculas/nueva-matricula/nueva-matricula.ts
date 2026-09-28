@@ -69,13 +69,40 @@ export class NuevaMatricula implements OnInit {
       this.snackBar.open('Los campos detectados ya están completos. Activa reemplazar si deseas cambiarlos.', 'OK', { duration: 4500 });
       return;
     }
-    if (cambios['cedula'] && cambios['cedula'] !== this.datos.cedula) this.ultimaCedulaConsultada = '';
+    const cambiosNormalizados = this.normalizarDatosExtraidos(cambios);
+    if (cambiosNormalizados['cedula'] && cambiosNormalizados['cedula'] !== this.datos.cedula) this.ultimaCedulaConsultada = '';
     // No dispara la consulta de cédula ni borra otros campos al aplicar una extracción.
-    this.form.patchValue(cambios, { emitEvent: false });
-    for (const campo of Object.keys(cambios)) this.form.get(campo)?.markAsDirty();
+    this.form.patchValue(cambiosNormalizados, { emitEvent: false });
+    for (const campo of Object.keys(cambiosNormalizados)) this.form.get(campo)?.markAsDirty();
     this.form.markAsDirty();
     this.cdr.markForCheck();
     this.snackBar.open('Datos aplicados. Revísalos antes de guardar la matrícula.', 'OK', { duration: 4500 });
+  }
+
+  private normalizarDatosExtraidos(cambios: Record<string, string>): Record<string, string> {
+    const nombresPropios = new Set([
+      'nombres', 'apellidos', 'nombrepapa', 'nombremama', 'nombrerepresentante',
+      'pais', 'provincia', 'canton', 'parroquia', 'ciudad',
+    ]);
+    const descriptivos = new Set([
+      'profesionpapa', 'profesionmama',
+      'ocupacionpapa', 'ocupacionmama', 'ocupacionrepresentante',
+    ]);
+    const enlaces = new Set(['de', 'del', 'la', 'las', 'los', 'el', 'y', 'e']);
+
+    return Object.fromEntries(Object.entries(cambios).map(([campo, texto]) => {
+      let valor = texto.replace(/\s+/gu, ' ').trim();
+      if (nombresPropios.has(campo)) {
+        valor = valor.toLocaleLowerCase('es').split(' ').map((palabra, indice) => {
+          if (indice > 0 && enlaces.has(palabra)) return palabra;
+          return palabra.replace(/(^|[-'’])\p{L}/gu, inicio => inicio.toLocaleUpperCase('es'));
+        }).join(' ');
+      } else if (descriptivos.has(campo)) {
+        // Conserva las siglas y nombres propios que aparezcan en la descripción.
+        valor = valor.replace(/^\p{L}/u, inicial => inicial.toLocaleUpperCase('es'));
+      }
+      return [campo, valor];
+    }));
   }
 
   constructor(
