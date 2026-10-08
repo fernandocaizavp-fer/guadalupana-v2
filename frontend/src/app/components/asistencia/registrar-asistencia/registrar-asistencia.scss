@@ -490,3 +490,76 @@ $rojo-border: #fca5a5;
     background: $rojo-bg !important;
   }
 }
+
+@media (max-width: 768px) {
+  .asistencia-toolbar {
+    height: auto !important;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .stats-chips {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .page-wrapper {
+    padding: 12px 10px;
+  }
+
+  .registro-card {
+    border-radius: 12px;
+    padding: 16px 12px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .fecha-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .acciones-masivas {
+    flex-direction: column;
+    gap: 8px;
+
+    .accion-btn {
+      width: 100%;
+    }
+  }
+
+  .estudiante-row {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .guardar-row .guardar-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .historial-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    .historial-stats {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+}

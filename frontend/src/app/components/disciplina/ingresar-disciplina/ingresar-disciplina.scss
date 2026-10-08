@@ -309,3 +309,62 @@ $white: #ffffff;
     }
   }
 }
+
+@media (max-width: 768px) {
+  .disciplina-toolbar {
+    height: auto !important;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .semestre-tabs {
+    margin-right: 0;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .students-chip {
+    align-self: flex-start;
+  }
+
+  .page-wrapper {
+    padding: 12px 10px;
+  }
+
+  .info-card {
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+
+  .tabla-card {
+    border-radius: 12px;
+  }
+
+  .tabla-header, .tabla-row {
+    grid-template-columns: 36px 1fr 90px;
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .nota-input {
+    width: 70px;
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  .guardar-row .guardar-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

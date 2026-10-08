@@ -177,7 +177,7 @@ $white: #ffffff;
   gap: 16px;
   padding: 24px 28px;
 
-  mat-form-field { width: 100%; }
+  mat-form-field { width: 100%; min-width: 0; }
 
   .col-span-2 { grid-column: span 2; }
 }
@@ -612,4 +612,95 @@ $white: #ffffff;
     .entrega-com { display: block; font-size: 12px; color: #64748b; margin-top: 2px; }
   }
 }
+}
+
+@media (max-width: 768px) {
+  .tareas-toolbar {
+    height: auto !important;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .semestre-tabs {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .page-wrapper {
+    padding: 12px 10px;
+  }
+
+  .crear-card {
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  .card-header {
+    padding: 14px 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    padding: 16px 14px;
+    gap: 14px;
+
+    .col-span-2 {
+      grid-column: span 1;
+    }
+  }
+
+  .card-footer {
+    padding: 14px 16px;
+    flex-direction: column-reverse;
+    gap: 10px;
+
+    button {
+      width: 100%;
+      margin: 0 !important;
+    }
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    .section-actions {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+
+  .tareas-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .tarea-card {
+    border-radius: 12px;
+  }
+
+  .tarea-card-top {
+    padding: 16px 14px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tarea-actions {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    button {
+      flex: 1;
+    }
+  }
 }

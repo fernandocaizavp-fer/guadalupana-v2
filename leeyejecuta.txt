@@ -1,11 +1,22 @@
-La conexión con Groq funciona y el formulario se llena, pero los datos extraídos llegan con mala ortografía, sin mayúsculas y desordenados (ej: 'kaiza Vega', 'Miguel aníbalcaiza flores', 'mecánico').
+"Necesito mejorar la experiencia de usuario y la comprensión de la IA en la extracción de datos de la matrícula. Realiza los siguientes cambios:
 
-Modifica el archivo frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts. Crea una función de utilidad que recorra los datos de la variable cambios antes de pasarlos a patchValue. Esta función debe:
+1. Interfaz de Usuario (Frontend):
+El modal actual bloquea el formulario. Modifica la configuración de this.dialog.open en frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts.
 
-Capitalizar correctamente los nombres propios (nombres, apellidos, cantón, provincia, parroquia).
+Añade hasBackdrop: false para que el usuario pueda hacer scroll e interactuar con el formulario que está detrás.
 
-Poner en mayúscula la primera letra de campos descriptivos (profesión, ocupación).
+Configura la posición para que flote a la derecha usando position: { top: '20px', right: '20px' } (o similar, anclado a un lado).
 
-Asegurarse de que no haya dobles espacios en los textos.
+Asegúrate de que el modal tenga una altura manejable y sombra para que parezca un panel lateral o widget flotante que no estorbe.
 
-Aplica este filtro al objeto cambios en la función aplicarDatosExtraidos para que el formulario se vea limpio y profesional."
+2. Inteligencia Artificial (Backend):
+La IA a veces no comprende el texto porque los datos se ingresan como una conversación (ej. Administrador: '¿Cuál es el nombre de tu mamá?' Usuario: 'María').
+Modifica la constante PROMPT_EXTRACCION en backend/src/lib/matricula-extraccion.ts.
+
+Añade instrucciones estrictas indicando que el texto de entrada puede ser una transcripción de una conversación informal o una entrevista.
+
+Dile a la IA que debe inferir a quién pertenece cada dato basándose en el contexto conversacional (si alguien pregunta por 'el papá' y la respuesta es 'Juan', Juan es el nombre del padre).
+
+Refuerza que la IA debe ser tolerante a muletillas, pausas, texto desordenado y falta de ortografía, limpiando y capitalizando correctamente los nombres propios antes de devolver el JSON.
+
+Entrégame el código actualizado de la configuración del modal (Frontend) y de la constante del prompt (Backend)."

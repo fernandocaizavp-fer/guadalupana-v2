@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { NuevaMatricula } from './nueva-matricula';
 import { MatriculaService } from '../../../services/matricula';
@@ -129,5 +129,27 @@ describe('NuevaMatricula: formulario reactivo y llenado inteligente', () => {
       nivelEstudio: 'a4', sexo: 'Femenino', tipoBachiller: 'Bachiller',
       domiciliorepresentante: 'Av. Principal 123',
     });
+  });
+
+  it('abre un único panel y lo cierra al abandonar la pantalla', () => {
+    const cerrado = new Subject<any>();
+    const cerrar = vi.fn();
+    const dialog = fixture.debugElement.injector.get(MatDialog);
+    vi.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => cerrado, close: cerrar } as any);
+    component.abrirLlenadoInteligente();
+    component.abrirLlenadoInteligente();
+    expect(dialog.open).toHaveBeenCalledTimes(1);
+    const config = vi.mocked(dialog.open).mock.calls[0][1];
+    expect(config).toMatchObject({
+      hasBackdrop: false, autoFocus: false, restoreFocus: false, ariaModal: false,
+      position: { top: '20px', right: '20px' },
+      panelClass: 'llenado-inteligente-panel',
+    });
+    cerrado.next(undefined);
+    cerrado.complete();
+    component.abrirLlenadoInteligente();
+    expect(dialog.open).toHaveBeenCalledTimes(2);
+    fixture.destroy();
+    expect(cerrar).toHaveBeenCalledTimes(1);
   });
 });

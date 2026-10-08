@@ -315,3 +315,71 @@ $gold: #c8a84b;
 
   mat-icon { font-size: 14px; width: 14px; height: 14px; }
 }
+
+@media (max-width: 768px) {
+  .admin-toolbar {
+    height: auto;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .content {
+    padding: 12px 10px;
+  }
+
+  .form-card {
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  .form-header {
+    padding: 14px 16px;
+  }
+
+  .form-body {
+    padding: 16px 14px;
+
+    mat-form-field {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+
+    button {
+      width: 100%;
+      margin: 0 !important;
+    }
+  }
+
+  .anuncios-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .anuncio-card {
+    border-radius: 12px;
+  }
+
+  .anuncio-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+
+    button {
+      flex: 1;
+    }
+  }
+}

@@ -1,71 +1,61 @@
 # Guadalupana — contexto para retomar el proyecto
 
-## Formato de datos extraídos: cambio local del 28 de septiembre de 2026
+Actualizado: **28 de septiembre de 2026**. La sección 1 resume el estado actual. Las secciones históricas conservan decisiones anteriores; no deben usarse para volver a configurar Gemini ni repetir operaciones sobre la base.
 
-El usuario informó en la nueva versión de `leeyejecuta.txt` que la conexión con Groq funciona y el formulario se llena. Pidió limpiar capitalización y espacios antes de aplicar los datos.
+## 1. Leer esto primero al retomar
 
-En `frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts` se añadió `normalizarDatosExtraidos`, invocada sobre los cambios aceptados antes de `patchValue`. Capitaliza nombres del estudiante, familiares y representante, además de país, provincia, cantón, parroquia y ciudad; conserva enlaces internos como «de la» y maneja tildes y guiones. Eleva la primera letra de profesiones y ocupaciones conservando las siglas del resto del texto. Recorta extremos y reduce espacios repetidos en todos los textos aplicados.
+### Cambios locales más recientes: panel flotante y entrevistas
 
-Ejemplos: «kaiza   VEGA» → «Kaiza Vega», «MIGUEL   ANÍBAL» → «Miguel Aníbal», «mecánico   de CNC» → «Mecánico de CNC». No intenta corregir la escritura de apellidos ni separar nombres fusionados como «aníbalcaiza»: requieren revisión humana. Se mantienen la selección de reemplazo, los campos previos, códigos, fechas y correos, sin disparar consulta de cédula ni guardado automático.
+- Se atendió la nueva versión de `leeyejecuta.txt`: el diálogo se abre a la derecha, sin backdrop, con `scrollStrategy: this.overlay.scrollStrategies.noop()`, ancho 420 px y altura máxima adaptada al viewport. Mantiene foco manual y evita abrir varias copias. Al salir del componente se cierra y se detiene el dictado.
+- Estilos: sombra y borde en `frontend/src/styles.scss`; contenido flexible con scroll y acciones visibles en `llenado-inteligente-dialog.scss`.
+- `PROMPT_EXTRACCION` ahora contempla entrevistas informales, preguntas/respuestas, muletillas, errores de escritura, negaciones y correcciones. Atribuye datos por parentesco y contexto; no convierte automáticamente a padres en representantes ni usa correos de familiares como correos del estudiante. Mantiene el esquema y los validadores existentes.
+- Pruebas: 13 frontend y 12 backend aprobadas; build Angular de desarrollo y TypeScript backend aprobados. En Chrome local se comprobó panel sin backdrop, scroll del formulario, edición de nombres detrás del panel, conservación de esa edición al aplicar IA y ausencia de errores JavaScript o guardado automático.
+- También se revisó la vista móvil: el panel cabe en el viewport visual. El formulario existente ensancha el viewport móvil; no se modificó el diseño general del formulario.
+- Con el prompt final, tres casos ficticios de Groq devolvieron lo esperado: preguntas con correcciones y parentesco; preguntas sin respuestas (sin datos); entrevista a una madre (nombre materno y de la hija, sin suplantar representante ni correo del estudiante). Un intento intermedio encontró el límite temporal 429; se repitió el caso después, sin cambiar de plan ni habilitar cobros.
+- Estos cambios están locales, sin commit ni despliegue en esta tarea. El último commit observado sigue siendo `c16bb88`. El TXT del usuario y la actualización documental previa se conservan.
 
-Verificación: 12 pruebas frontend aprobadas, incluidas dos comprobaciones del nuevo filtro y conservación de datos. Cambio local, sin commit, push ni despliegue en esta tarea; último commit publicado sigue siendo `fe675e1`.
+### Estado del código y de producción
 
+- Sistema: Angular 21 en Vercel, Express 4 + TypeScript en Render y Prisma 6 sobre PostgreSQL/Supabase.
+- Sitio estable: https://guadalupana-v2.vercel.app. API: https://guadalupana-v2.onrender.com/api.
+- Repositorio: https://github.com/fernandocaizavp-fer/guadalupana-v2, rama `main`.
+- Último commit observado: **`c16bb880c1239c0a2917cd5a593977e14801ee8a` — `Configuracion del api grok`**. `main` y la referencia local `origin/main` apuntan a él. Incluye el filtro de formato, sus pruebas, los dos Markdown de contexto y el TXT actualizado.
+- Antes de esta actualización documental, `git status --short` estaba limpio. El filtro ya está registrado en Git; no volver a describirlo como un cambio sin commit.
+- Última versión cuyo frontend verificó el asistente en producción: **`fe675e1`**, migración a Groq, con bundle `main-ELXRUHZT.js`. El despliegue de `c16bb88` no se comprobó en esta actualización; la coincidencia de referencias Git no prueba que haya terminado.
+- El usuario informó que Groq funciona y el formulario se llena. El asistente también comprobó una extracción real desde el entorno local. No tuvo acceso al panel de Render ni verificó personalmente una extracción autenticada en producción.
+- El widget Voiceflow de la landing es independiente del llenado inteligente de matrículas.
 
-## Migración a Groq publicada el 28 de septiembre de 2026
+### Llenado inteligente actual
 
-Estado más reciente: commit `fe675e1c15a2a3dfba9f8243301742e34ad93c70` enviado a `origin/main`, posterior a la versión con Gemini. Se instaló `groq-sdk`, se retiró `@google/genai` y el controlador lee `GROQ_API_KEY`. Modelo por defecto: `openai/gpt-oss-20b`, configurable con `GROQ_MODEL`. Los modelos Llama indicados en el TXT fueron retirados; el reemplazo fue explicado antes de publicar.
+- Proveedor **Groq**, SDK `groq-sdk` 1.6.0. Modelo predeterminado **`openai/gpt-oss-20b`**, configurable mediante `GROQ_MODEL`.
+- Credencial: **`GROQ_API_KEY`** en el backend. La clave local estaba configurada y funcionó en la prueba real. El `.env` no se transfiere a Render con Git; no copiar secretos a este documento.
+- Gemini se sustituyó por sus errores 503. El SDK `@google/genai` se retiró; `GEMINI_API_KEY` y `GEMINI_MODEL` ya no controlan esta funcionalidad.
+- `POST /api/matriculas/extraer-datos` exige JWT y rol ADMIN; recibe `{ texto }` y devuelve JSON plano. No guarda matrículas ni consulta cédulas.
+- Conserva el prompt, el esquema y los validadores en `backend/src/lib/matricula-extraccion.ts`. Solicita `response_format: { type: 'json_object' }`, envía el esquema en otro mensaje system y valida la respuesta antes de devolverla.
+- Timeout de 30 segundos y sin reintentos automáticos del SDK. Errores controlados de entrada, formato, cuota, configuración, disponibilidad y tiempo de espera.
+- Nueva matrícula usa FormGroup con 41 controles; 37 son extraíbles. `cursoId`, `matriculaNo`, `tomo` y `pagina` mantienen el flujo administrativo existente.
+- El modal «Llenar por voz o texto» permite dictado nativo, texto manual, vista previa y aplicación con `patchValue`. Por defecto conserva valores existentes; reemplazarlos exige marcar la opción correspondiente. Guardar sigue siendo una acción manual.
 
-Se conservan sin cambios el archivo `backend/src/lib/matricula-extraccion.ts`, el System Prompt, el esquema y los validadores de datos. Groq recibe `response_format: { type: 'json_object' }`; el esquema se envía en un segundo mensaje system y se sigue validando la respuesta en el backend. Se mantienen JWT/ADMIN, timeout de 30 segundos y los códigos de error, adaptados al SDK. El aviso del modal ahora dice Groq.
+### Cambio incluido en c16bb88: limpieza del formato
 
-Pruebas: 12 backend y 10 frontend aprobadas; TypeScript backend y build Angular de producción aprobados. La llamada REAL a Groq con la clave local y datos ficticios funcionó: devolvió nombres, apellidos, fecha de nacimiento, correo del estudiante, nivel de estudio, tipo de bachiller, nombre de madre y profesión de madre; todos pasaron la validación. No se guardaron matrículas ni se cambió Prisma.
+En `frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts`, `aplicarDatosExtraidos` pasa los cambios aceptados por `normalizarDatosExtraidos` antes de `patchValue(..., { emitEvent: false })`.
 
-Vercel confirmó despliegue exitoso del commit. La ruta pública /matriculas/nueva devuelve HTTP 200 y carga main-ELXRUHZT.js (HTTP 200); el bundle contiene Groq, no contiene Google Gemini y conserva /extraer-datos. Render responde 401 `Token requerido` al consultar la ruta sin JWT: está disponible, pero esa respuesta no identifica si ya ejecuta este commit. No hay acceso al panel de Render ni una sesión ADMIN de producción para confirmar su versión y una extracción completa.
+- Capitaliza nombres y apellidos del estudiante, familiares y representante, además de país, provincia, cantón, parroquia y ciudad. Respeta tildes, guiones y enlaces internos como «de la».
+- Pone en mayúscula la primera letra de profesiones y ocupaciones; conserva siglas y nombres que aparezcan en el resto del texto.
+- Recorta extremos y reduce espacios repetidos a uno en los textos que se aplican.
+- Ejemplos: `kaiza   VEGA` → `Kaiza Vega`; `MIGUEL   ANÍBAL` → `Miguel Aníbal`; `mecánico   de CNC` → `Mecánico de CNC`.
+- No corrige apellidos por suposición ni separa nombres fusionados como `aníbalcaiza`: requieren revisión humana.
+- Conserva correos, códigos, ceros iniciales, fechas y campos existentes no seleccionados para reemplazar. No dispara la consulta de cédula ni guarda automáticamente.
 
-Pendiente del entorno de producción: confirmar `GROQ_API_KEY` en Render → Environment, guardarla y desplegar si aún no está. `GROQ_MODEL=openai/gpt-oss-20b` es opcional porque coincide con el predeterminado. La clave de Google no sirve para Groq. Se encontró la clave Groq local configurada, pero no se copia a Git ni demuestra que exista en Render. Se pidió confirmación al usuario. Los textos posteriores que describen Gemini son históricos.
+### Verificación y próximos pasos
 
-
-## Producción verificada el 28 de septiembre de 2026
-
-El usuario pidió «subelo a produccion», sustituyendo la restricción anterior de solo pruebas locales. Commit publicado en origin/main: `1c79ca6f9d0862b4652390acbbdda60d5941af4e` (`feat: llenar matriculas por voz y texto con Gemini 3.8 Flash`). Incluye 18 archivos de código y pruebas; `.env`, notas locales y el TXT de instrucciones no se incluyeron.
-
-- Compilación Angular de producción aprobada antes del push.
-- Vercel confirmó `success / Deployment has completed` para ese commit. El dominio estable https://guadalupana-v2.vercel.app sirve el nuevo bundle `main-PQBGLIVR.js` (HTTP 200), que contiene «Llenar por voz o texto», el endpoint de extracción y la URL de la API de Render.
-- La ruta pública https://guadalupana-v2.vercel.app/matriculas/nueva devuelve HTTP 200 con la versión actual de Angular; requiere iniciar sesión como ADMIN para usar el formulario.
-- Render ya sirve la ruta nueva: POST https://guadalupana-v2.onrender.com/api/matriculas/extraer-datos pasó de 404 durante el despliegue a 401 `Token requerido`, esperado sin autenticación. No se crearon matrículas ni se usaron cuentas ficticias en producción.
-- Pendiente: confirmar `GEMINI_API_KEY` en Environment de Render y `GEMINI_MODEL=gemini-3.8-flash` (también es el valor predeterminado del código). La clave local no se transfiere por Git. No hay credenciales del panel de Render disponibles en esta sesión; se pidió al usuario confirmar su configuración.
-- No se confirmó una extracción real autenticada en producción. Los intentos locales reales anteriores devolvieron 503 por alta demanda de Google. Las pruebas de interfaz y las 20 pruebas automatizadas anteriores siguen documentadas abajo.
-
-Las referencias posteriores a «solo local / no desplegado» describen el estado anterior a esta publicación. Para el estado actual prevalece esta sección.
-
-
-## Estado más reciente: llenado inteligente local (28 de septiembre de 2026)
-
-Esta sección actualiza el estado histórico descrito más abajo. Hay cambios locales pendientes; la funcionalidad nueva NO está en producción y NO se hizo commit, push ni despliegue.
-
-- Implementado el prompt actual de `leeyejecuta.txt`: FormGroup de 41 controles, modal de voz/texto, vista previa, `patchValue`, servicio JWT y endpoint ADMIN `POST /api/matriculas/extraer-datos` sin persistencia.
-- SDK oficial `@google/genai` 2.24.0. Modelo actual `gemini-3.8-flash`, solicitado después por el usuario; no usar la referencia antigua a 1.5 del TXT ni el intento anterior con 2.5.
-- `backend/.env` ya contiene la clave Gemini configurada y `GEMINI_MODEL="gemini-3.8-flash"`. No copiar la clave aquí ni reemplazarla por el marcador.
-- Verificación: 10 pruebas backend + 10 frontend aprobadas, TypeScript backend y build Angular de desarrollo aprobados. Chrome local comprobó modal y aplicación de datos con API simulada, sin guardar matrículas.
-- Integración real pendiente de éxito: Gemini 3.8 respondió 503 por alta demanda en dos intentos; se maneja con mensaje específico y se conserva el texto. Falta probar micrófono físico.
-- No se modificó el esquema Prisma ni se crearon matrículas ficticias. Se mantienen el puerto dinámico `process.env.PORT || 3000`, escucha en `0.0.0.0` y CORS temporal `origin: "*"` ya existentes.
-- Leer [PRUEBA_LLENADO_INTELIGENTE.md](PRUEBA_LLENADO_INTELIGENTE.md) para mapa exacto de campos, archivos, pruebas y pasos de arranque. Backend: `cd backend` y `npm run dev`; frontend: `cd frontend` y `npm start`.
-
----
-
-Actualizado: **27 de septiembre de 2026**. Este documento resume el código revisado y el trabajo de la sesión; no implica que los servicios externos sigan en el mismo estado en una fecha posterior.
-
-## 1. Leer esto primero mañana
-
-- El sistema ya está desplegado. **No hay que repetir los cambios anteriores ni recrear la base de datos.**
-- Sitio público estable: **https://guadalupana-v2.vercel.app**.
-- API de producción: **https://guadalupana-v2.onrender.com/api**.
-- Frontend en **Vercel**, backend en **Render**, PostgreSQL en **Supabase**.
-- El chatbot de Voiceflow se comprobó visualmente en producción: botón azul **“Talk to AI”**, abajo a la derecha de la landing.
-- Último commit de aplicación comprobado y publicado: **`beac5cb` — `fix: cargar Voiceflow desde la landing de Angular`**.
-- Antes de crear este documento, `git status --short` estaba limpio. Este Markdown se creó después de ese commit; su creación no implica commit ni publicación automática.
-- Para retomar, leer este MD y comprobar `git status --short` y `git log -5 --oneline`. Abrir solamente los archivos relacionados con la nueva tarea.
-- `leeyejecuta.txt` es un archivo de instrucciones que el usuario cambia con frecuencia. Leer su contenido actual cuando el usuario lo pida; no volver a ejecutar sus versiones antiguas.
-- `INVENTARIO_SISTEMA.md` contiene información funcional útil, pero su sección de infraestructura está desactualizada: menciona Railway/Netlify. Para el estado de despliegue de esta sesión, usar este documento.
+- Migración a Groq: **12 pruebas backend y 10 frontend aprobadas**, TypeScript backend y build Angular de producción aprobados. Una llamada real con datos ficticios devolvió ocho campos válidos; no se guardaron matrículas.
+- Filtro de formato: **12 pruebas frontend aprobadas** (incluye dos nuevas) y TypeScript de la aplicación sin errores. No se volvió a compilar producción tras ese filtro; sí se compiló el código al ejecutar las pruebas.
+- No se afirma que toda la suite del proyecto pase: se ejecutaron las pruebas específicas de matrícula. Siguen avisos preexistentes de Sass, iconos Material y presupuesto SCSS.
+- Si se necesita confirmar el filtro en producción, comprobar primero el despliegue de `c16bb88` y probar desde una cuenta ADMIN; no repetir automáticamente el push o la migración a Groq.
+- Leer `leeyejecuta.txt` cada vez que el usuario lo solicite: cambia entre tareas. Su versión actual pide el panel flotante y el prompt para entrevistas, ya implementados localmente.
+- Consultar [PRUEBA_LLENADO_INTELIGENTE.md](PRUEBA_LLENADO_INTELIGENTE.md) para el contrato de campos y la guía detallada. Sus notas de estado anteriores deben contrastarse con esta sección, que prevalece.
+- No repetir `db push`, resets, seeds ni creación de administradores al retomar. La conexión local puede apuntar a la base real.
 
 ## 2. Visión general del sistema
 
@@ -88,6 +78,7 @@ Navegador → Angular en Vercel → API Express en Render → Prisma → Postgre
 | Documentos | Generación de documentos Word mediante Docxtemplater y PizZip |
 | Recuperación | Flujo de códigos de recuperación y uso de EmailJS en el frontend |
 | Chat público | Widget de Voiceflow, independiente de la API académica |
+| Llenado inteligente | Groq desde Express; dictado/texto y FormGroup en Angular |
 
 ### Funciones y roles
 
@@ -116,6 +107,9 @@ Las rutas siguientes son relativas a la raíz del repositorio.
 | `backend/prisma/migrations/` | Migraciones SQL existentes |
 | `backend/src/lib/prisma.ts` | Instancia de Prisma compartida |
 | `backend/src/routes/` | Endpoints y middlewares de autorización por módulo |
+| `backend/src/controllers/matricula-extraccion.controller.ts` | SDK Groq, modelo, clave y errores de extracción |
+| `backend/src/lib/matricula-extraccion.ts` | Prompt, esquema, campos permitidos y validadores |
+| `backend/tests/matricula-extraccion.test.cjs` | Pruebas de extracción, autenticación y SDK simulado |
 | `backend/src/controllers/` | Operaciones de negocio y acceso a datos |
 | `backend/src/middlewares/auth.middleware.ts` | Validación JWT y autorización por roles |
 | `backend/src/middlewares/defensa.middleware.ts` | Límite de peticiones y bloqueo temporal por IP |
@@ -129,6 +123,11 @@ Las rutas siguientes son relativas a la raíz del repositorio.
 | `frontend/src/app/app.config.ts` | Providers de router, HTTP, animaciones y notificaciones |
 | `frontend/src/app/services/` | Peticiones HTTP; consumen `environment.apiUrl` |
 | `frontend/src/app/components/` | Pantallas de cada módulo |
+| `frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts` | FormGroup, aplicación de datos y normalización de formato |
+| `frontend/src/app/components/matriculas/nueva-matricula/llenado-inteligente-dialog.*` | Modal de dictado, texto, vista previa y pruebas |
+| `frontend/src/app/services/matricula-datos.ts` | Los 41 controles y etiquetas de los 37 campos extraíbles |
+| `frontend/src/app/services/matricula.ts` | Peticiones JWT y llamada a extraer-datos |
+| `frontend/tsconfig.matricula.spec.json` | Configuración de pruebas específicas del módulo |
 | `frontend/src/environments/environment.ts` | API de desarrollo local |
 | `frontend/src/environments/environment.prod.ts` | API Render para producción |
 | `frontend/angular.json` | Build, reemplazo del environment y presupuestos de tamaño |
@@ -139,7 +138,7 @@ Las rutas siguientes son relativas a la raíz del repositorio.
 | `frontend/netlify.toml`, `frontend/public/_redirects` | Configuración conservada de Netlify; no identifica el proveedor actual |
 | `jmeter/` | Escenarios y utilidades de pruebas de carga; no se ejecutaron durante esta adaptación |
 
-## 4. Cambios realizados en la sesión
+## 4. Historial de configuración inicial (27 de septiembre de 2026)
 
 ### Backend preparado para Render
 
@@ -255,8 +254,11 @@ Historial relevante, del más antiguo al más reciente:
 | `2a2e94e` | URL Angular hacia Render; también incorporó `create-admin.cjs` y el TXT actualizado |
 | `00ae196` | Snippet inicial de Voiceflow en `index.html`; incluyó el documento institucional `gemini-code-1790482289684.txt` |
 | `beac5cb` | Integración de Voiceflow desde la landing y retirada del snippet global |
+| `1c79ca6` | FormGroup y llenado inteligente inicial con Gemini; luego sustituido |
+| `fe675e1` | Migración a Groq, JSON y actualización del aviso del modal |
+| `c16bb88` | Filtro de capitalización/espacios, pruebas y documentación de contexto |
 
-Se hizo push a `origin/main`. GitHub reportó para `beac5cbc46888b81e84d1f7d79ec936cb3aef473` el estado **Vercel: success / Deployment has completed**, con entorno llamado **Production**. Además se comprobó el sitio público estable en Chrome.
+En la publicación inicial del chat se hizo push a `origin/main`. GitHub reportó para `beac5cbc46888b81e84d1f7d79ec936cb3aef473` el estado **Vercel: success / Deployment has completed**, con entorno llamado **Production**. Además se comprobó el sitio público estable en Chrome.
 
 No confundir la URL estable con las URLs inmutables de cada despliegue. Algunas direcciones con identificador y `-ikival.vercel.app` solicitan iniciar sesión en Vercel. La dirección escrita por el usuario `guadalupana-v2-mnnzn5ffzh-ikival.vercel.app` devolvió **404** durante la comprobación. Usar el dominio estable de la tabla para visitar el sistema actualizado.
 
@@ -309,6 +311,12 @@ prisma migrate deploy && node dist/seed.js; node dist/index.js
 
 Ese arranque aplica migraciones y puede crear un administrador por seed; no usarlo como una comprobación de solo lectura. El punto y coma permite intentar arrancar Express incluso si falla la cadena anterior; queda anotado para revisión.
 
+### Pruebas del llenado inteligente
+
+Desde `backend`: `npm run test:extraccion`.
+
+Desde `frontend`: `npm run test:matricula`. Para comprobar tipos de la aplicación: `node node_modules/typescript/bin/tsc --project tsconfig.app.json --noEmit`.
+
 ### Publicar un cambio nuevo
 
 1. Revisar el alcance y `git status --short`; no incluir `.env`, claves ni archivos de instrucciones con credenciales.
@@ -327,7 +335,7 @@ git push origin main
 
 ## 7. Variables de entorno, sin valores secretos
 
-En la última lectura, el `.env` local contenía las claves `DATABASE_URL` y `DIRECT_URL`. Esto no indica qué variables estén configuradas en Render.
+La conexión local usa `DATABASE_URL` y `DIRECT_URL`. La extracción actual usa `GROQ_API_KEY` y opcionalmente `GROQ_MODEL`. La presencia de valores locales no demuestra su configuración en Render; aquí solo se documentan nombres y funciones.
 
 | Variable | Uso |
 | --- | --- |
@@ -335,6 +343,8 @@ En la última lectura, el `.env` local contenía las claves `DATABASE_URL` y `DI
 | `DIRECT_URL` | Conexión de operaciones de esquema en Prisma |
 | `PORT` | Puerto HTTP, suministrado por Render o respaldo local 3000 |
 | `JWT_SECRET` | Firma y validación de tokens |
+| `GROQ_API_KEY` | Clave de Groq, solo en el backend; no se envía al navegador |
+| `GROQ_MODEL` | Modelo de extracción; respaldo `openai/gpt-oss-20b` |
 | `CLOUDINARY_CLOUD_NAME` | Identificación del almacenamiento Cloudinary |
 | `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Credenciales de archivos |
 | `CEDULA_API_TOKEN` | Credencial del proveedor de consulta de cédula |
@@ -345,17 +355,19 @@ Nunca copiar contraseñas, tokens, cadenas completas de conexión con credencial
 
 ## 8. Qué se verificó y qué sigue pendiente
 
-### Comprobado en esta sesión
+### Comprobaciones históricas de infraestructura y chat
+
+Para las pruebas recientes de Groq y del filtro de formato, consultar la sección 1.
 
 - TypeScript del backend pasó tras los cambios de puerto y CORS.
 - `prisma db push` terminó con esquema sincronizado y generación de cliente.
 - Sintaxis de `create-admin.cjs` correcta, sin ejecutarlo contra la base.
 - Builds de producción Angular completados; los más recientes con paralelismo reducido.
 - Comprobaciones aisladas del componente del chat con API simulada: carga única, salida/regreso, salida durante descarga/carga y reintento tras fallo.
-- Push de los commits listados y despliegue Vercel del último commit confirmado.
+- Push y despliegue Vercel del commit `beac5cb` comprobados durante la integración inicial del chat; para los commits posteriores, consultar la sección 1.
 - Chrome abrió `https://guadalupana-v2.vercel.app` y mostró la landing con el botón azul “Talk to AI”. Existían `<app-voiceflow-chat>`, `window.voiceflow.chat` y el contenedor `#voiceflow-chat` con Shadow DOM.
 - SDK de Voiceflow: HTTP 200; setup público del proyecto: HTTP 204/201; hoja de estilos y fuentes: HTTP 200. No aparecieron errores de carga de Voiceflow en esa comprobación.
-- En la comprobación pública, el bundle principal era `main-OW4CRS77.js`. Cambiará cuando se vuelva a compilar código distinto.
+- En la comprobación inicial del chat, el bundle era `main-OW4CRS77.js`; ya fue sustituido por versiones posteriores. No usarlo para identificar el despliegue actual.
 
 ### Pendientes / límites de la verificación
 
@@ -371,4 +383,4 @@ Nunca copiar contraseñas, tokens, cadenas completas de conexión con credencial
 
 ## 9. Instrucción breve para la próxima sesión
 
-> Lee `CONTEXTO_PROYECTO.md` como contexto inicial. El sistema ya está en Vercel + Render + Supabase y el chatbot está integrado en la landing. Comprueba el estado de Git, conserva los cambios actuales y revisa solo los archivos necesarios para la nueva tarea. No repitas configuraciones ni operaciones sobre la base de datos ya realizadas. Al terminar, actualiza este MD con los cambios, el commit, las verificaciones y los pendientes.
+> Lee primero la sección 1 de `CONTEXTO_PROYECTO.md`. El sistema usa Vercel + Render + Supabase, Voiceflow en la landing y Groq para extraer datos de matrícula. El filtro de formato ya existe en `c16bb88`. Comprueba Git y la instrucción actual del usuario; abre solo los archivos necesarios. No vuelvas a Gemini ni repitas configuraciones de base de datos. Distingue código registrado, despliegue comprobado y funcionamiento informado por el usuario. Al terminar, actualiza este MD sin incluir secretos.

@@ -30,7 +30,7 @@ $white: #ffffff;
   background: $white; border-radius: 16px; padding: 24px; border: 1px solid $border;
   margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.02);
   .filter-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; align-items: center; }
-  mat-form-field { width: 100%; }
+  mat-form-field { width: 100%; min-width: 0; }
 }
 
 .center {
@@ -121,6 +121,57 @@ $white: #ffffff;
       transform: translateY(-2px);
       &.al12 { background: $navy !important; color: white !important; }
       &.al13 { background: $gold !important; color: white !important; }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-toolbar {
+    height: auto;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .page-wrapper {
+    padding: 12px 10px;
+  }
+
+  .filter-panel {
+    padding: 16px 14px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+
+    .filter-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+  }
+
+  .results-container {
+    border-radius: 12px;
+
+    .table-info-header {
+      padding: 12px 16px;
+    }
+  }
+
+  .action-pills {
+    flex-direction: column;
+    gap: 6px;
+
+    .pill-btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 }

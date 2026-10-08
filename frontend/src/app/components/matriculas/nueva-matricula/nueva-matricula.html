@@ -143,11 +143,13 @@
           </mat-form-field>
         </div>
         
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Correo Electrónico del Estudiante</mat-label>
-          <input matInput type="email" formControlName="correoestudiante">
-          <mat-icon matPrefix>mail_outline</mat-icon>
-        </mat-form-field>
+        <div class="row-grid-1">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo Electrónico del Estudiante</mat-label>
+            <input matInput type="email" formControlName="correoestudiante">
+            <mat-icon matPrefix>mail_outline</mat-icon>
+          </mat-form-field>
+        </div>
       </div>
 
       <mat-divider></mat-divider>
@@ -200,17 +202,21 @@
         </div>
 
         @if (datos.nivelEstudio === 'a1') {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Conferido por (Establecimiento A.1)</mat-label>
-            <input matInput formControlName="conferidoPorA1">
-          </mat-form-field>
+          <div class="row-grid-1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Conferido por (Establecimiento A.1)</mat-label>
+              <input matInput formControlName="conferidoPorA1">
+            </mat-form-field>
+          </div>
         }
 
         @if (datos.nivelEstudio === 'a2') {
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Conferido por (Establecimiento A.2)</mat-label>
-            <input matInput formControlName="conferidoPorA2">
-          </mat-form-field>
+          <div class="row-grid-1">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Conferido por (Establecimiento A.2)</mat-label>
+              <input matInput formControlName="conferidoPorA2">
+            </mat-form-field>
+          </div>
         }
 
         @if (datos.nivelEstudio === 'a4') {

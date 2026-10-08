@@ -236,8 +236,33 @@ table.matriz {
   th.col-tarea, td.celda { min-width: 56px; }
 }
 
-@media (max-width: 640px) {
-  .page-wrapper { padding: 16px 12px 50px; }
-  .matriz-toolbar .toolbar-content { padding: 0 14px; }
-  table.matriz th.col-estudiante, table.matriz td.col-estudiante { width: 150px; }
+@media (max-width: 768px) {
+  .matriz-toolbar {
+    height: auto !important;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .semestre-tabs {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .page-wrapper {
+    padding: 14px 10px 40px;
+  }
+
+  table.matriz th.col-estudiante, table.matriz td.col-estudiante {
+    width: 150px;
+  }
 }

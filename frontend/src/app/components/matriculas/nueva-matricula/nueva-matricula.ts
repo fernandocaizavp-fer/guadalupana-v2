@@ -1,7 +1,8 @@
+import { Overlay } from '@angular/cdk/overlay';
 import { Component, OnInit, ChangeDetectorRef, inject, DestroyRef } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { LlenadoInteligenteDialog } from './llenado-inteligente-dialog';
 import { DATOS_MATRICULA_INICIALES, ETIQUETAS_EXTRACCION, ResultadoLlenado } from '../../../services/matricula-datos';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -36,6 +37,8 @@ export class NuevaMatricula implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly dialog = inject(MatDialog);
+  private readonly overlay = inject(Overlay);
+  private panelLlenado?: MatDialogRef<LlenadoInteligenteDialog, ResultadoLlenado>;
   private readonly destroyRef = inject(DestroyRef);
   readonly form = this.fb.nonNullable.group({
     ...DATOS_MATRICULA_INICIALES,
@@ -49,9 +52,22 @@ export class NuevaMatricula implements OnInit {
   get datos() { return this.form.getRawValue(); }
 
   abrirLlenadoInteligente(): void {
-    this.dialog.open<LlenadoInteligenteDialog, void, ResultadoLlenado>(LlenadoInteligenteDialog, {
-      width: '720px', maxWidth: '95vw', autoFocus: 'first-tabbable',
-    }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((resultado) => {
+    if (this.panelLlenado) return;
+    const panel = this.dialog.open<LlenadoInteligenteDialog, void, ResultadoLlenado>(LlenadoInteligenteDialog, {
+      width: '420px',
+      maxWidth: 'calc(100vw - 40px)',
+      maxHeight: 'min(680px, calc(100dvh - 40px))',
+      hasBackdrop: false,
+      position: { top: '20px', right: '20px' },
+      panelClass: 'llenado-inteligente-panel',
+      scrollStrategy: this.overlay.scrollStrategies.noop(),
+      autoFocus: false,
+      restoreFocus: false,
+      ariaModal: false,
+    });
+    this.panelLlenado = panel;
+    panel.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((resultado) => {
+      this.panelLlenado = undefined;
       if (resultado) this.aplicarDatosExtraidos(resultado);
     });
   }
@@ -112,7 +128,9 @@ export class NuevaMatricula implements OnInit {
     private snackBar: MatSnackBar,
     private titleService: Title,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.destroyRef.onDestroy(() => this.panelLlenado?.close());
+  }
 
   ngOnInit() {
     this.titleService.setTitle('Matrícula');

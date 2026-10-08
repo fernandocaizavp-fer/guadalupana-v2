@@ -1,4 +1,4 @@
-:host { display: block; color: #1a2a5e; }
+:host { display: flex; flex-direction: column; min-height: 0; max-height: inherit; color: #1a2a5e; }
 h2 { display: flex; align-items: center; gap: 10px; }
 h2 mat-icon { color: #c8a84b; }
 p { line-height: 1.55; }
@@ -17,3 +17,6 @@ dl div { padding: 10px; background: #f4f7fa; border-radius: 8px; overflow-wrap: 
 dt { font-size: 12px; color: #526179; }
 dd { margin: 4px 0 0; font-weight: 600; }
 @media (max-width: 550px) { dl { grid-template-columns: 1fr; } }
+
+mat-dialog-content { flex: 1 1 auto; min-height: 0; }
+mat-dialog-actions { flex-shrink: 0; gap: 8px; }

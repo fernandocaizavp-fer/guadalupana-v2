@@ -73,6 +73,7 @@
 
   mat-form-field {
     width: 100%;
+    min-width: 0;
   }
 }
 
@@ -80,4 +81,54 @@ mat-card-actions {
   padding: 16px;
   display: flex;
   gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .page-toolbar {
+    height: auto !important;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .content {
+    padding: 12px 10px;
+  }
+
+  .form-card {
+    border-radius: 12px !important;
+
+    mat-card-header {
+      padding: 16px 16px 8px !important;
+    }
+
+    mat-card-content {
+      padding: 16px !important;
+    }
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  mat-card-actions {
+    padding: 0 16px 16px !important;
+    flex-direction: column-reverse;
+    gap: 10px;
+
+    button {
+      width: 100%;
+      margin: 0 !important;
+    }
+  }
 }

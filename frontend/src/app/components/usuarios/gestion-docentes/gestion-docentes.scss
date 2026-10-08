@@ -97,7 +97,16 @@ $border: #e2e8f0;
 
 .principal { border: 1px solid rgba($gold, 0.3) !important; background: #fffdf8 !important; }
 
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  mat-form-field {
+    width: 100%;
+    min-width: 0;
+  }
+}
 
 .form-row-triple {
   display: grid;
@@ -335,4 +344,84 @@ $border: #e2e8f0;
 @media (max-width: 1100px) {
   .top-row-grid { grid-template-columns: 1fr; }
   .form-row-triple { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding: 12px 10px;
+  }
+
+  .admin-toolbar {
+    height: auto;
+    padding: 12px 0;
+
+    .toolbar-content {
+      padding: 0 16px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+
+      .title-meta h1 {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .top-row-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .form-row-triple {
+    grid-template-columns: 1fr;
+    gap: 14px;
+
+    mat-form-field {
+      margin-bottom: 0;
+    }
+  }
+
+  .premium-card {
+    border-radius: 12px !important;
+
+    mat-card-header {
+      padding: 16px 16px 8px !important;
+    }
+
+    mat-card-content {
+      padding: 14px 14px 8px !important;
+    }
+
+    mat-card-actions {
+      padding: 0 14px 16px !important;
+      flex-direction: column-reverse;
+      gap: 10px;
+
+      button {
+        width: 100%;
+        margin: 0 !important;
+      }
+    }
+  }
+
+  .sub-action-row button {
+    width: 100%;
+  }
+
+  .doc-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    .actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
 }

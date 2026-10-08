@@ -60,3 +60,21 @@ body {
     font-weight: 800 !important;
   }
 }
+
+/* Panel de extracción: sombra independiente del fondo del formulario. */
+.llenado-inteligente-panel .mat-mdc-dialog-surface {
+  border: 1px solid rgba(26, 42, 94, .15);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(26, 42, 94, .28);
+}
+
+/* ===== Estilos Globales de Adaptabilidad y Responsividad ===== */
+@media (max-width: 768px) {
+  .mat-mdc-form-field {
+    max-width: 100%;
+  }
+
+  .cdk-overlay-pane {
+    max-width: calc(100vw - 20px) !important;
+  }
+}

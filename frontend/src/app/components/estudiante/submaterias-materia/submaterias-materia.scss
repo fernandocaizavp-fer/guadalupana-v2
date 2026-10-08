@@ -173,3 +173,23 @@
 
   .submateria-row:hover & { color: #c8a84b; }
 }
+
+@media (max-width: 768px) {
+  .page-toolbar {
+    height: auto !important;
+    padding: 12px 0 !important;
+
+    .toolbar-content {
+      padding: 0 16px;
+    }
+  }
+
+  .content {
+    padding: 16px 12px;
+  }
+
+  .submateria-row {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+}
