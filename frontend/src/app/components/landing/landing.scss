@@ -559,3 +559,127 @@
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+// ===== Adaptabilidad: tableta =====
+@media (max-width: 1024px) {
+  .navbar { padding: 12px 24px; }
+
+  .slide-overlay { padding: 0 40px; }
+
+  .about,
+  .especialidades,
+  .why { padding: 72px 32px; }
+
+  .contact { padding: 20px 32px; }
+
+  .footer { padding: 32px; }
+
+  .about-grid,
+  .why-grid { gap: 40px; }
+}
+
+// ===== Adaptabilidad: móvil =====
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 16px;
+    gap: 10px;
+
+    .nav-brand {
+      min-width: 0;
+      gap: 10px;
+
+      .nav-logo { height: 36px; }
+
+      .nav-text {
+        min-width: 0;
+
+        .nav-title { font-size: 14px; }
+
+        .nav-sub {
+          font-size: 10px;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+
+  .btn-login {
+    flex-shrink: 0;
+    padding: 9px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .slide-overlay { padding: 0 20px; }
+
+  .slide-content {
+    h1 { font-size: 34px; }
+    p { font-size: 16px; margin-bottom: 24px; }
+  }
+
+  .about,
+  .especialidades,
+  .why { padding: 56px 20px; }
+
+  .contact { padding: 20px 20px 56px; }
+
+  .about-grid,
+  .why-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about-text h2,
+  .why-text h2,
+  .section-header h2 { font-size: 26px; }
+
+  .section-header { margin-bottom: 36px; }
+
+  .section-tag { letter-spacing: 2px; }
+
+  .about-stats {
+    gap: 16px;
+    justify-content: space-between;
+
+    .stat-number { font-size: 26px; }
+  }
+
+  .about-img img { height: 260px; }
+
+  // El distintivo sobresalía 20 px por la izquierda del contenedor.
+  .about-badge {
+    left: 12px;
+    bottom: -16px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  .why-img img { height: 280px; }
+
+  .esp-grid,
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .esp-card { padding: 28px 20px; }
+
+  .contact-card { padding: 28px 20px; }
+
+  .footer { padding: 28px 20px; }
+
+  .footer-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .navbar .nav-brand .nav-text .nav-sub { display: none; }
+
+  .slide-content h1 { font-size: 28px; }
+}

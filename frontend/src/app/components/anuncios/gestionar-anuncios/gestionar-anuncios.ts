@@ -16,6 +16,7 @@ import { AnuncioService } from '../../../services/anuncio';
 import { AuthService } from '../../../services/auth';
 import { etiquetaAutorAnuncio } from '../../../services/anuncio-util';
 import { VisorImagen } from '../../../shared/visor-imagen/visor-imagen';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-gestionar-anuncios',
@@ -71,7 +72,7 @@ export class GestionarAnuncios implements OnInit {
     if (!usuario?.id) return;
     const headers = new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
     this.http.get<any[]>(
-      `https://cf-guadalupana-production.up.railway.app/api/usuarios/mis-materias/${usuario.id}`,
+      `${environment.apiUrl}/usuarios/mis-materias/${usuario.id}`,
       { headers }
     ).subscribe({
       next: (materias) => {
@@ -170,7 +171,7 @@ export class GestionarAnuncios implements OnInit {
       materiaNombre: anuncio.materiaNombre || '',
       cursoId: anuncio.cursoId ?? null
     };
-    this.imagenPreview = anuncio.imagen ? `https://cf-guadalupana-production.up.railway.app${anuncio.imagen}` : null;
+    this.imagenPreview = anuncio.imagen ? this.getImagenUrl(anuncio.imagen) : null;
     this.cdr.detectChanges();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -207,7 +208,7 @@ export class GestionarAnuncios implements OnInit {
     // una ruta relativa servida por el backend.
     return imagen.startsWith('http')
       ? imagen
-      : `https://cf-guadalupana-production.up.railway.app${imagen}`;
+      : `${environment.apiUrl.replace(/\/api$/, '')}${imagen}`;
   }
 
   volver() {

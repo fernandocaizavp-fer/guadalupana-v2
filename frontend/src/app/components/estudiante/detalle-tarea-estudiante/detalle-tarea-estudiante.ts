@@ -9,6 +9,7 @@ import { DatePipe } from '@angular/common';
 import { AuthService } from '../../../services/auth';
 import { TareaService } from '../../../services/tarea';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-detalle-tarea-estudiante',
@@ -50,7 +51,7 @@ export class DetalleTareaEstudiante implements OnInit {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.authService.getToken()}` });
 
     this.http.get<any>(
-      `https://cf-guadalupana-production.up.railway.app/api/usuarios/perfil-estudiante/${usuario.id}`,
+      `${environment.apiUrl}/usuarios/perfil-estudiante/${usuario.id}`,
       { headers }
     ).subscribe({
       next: (matricula) => {

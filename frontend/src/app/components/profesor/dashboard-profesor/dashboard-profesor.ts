@@ -14,6 +14,7 @@ import { DatePipe } from '@angular/common';
 import { etiquetaAutorAnuncio } from '../../../services/anuncio-util';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { VisorImagen } from '../../../shared/visor-imagen/visor-imagen';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-dashboard-profesor',
@@ -42,7 +43,7 @@ export class DashboardProfesor implements OnInit {
     if (!imagen) return '';
     return imagen.startsWith('http')
       ? imagen
-      : `https://cf-guadalupana-production.up.railway.app${imagen}`;
+      : `${environment.apiUrl.replace(/\/api$/, '')}${imagen}`;
   }
 
   constructor(
@@ -61,7 +62,7 @@ export class DashboardProfesor implements OnInit {
       'Authorization': `Bearer ${this.authService.getToken()}`
     });
 
-    this.http.get<any[]>(`https://cf-guadalupana-production.up.railway.app/api/usuarios/mis-materias/${this.usuario.id}`, { headers }).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/usuarios/mis-materias/${this.usuario.id}`, { headers }).subscribe({
       next: (materias) => {
         const mapa: { [key: number]: any } = {};
 
@@ -106,7 +107,7 @@ export class DashboardProfesor implements OnInit {
       }
     });
 
-    this.http.get<any[]>('https://cf-guadalupana-production.up.railway.app/api/anuncios', { headers }).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/anuncios`, { headers }).subscribe({
       next: (anuncios) => {
         this.anuncios = anuncios;
         this.cdr.detectChanges();

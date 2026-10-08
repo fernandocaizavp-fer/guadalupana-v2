@@ -16,6 +16,7 @@ import { etiquetaAutorAnuncio } from '../../../services/anuncio-util';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { VisorImagen } from '../../../shared/visor-imagen/visor-imagen';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-dashboard-estudiante',
@@ -44,7 +45,7 @@ export class DashboardEstudiante implements OnInit {
     if (!imagen) return '';
     return imagen.startsWith('http')
       ? imagen
-      : `https://cf-guadalupana-production.up.railway.app${imagen}`;
+      : `${environment.apiUrl.replace(/\/api$/, '')}${imagen}`;
   }
 
   constructor(
@@ -64,7 +65,7 @@ export class DashboardEstudiante implements OnInit {
       'Authorization': `Bearer ${this.authService.getToken()}`
     });
 
-    this.http.get(`https://cf-guadalupana-production.up.railway.app/api/usuarios/perfil-estudiante/${this.usuario.id}`, { headers }).subscribe({
+    this.http.get(`${environment.apiUrl}/usuarios/perfil-estudiante/${this.usuario.id}`, { headers }).subscribe({
       next: (matricula: any) => {
         this.matricula = matricula;
         this.cargarNotasSemestre();
@@ -76,7 +77,7 @@ export class DashboardEstudiante implements OnInit {
       }
     });
 
-    this.http.get<any[]>('https://cf-guadalupana-production.up.railway.app/api/anuncios', { headers }).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/anuncios`, { headers }).subscribe({
       next: (anuncios) => {
         this.anuncios = anuncios;
         this.cdr.detectChanges();
@@ -91,7 +92,7 @@ cargarNotasSemestre() {
   });
 
   this.http.get<any>(
-    `https://cf-guadalupana-production.up.railway.app/api/tareas/curso/${this.matricula.cursoId}?semestre=${this.semestreSeleccionado}`,
+    `${environment.apiUrl}/tareas/curso/${this.matricula.cursoId}?semestre=${this.semestreSeleccionado}`,
     { headers }
   ).subscribe({
     next: (data) => {

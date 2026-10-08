@@ -210,7 +210,14 @@
     border-radius: 12px;
   }
 
+  // Desplazamiento horizontal propio: la tabla no ensancha la página.
   .table-wrapper {
     border-radius: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .notas-table {
+    min-width: 460px;
   }
 }

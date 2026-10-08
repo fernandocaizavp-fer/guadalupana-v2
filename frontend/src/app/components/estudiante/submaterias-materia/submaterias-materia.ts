@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../services/auth';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-submaterias-materia',
@@ -43,7 +44,7 @@ export class SubmateriasMateria implements OnInit {
     });
 
     // Cargar perfil del estudiante
-    this.http.get<any>(`https://cf-guadalupana-production.up.railway.app/api/usuarios/perfil-estudiante/${this.usuario.id}`, { headers }).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/usuarios/perfil-estudiante/${this.usuario.id}`, { headers }).subscribe({
       next: (matricula) => {
         this.matricula = matricula;
         this.cargarSubmaterias(headers);
@@ -57,7 +58,7 @@ export class SubmateriasMateria implements OnInit {
 
   cargarSubmaterias(headers: HttpHeaders) {
     // Obtener la materia padre para saber si es Práctica o Teoría
-    this.http.get<any>(`https://cf-guadalupana-production.up.railway.app/api/cursos/${this.matricula.cursoId}`, { headers }).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/cursos/${this.matricula.cursoId}`, { headers }).subscribe({
       next: (curso) => {
         const materiaBase = curso.materias.find((m: any) => m.id === this.materiaId);
         this.materiaParent = materiaBase?.nombre || '';

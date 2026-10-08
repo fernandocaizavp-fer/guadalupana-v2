@@ -1,6 +1,6 @@
-<mat-toolbar style="background: linear-gradient(135deg, #1a2a5e, #0d1a3e); color: white;">
+<mat-toolbar class="est-toolbar" style="background: linear-gradient(135deg, #1a2a5e, #0d1a3e); color: white;">
   <img src="logo.jpg" alt="Logo" style="height: 40px; margin-right: 12px;">
-  <span>Portal Estudiantil</span>
+  <span class="est-titulo">Portal Estudiantil</span>
   <span class="spacer"></span>
   <div class="semestre-tabs">
     <button class="tab-btn" [class.active]="semestreSeleccionado === 1" (click)="cambiarSemestre(1)">
@@ -10,7 +10,7 @@
       2do Semestre
     </button>
   </div>
-  <span style="color: #c8a84b; margin: 0 12px; font-size: 14px;">
+  <span class="est-usuario" style="color: #c8a84b; margin: 0 12px; font-size: 14px;">
     <mat-icon style="vertical-align: middle; font-size: 18px;">account_circle</mat-icon>
     {{ usuario?.nombre }}
   </span>

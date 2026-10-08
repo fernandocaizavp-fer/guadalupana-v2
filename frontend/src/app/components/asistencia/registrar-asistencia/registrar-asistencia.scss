@@ -186,6 +186,7 @@ $rojo-border: #fca5a5;
 }
 
 .fecha-row {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 10px;

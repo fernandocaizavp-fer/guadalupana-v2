@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../../../services/auth';
 import { ConfiguracionService } from '../../../services/configuracion';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-ingresar-disciplina',
@@ -50,7 +51,7 @@ export class IngresarDisciplina implements OnInit {
       'Authorization': `Bearer ${this.authService.getToken()}`
     });
 
-    this.http.get<any>(`https://cf-guadalupana-production.up.railway.app/api/disciplina/estudiantes/${this.materiaId}`, { headers }).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/disciplina/estudiantes/${this.materiaId}`, { headers }).subscribe({
       next: (data) => {
         this.materia = data.materia;
         this.matriculas = data.matriculas;
@@ -71,7 +72,7 @@ export class IngresarDisciplina implements OnInit {
     });
     this.loading = true;
     this.notas = {};
-    this.http.get<any[]>(`https://cf-guadalupana-production.up.railway.app/api/disciplina/materia/${this.materiaId}?semestre=${this.semestreSeleccionado}`, { headers }).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/disciplina/materia/${this.materiaId}?semestre=${this.semestreSeleccionado}`, { headers }).subscribe({
       next: (notasExistentes) => {
         notasExistentes.forEach(n => {
           this.notas[n.matriculaId] = String(n.valor);
@@ -119,7 +120,7 @@ export class IngresarDisciplina implements OnInit {
     this.guardando = true;
     this.cdr.detectChanges();
 
-    this.http.post(`https://cf-guadalupana-production.up.railway.app/api/disciplina/masivo`, { notas: notasArray, semestre: this.semestreSeleccionado }, { headers }).subscribe({
+    this.http.post(`${environment.apiUrl}/disciplina/masivo`, { notas: notasArray, semestre: this.semestreSeleccionado }, { headers }).subscribe({
       next: () => {
         this.guardando = false;
         this.snackBar.open('Notas de disciplina guardadas', 'OK', { duration: 3000 });

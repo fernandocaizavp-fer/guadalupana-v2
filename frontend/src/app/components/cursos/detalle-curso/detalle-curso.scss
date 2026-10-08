@@ -507,4 +507,13 @@ table {
       }
     }
   }
+
+  // Desplazamiento horizontal propio: la tabla no ensancha la página.
+  .table-wrapper {
+    border-radius: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    table { min-width: 560px; }
+  }
 }

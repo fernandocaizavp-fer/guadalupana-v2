@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../services/auth';
 import { TareaService } from '../../../services/tarea';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-detalle-materia',
@@ -45,7 +46,7 @@ export class DetalleMateria implements OnInit {
 
     // Obtener perfil del estudiante para tener el matriculaId
     this.http.get<any>(
-      `https://cf-guadalupana-production.up.railway.app/api/usuarios/perfil-estudiante/${this.usuario.id}`,
+      `${environment.apiUrl}/usuarios/perfil-estudiante/${this.usuario.id}`,
       { headers }
     ).subscribe({
       next: (matricula) => {

@@ -77,4 +77,34 @@ body {
   .cdk-overlay-pane {
     max-width: calc(100vw - 20px) !important;
   }
+
+  // Cabecera estándar (.toolbar-content > .nav-group > .title-meta):
+  // mat-toolbar impone `white-space: nowrap`, por lo que un título o
+  // subtítulo largo ensanchaba la página. Aquí se le permite partir línea.
+  .mat-toolbar:has(.toolbar-content) {
+    height: auto;
+    min-height: 56px;
+  }
+
+  .mat-toolbar .toolbar-content {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .mat-toolbar .toolbar-content,
+  .mat-toolbar .nav-group,
+  .mat-toolbar .title-meta {
+    min-width: 0;
+  }
+
+  .mat-toolbar .title-meta h1,
+  .mat-toolbar .title-meta span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .mat-toolbar .title-meta span {
+    display: block;
+    line-height: 1.35;
+  }
 }
