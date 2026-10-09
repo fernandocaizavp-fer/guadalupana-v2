@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { GestionarTareas } from './gestionar-tareas';
 
@@ -8,7 +11,8 @@ describe('GestionarTareas', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GestionarTareas]
+      imports: [GestionarTareas],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()]
     })
     .compileComponents();
 

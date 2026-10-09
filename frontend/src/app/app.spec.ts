@@ -1,10 +1,13 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { LoadingService } from './services/loading';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [provideRouter([])]
     }).compileComponents();
   });
 
@@ -14,10 +17,23 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('muestra el indicador de carga global solo mientras hay operaciones en curso', async () => {
     const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
+    const loadingService = TestBed.inject(LoadingService);
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
+
+    await fixture.whenStable();
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
+    expect(compiled.querySelector('.loading-overlay')).toBeNull();
+
+    loadingService.mostrar();
+    await fixture.whenStable();
+    expect(compiled.querySelector('.loading-texto')?.textContent).toContain(
+      'Cargando, espere por favor...'
+    );
+
+    loadingService.ocultar();
+    await fixture.whenStable();
+    expect(compiled.querySelector('.loading-overlay')).toBeNull();
   });
 });

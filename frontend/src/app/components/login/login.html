@@ -1,43 +1,91 @@
-<div class="login-wrapper">
-  <div class="login-left">
-    <div class="brand-content">
-      <img src="logo.jpg" alt="Logo CFA Guadalupana" class="logo-img">
-      <p class="brand-tagline">Formando artesanos con excelencia</p>
+<!-- Formulario compartido por los tres perfiles -->
+<ng-template #formulario>
+  <div class="login-form-container">
+    <div class="login-header">
+      <span class="perfil-chip">
+        <mat-icon>{{ perfilActual()?.icono }}</mat-icon>
+        {{ perfilActual()?.etiqueta }}
+      </span>
+      <h2>Bienvenido</h2>
+      <p>Ingrese sus credenciales para continuar</p>
     </div>
+
+    <form (ngSubmit)="login()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Usuario</mat-label>
+        <input matInput type="email" [(ngModel)]="correo" name="correo" placeholder="correo@ejemplo.com">
+        <mat-icon matSuffix>person</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" [(ngModel)]="password" name="password">
+        <mat-icon matSuffix>lock</mat-icon>
+      </mat-form-field>
+
+      @if (error()) {
+        <p class="error-msg">{{ error() }}</p>
+      }
+
+      <button type="submit" class="login-btn" [disabled]="loading()">
+        {{ loading() ? 'Ingresando...' : 'INGRESAR' }}
+      </button>
+
+      <button type="button" class="cambiar-btn" [disabled]="loading()" (click)="cambiarPerfil()">
+        <mat-icon>swap_horiz</mat-icon>
+        Cambiar perfil
+      </button>
+    </form>
+
+    <p class="olvido-link" (click)="irARecuperar()">¿Olvidó su contraseña?</p>
+
+    <p class="footer-text">Centro de Formación Artesanal Guadalupana © 2026</p>
   </div>
+</ng-template>
 
-  <div class="login-right">
-    <div class="login-form-container">
-      <div class="login-header">
-        <h2>Bienvenido</h2>
-        <p>Ingrese sus credenciales para continuar</p>
-      </div>
+@if (!perfil()) {
+  <!-- VISTA INICIAL: selección de perfil -->
+  <div class="login-centrado">
+    <div class="login-card seleccion-card">
+      <img src="logo.jpg" alt="Logo CFA Guadalupana" class="card-logo">
+      <h2>¡Bienvenido!</h2>
+      <p class="seleccion-subtitulo">Selecciona tu perfil</p>
 
-      <form (ngSubmit)="login()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Correo electrónico</mat-label>
-          <input matInput type="email" [(ngModel)]="correo" name="correo" placeholder="correo@ejemplo.com">
-          <mat-icon matSuffix>email</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Contraseña</mat-label>
-          <input matInput type="password" [(ngModel)]="password" name="password">
-          <mat-icon matSuffix>lock</mat-icon>
-        </mat-form-field>
-
-        @if (error) {
-          <p class="error-msg">{{ error }}</p>
+      <div class="perfiles">
+        @for (p of perfiles; track p.id) {
+          <button type="button" class="perfil-btn" (click)="seleccionarPerfil(p.id)">
+            <mat-icon>{{ p.icono }}</mat-icon>
+            <span>{{ p.etiqueta }}</span>
+          </button>
         }
-
-        <button type="submit" class="login-btn" [disabled]="loading">
-          {{ loading ? 'Ingresando...' : 'INGRESAR' }}
-        </button>
-      </form>
-
-      <p class="olvido-link" (click)="irARecuperar()">¿Olvidó su contraseña?</p>
+      </div>
 
       <p class="footer-text">Centro de Formación Artesanal Guadalupana © 2026</p>
     </div>
   </div>
-</div>
+} @else if (perfil() === 'ESTUDIANTE') {
+  <!-- ESTUDIANTE: pantalla dividida 50/50 con la imagen completa -->
+  <div class="login-dividido">
+    <div class="dividido-imagen">
+      <img src="rolestudiante.jpg" alt="Estudiantes del CFA Guadalupana">
+    </div>
+    <div class="dividido-form">
+      <ng-container [ngTemplateOutlet]="formulario" />
+    </div>
+  </div>
+} @else {
+  <!-- DOCENTE / ADMINISTRATIVO: pantalla dividida 50/50 con el logotipo institucional -->
+  <div class="login-dividido">
+    <div class="dividido-marca">
+      <div class="brand-content">
+        <img src="logo.jpg" alt="Logo CFA Guadalupana" class="logo-img">
+        <p class="brand-tagline">Formando artesanos con excelencia</p>
+      </div>
+    </div>
+    <div class="dividido-form dividido-form--tarjeta">
+      <div class="login-card">
+        <ng-container [ngTemplateOutlet]="formulario" />
+      </div>
+    </div>
+  </div>
+}

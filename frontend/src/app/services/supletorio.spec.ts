@@ -1,13 +1,17 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { Supletorio } from './supletorio';
+import { SuplетorioService } from './supletorio';
 
-describe('Supletorio', () => {
-  let service: Supletorio;
+describe('SuplетorioService', () => {
+  let service: SuplетorioService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Supletorio);
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()]
+    });
+    service = TestBed.inject(SuplетorioService);
   });
 
   it('should be created', () => {
