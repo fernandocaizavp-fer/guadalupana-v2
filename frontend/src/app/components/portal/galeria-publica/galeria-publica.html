@@ -1,0 +1,100 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Galería Web</h1>
+        <span>Fotos públicas de la página principal</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <mat-icon>add_photo_alternate</mat-icon>
+      <h2>Subir una foto</h2>
+    </div>
+    <form class="panel-cuerpo subida" (ngSubmit)="subir()">
+      <label class="zona" [class.con-imagen]="vistaPrevia">
+        @if (vistaPrevia) {
+          <img [src]="vistaPrevia" alt="Vista previa de la foto">
+        } @else {
+          <mat-icon>cloud_upload</mat-icon>
+          <span>Elegir imagen</span>
+          <small>JPG, PNG o WEBP · máximo 5 MB</small>
+        }
+        <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="elegirImagen($event)">
+      </label>
+      <div class="subida-datos">
+        <div class="campo">
+          <label for="g-titulo">Título de la foto</label>
+          <input id="g-titulo" name="titulo" [(ngModel)]="titulo" maxlength="150" autocomplete="off"
+                 placeholder="Ej: Graduación de Belleza 2026">
+          <small>Se muestra sobre la foto y describe la imagen a quienes usan lector de pantalla.</small>
+        </div>
+        <div class="acciones">
+          @if (vistaPrevia) {
+            <button type="button" class="btn secundario" (click)="descartarImagen()">Quitar imagen</button>
+          }
+          <button type="submit" class="btn principal" [disabled]="!puedeSubir">
+            <mat-icon>upload</mat-icon> Publicar foto
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <mat-icon>photo_library</mat-icon>
+      <h2>Fotos publicadas</h2>
+      <span class="separador"></span>
+      <span class="total">{{ fotos.length }} {{ fotos.length === 1 ? 'foto' : 'fotos' }}</span>
+    </div>
+
+    @if (cargado && fotos.length === 0) {
+      <div class="vacio">
+        <mat-icon>photo_library</mat-icon>
+        Aún no hay fotos. Mientras tanto, la página principal muestra las fotos de graduados por defecto.
+      </div>
+    } @else {
+      <div class="panel-cuerpo fotos">
+        @for (f of fotos; track f.id) {
+          <figure class="foto">
+            <img [src]="f.imagenUrl" [alt]="f.titulo" loading="lazy">
+            <figcaption>
+              @if (renombrando?.id === f.id) {
+                <form class="renombrar" (ngSubmit)="guardarTitulo()">
+                  <input name="tituloEditado" [(ngModel)]="tituloEditado" maxlength="150" autocomplete="off"
+                         aria-label="Nuevo título">
+                  <button type="submit" class="btn-icono" title="Guardar" [disabled]="!tituloEditado.trim()">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button type="button" class="btn-icono" title="Cancelar" (click)="cancelarRenombrar()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </form>
+              } @else {
+                <div class="foto-texto">
+                  <strong>{{ f.titulo }}</strong>
+                  <span>{{ f.fechaSubida | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <button type="button" class="btn-icono" (click)="empezarRenombrar(f)" title="Cambiar título">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button type="button" class="btn-icono peligro" (click)="eliminar(f)" title="Eliminar">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </figcaption>
+          </figure>
+        }
+      </div>
+    }
+  </section>
+</div>

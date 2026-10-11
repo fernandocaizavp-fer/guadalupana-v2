@@ -1,0 +1,102 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Mis Asistencias</h1>
+        <span>Asistencias y faltas por materia</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (cargado && error) {
+    <div class="vacio">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error }}</p>
+      <button type="button" class="btn-reintentar" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  @if (cargado && !error && resumen) {
+    <!-- RESUMEN GENERAL -->
+    <div class="resumen">
+      <div class="resumen-card principal">
+        <span class="resumen-label">Asistencia general</span>
+        <span class="resumen-valor">{{ resumen.porcentaje !== null ? resumen.porcentaje + '%' : '—' }}</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">Clases registradas</span>
+        <span class="resumen-valor">{{ resumen.clases }}</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">Asistencias</span>
+        <span class="resumen-valor verde">{{ resumen.asistencias }}</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">Faltas</span>
+        <span class="resumen-valor rojo">{{ resumen.faltas }}</span>
+      </div>
+    </div>
+
+    @if (resumen.clases === 0) {
+      <div class="vacio">
+        <mat-icon>event_busy</mat-icon>
+        <p>Tus docentes todavía no han registrado asistencia</p>
+      </div>
+    } @else {
+      <div class="lista">
+        @for (materia of materias; track materia.id) {
+          <div class="fila" [class.con-faltas]="materia.faltas > 0" (click)="alternar(materia)">
+            <div class="fila-principal">
+              <div class="fila-nombre">
+                <h3>{{ materia.nombre }}</h3>
+                @if (materia.grupo) {
+                  <span class="chip-grupo">{{ materia.grupo }}</span>
+                }
+              </div>
+
+              @if (materia.clases === 0) {
+                <span class="sin-registro">Sin clases registradas</span>
+              } @else {
+                <div class="fila-numeros">
+                  <span><strong>{{ materia.clases }}</strong> clases</span>
+                  <span class="verde"><strong>{{ materia.asistencias }}</strong> asistencias</span>
+                  <span [class.rojo]="materia.faltas > 0"><strong>{{ materia.faltas }}</strong> faltas</span>
+                </div>
+                <div class="fila-porcentaje">
+                  <span class="porcentaje" [class.baja]="materia.porcentaje !== null && materia.porcentaje < 70">
+                    {{ materia.porcentaje }}%
+                  </span>
+                  <div class="barra">
+                    <div class="barra-relleno"
+                      [class.baja]="materia.porcentaje !== null && materia.porcentaje < 70"
+                      [style.width.%]="materia.porcentaje"></div>
+                  </div>
+                </div>
+                @if (materia.faltas > 0) {
+                  <mat-icon class="flecha" [class.abierta]="abierta === materia.id">expand_more</mat-icon>
+                }
+              }
+            </div>
+
+            @if (abierta === materia.id) {
+              <div class="faltas">
+                <span class="faltas-titulo">Fechas de falta</span>
+                <div class="faltas-fechas">
+                  @for (fecha of materia.fechasFaltas; track fecha) {
+                    <span class="falta">{{ fecha | date:'dd/MM/yyyy':'UTC' }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

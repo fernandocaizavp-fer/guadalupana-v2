@@ -1,0 +1,113 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Anuncios a Terceros</h1>
+        <span>Noticias de la página principal</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    @if (!formularioAbierto) {
+      <button type="button" class="btn-toolbar" (click)="nuevo()">
+        <mat-icon>add</mat-icon>
+        Nuevo anuncio
+      </button>
+    }
+  </div>
+</mat-toolbar>
+
+<div class="content">
+
+  @if (formularioAbierto) {
+    <section class="panel">
+      <div class="panel-cabecera">
+        <mat-icon>{{ editando ? 'edit' : 'post_add' }}</mat-icon>
+        <h2>{{ editando ? 'Editar anuncio' : 'Nuevo anuncio' }}</h2>
+      </div>
+      <form class="panel-cuerpo formulario" (ngSubmit)="guardar()">
+        <div class="campo ancho">
+          <label for="a-titulo">Título</label>
+          <input id="a-titulo" name="titulo" [(ngModel)]="titulo" maxlength="150" autocomplete="off">
+        </div>
+        <div class="campo ancho">
+          <label for="a-contenido">Contenido</label>
+          <textarea id="a-contenido" name="contenido" [(ngModel)]="contenido" maxlength="5000"></textarea>
+        </div>
+        <div class="campo ancho">
+          <label>Imagen (opcional)</label>
+          <div class="imagen-campo">
+            @if (vistaPrevia) {
+              <img [src]="vistaPrevia" alt="Vista previa de la imagen">
+            }
+            <div class="imagen-botones">
+              <label class="btn secundario">
+                <mat-icon>image</mat-icon>
+                {{ vistaPrevia ? 'Cambiar imagen' : 'Elegir imagen' }}
+                <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="elegirImagen($event)">
+              </label>
+              @if (vistaPrevia) {
+                <button type="button" class="btn peligro" (click)="descartarImagen()">
+                  <mat-icon>hide_image</mat-icon> Quitar
+                </button>
+              }
+              <small>JPG, PNG o WEBP · máximo 5 MB</small>
+            </div>
+          </div>
+        </div>
+        <label class="casilla ancho">
+          <input type="checkbox" name="activo" [(ngModel)]="activo">
+          Visible en la página principal
+        </label>
+        <div class="acciones">
+          <button type="button" class="btn secundario" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn principal" [disabled]="!valido">
+            <mat-icon>save</mat-icon> {{ editando ? 'Guardar cambios' : 'Publicar' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <mat-icon>newspaper</mat-icon>
+      <h2>Anuncios publicados</h2>
+    </div>
+
+    @if (cargado && anuncios.length === 0) {
+      <div class="vacio">
+        <mat-icon>newspaper</mat-icon>
+        Aún no hay anuncios para el público.
+      </div>
+    }
+
+    @for (a of anuncios; track a.id) {
+      <div class="fila">
+        @if (a.imagenUrl) {
+          <img class="miniatura" [src]="a.imagenUrl" [alt]="a.titulo">
+        } @else {
+          <div class="miniatura sin-imagen"><mat-icon>image_not_supported</mat-icon></div>
+        }
+        <div class="fila-info">
+          <strong>{{ a.titulo }}</strong>
+          <span>Publicado el {{ a.fechaPublicacion | date:'dd/MM/yyyy' }}</span>
+          <p class="resumen">{{ a.contenido }}</p>
+        </div>
+        <span class="chip" [class.ok]="a.activo" [class.apagado]="!a.activo">
+          {{ a.activo ? 'Visible' : 'Oculto' }}
+        </span>
+        <div class="fila-acciones">
+          <button type="button" class="btn-icono" (click)="editar(a)" title="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button type="button" class="btn-icono peligro" (click)="eliminar(a)" title="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>

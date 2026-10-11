@@ -61,6 +61,15 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/auth/cambiar-password`, { usuarioId, passwordActual, passwordNueva });
   }
 
+  // Guarda en la sesión la foto de perfil recién subida.
+  actualizarFoto(fotoUrl: string) {
+    const usuario = this.getUsuario();
+    if (usuario) {
+      usuario.fotoUrl = fotoUrl;
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+    }
+  }
+
   marcarPasswordCambiada() {
     const usuario = this.getUsuario();
     if (usuario) {

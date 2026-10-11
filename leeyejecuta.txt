@@ -1,22 +1,46 @@
-"Necesito mejorar la experiencia de usuario y la comprensión de la IA en la extracción de datos de la matrícula. Realiza los siguientes cambios:
+Por favor, realiza un cambio crítico y de alto impacto en la sección Hero (LandingComponent). Vamos a sustituir por completo el antiguo cartel rectangular de matriculasgratis.jpg (o .png) por nuestra nueva imagen de las estudiantes recortadas y transparentes: chicassuperpuestas.jfif (o chicassuperpuestas.png si aplicaste la transparencia, guardada en frontend/public/chicassuperpuestas).
 
-1. Interfaz de Usuario (Frontend):
-El modal actual bloquea el formulario. Modifica la configuración de this.dialog.open en frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts.
+Sigue estas instrucciones exactas para el HTML, SCSS y la animación:
 
-Añade hasBackdrop: false para que el usuario pueda hacer scroll e interactuar con el formulario que está detrás.
+1. Sustitución y Visualización de Impacto:
 
-Configura la posición para que flote a la derecha usando position: { top: '20px', right: '20px' } (o similar, anclado a un lado).
+Elimina definitivamente el archivo matriculasgratis de esta sección.
 
-Asegúrate de que el modal tenga una altura manejable y sombra para que parezca un panel lateral o widget flotante que no estorbe.
+Carga en su lugar la imagen chicassuperpuestas desde la ruta public/.
 
-2. Inteligencia Artificial (Backend):
-La IA a veces no comprende el texto porque los datos se ingresan como una conversación (ej. Administrador: '¿Cuál es el nombre de tu mamá?' Usuario: 'María').
-Modifica la constante PROMPT_EXTRACCION en backend/src/lib/matricula-extraccion.ts.
+Enfoque desde la mitad (Plano Medio / Torso): Ajusta los estilos para que las chicas no se muestren de cuerpo entero, sino desde la mitad (aproximadamente desde el torso o la cadera hacia arriba). Esto se logra dándole mayor escala a la imagen (transform: scale(1.3) o similar) y usando un contenedor con desbordamiento oculto (overflow: hidden) en la base de la sección o del medio círculo dorado, para que parezca que ellas "brotan" o emergen de forma natural y con mucha fuerza desde la base del diseño, sin verse pequeñas ni distantes.
 
-Añade instrucciones estrictas indicando que el texto de entrada puede ser una transcripción de una conversación informal o una entrevista.
+2. Efecto de Entrada Dinámico (Rebote):
 
-Dile a la IA que debe inferir a quién pertenece cada dato basándose en el contexto conversacional (si alguien pregunta por 'el papá' y la respuesta es 'Juan', Juan es el nombre del padre).
+Queremos que la imagen de las chicas no aparezca de golpe, sino que tenga un efecto de rebote interactivo y orgánico al cargar la página (Entrance Bounce Effect).
 
-Refuerza que la IA debe ser tolerante a muletillas, pausas, texto desordenado y falta de ortografía, limpiando y capitalizando correctamente los nombres propios antes de devolver el JSON.
+En el SCSS, crea una animación personalizada @keyframes bounceInUp o bounceIn:
 
-Entrégame el código actualizado de la configuración del modal (Frontend) y de la constante del prompt (Backend)."
+SCSS
+@keyframes bounceInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(120px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.02);
+  }
+  80% {
+    transform: translateY(5px) scale(0.98);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+Aplica esta animación a la clase de las chicas (.hero-students) para que al ingresar a la landing page, ellas suban sutilmente con un rebote elástico y amortiguado de forma muy natural y fluida (duración aproximada: 1.2s con cubic-bezier).
+
+3. Integración con el Entorno (Sin Bloques ni Textos Superpuestos):
+
+Asegura que la imagen de las chicas se posicione por delante del medio círculo dorado y las formas geométricas ligeras (círculos y cruces sutiles de la referencia guia), pero por detrás de cualquier menú o tooltip si fuese necesario.
+
+Al no tener fondo, deben integrarse de forma perfecta con el fondo claro/crema de la web, flotando con total naturalidad y gran tamaño en la mitad derecha de la pantalla.
+
+Elimina cualquier residuo de los iconos flotantes oscuros anteriores (como la medalla o el globo de diálogo) que saturaban la visual.
+
+Devuélveme el HTML actualizado, el SCSS con la animación del rebote, y el TS del componente si es necesario activar la animación al cargar.

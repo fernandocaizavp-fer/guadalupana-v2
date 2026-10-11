@@ -147,6 +147,24 @@ export const crearMatricula = async (req: Request, res: Response) => {
         }
       });
 
+      // Finanzas: el estudiante nuevo recibe los conceptos de pago cuya fecha
+      // máxima aún no pasa (los ya vencidos no se le cobran).
+      const conceptos = await tx.conceptoPago.findMany({
+        where: { fechaMaxima: { gte: new Date() } }
+      });
+      if (conceptos.length > 0) {
+        await tx.deuda.createMany({
+          data: conceptos.map((c) => ({
+            estudianteId: usuario.id,
+            conceptoId: c.id,
+            concepto: c.nombre,
+            montoTotal: c.monto,
+            saldo: c.monto,
+            fechaMaxima: c.fechaMaxima
+          }))
+        });
+      }
+
       return { usuario, matricula };
     });
 

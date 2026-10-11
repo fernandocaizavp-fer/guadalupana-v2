@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,12 +9,31 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { DatePipe } from '@angular/common';
+import { finalize } from 'rxjs';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfiguracionService, Configuracion } from '../../services/configuracion';
+import { CursoService } from '../../services/curso';
+import { UsuarioService } from '../../services/usuario';
+import { AcademicoService } from '../../services/academico';
+import { FinanzasService, ConceptoPago, dinero } from '../../services/finanzas';
+import { LoadingService } from '../../services/loading';
+import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
+
+// Fila editable de la programación académica de una materia.
+interface FilaProgramacion {
+  materiaId: number;
+  nombre: string;
+  grupo: string | null; // 'Práctica' | 'Teoría' para submaterias
+  fechaInicio: string; // yyyy-MM-dd o ''
+  fechaFin: string;
+  horasTotales: number | null;
+  docenteId: number | null;
+}
 
 @Component({
   selector: 'app-configuracion',
   imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
-    MatProgressSpinnerModule, MatSnackBarModule,
+    MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, DatePipe],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss'
@@ -54,8 +73,40 @@ export class ConfiguracionComponent implements OnInit {
   permisoMotivoExamen = '';
   permisosExamenActivos: any[] = [];
 
+  // Índice de secciones de la página (todo en un solo scroll).
+  secciones = [
+    { id: 'calificaciones', titulo: 'Calificaciones', icono: 'tune' },
+    { id: 'supletorios', titulo: 'Supletorios', icono: 'event_available' },
+    { id: 'examen-grado', titulo: 'Exámenes de grado', icono: 'school' },
+    { id: 'fechas', titulo: 'Registro de fechas', icono: 'event_note' },
+    { id: 'finanzas', titulo: 'Finanzas', icono: 'payments' }
+  ];
+
+  // ── Registro de fechas (programación académica) ──
+  cursos: any[] = [];
+  docentes: any[] = [];
+  progCursoId: number | null = null;
+  progMaterias: FilaProgramacion[] = [];
+  progCargado = false;
+  progGuardando = false;
+
+  // ── Finanzas (conceptos de pago) ──
+  conceptos: ConceptoPago[] = [];
+  conceptoNombre = '';
+  conceptoMonto: number | null = null;
+  conceptoFecha = '';   // yyyy-MM-dd
+  conceptoGuardando = false;
+  dinero = dinero;
+
   constructor(
     private configService: ConfiguracionService,
+    private cursoService: CursoService,
+    private usuarioService: UsuarioService,
+    private academicoService: AcademicoService,
+    private finanzasService: FinanzasService,
+    private loadingService: LoadingService,
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
@@ -65,6 +116,184 @@ export class ConfiguracionComponent implements OnInit {
     this.cargar();
     this.cargarPermisos();
     this.cargarPermisosExamen();
+    this.cargarConceptos();
+    this.cursoService.listarCursos().subscribe({
+      next: (cursos) => { this.cursos = cursos; this.cdr.detectChanges(); },
+      error: () => { /* silencioso: el selector queda vacío */ }
+    });
+    this.usuarioService.listarDocentes().subscribe({
+      next: (docentes) => { this.docentes = docentes; this.cdr.detectChanges(); },
+      error: () => { /* silencioso: el selector queda vacío */ }
+    });
+  }
+
+  // Salta a una sección de la página.
+  irA(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Registro de fechas ──
+
+  onProgCurso() {
+    this.progMaterias = [];
+    this.progCargado = false;
+    if (this.progCursoId === null) return;
+
+    this.loadingService.mostrar();
+    this.academicoService.materiasCurso(this.progCursoId)
+      .pipe(finalize(() => this.loadingService.ocultar()))
+      .subscribe({
+        next: (curso) => {
+          this.progMaterias = curso.materias.map((m) => ({
+            materiaId: m.id,
+            nombre: m.nombre,
+            grupo: m.esSubmateria ? m.materiaParent : null,
+            fechaInicio: this.soloFecha(m.fechaInicio),
+            fechaFin: this.soloFecha(m.fechaFin),
+            horasTotales: m.horasTotales,
+            docenteId: m.profesorId
+          }));
+          this.progCargado = true;
+          this.cdr.detectChanges();
+        },
+        error: (e) => {
+          this.snackBar.open(e?.error?.error || 'Error al cargar las materias', 'OK', { duration: 3000 });
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  guardarProgramacion() {
+    // Validación en cliente (el backend revalida)
+    for (const m of this.progMaterias) {
+      if (!!m.fechaInicio !== !!m.fechaFin) {
+        this.snackBar.open(`${m.nombre}: indica la fecha de inicio y la de fin, o deja ambas vacías`, 'OK', { duration: 4000 });
+        return;
+      }
+      if (m.fechaInicio && m.fechaFin <= m.fechaInicio) {
+        this.snackBar.open(`${m.nombre}: la fecha de fin debe ser posterior a la de inicio`, 'OK', { duration: 4000 });
+        return;
+      }
+      if (m.horasTotales !== null && (!Number.isInteger(Number(m.horasTotales)) || Number(m.horasTotales) <= 0)) {
+        this.snackBar.open(`${m.nombre}: las horas totales deben ser un entero mayor que cero`, 'OK', { duration: 4000 });
+        return;
+      }
+    }
+
+    this.progGuardando = true;
+    this.loadingService.mostrar();
+    this.academicoService.guardarProgramacion(
+      this.progMaterias.map((m) => ({
+        materiaId: m.materiaId,
+        fechaInicio: m.fechaInicio || null,
+        fechaFin: m.fechaFin || null,
+        horasTotales: m.horasTotales === null || (m.horasTotales as any) === '' ? null : Number(m.horasTotales),
+        docenteId: m.docenteId
+      }))
+    ).pipe(finalize(() => this.loadingService.ocultar())).subscribe({
+      next: () => {
+        this.progGuardando = false;
+        this.snackBar.open('Programación guardada', 'OK', { duration: 3000 });
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.progGuardando = false;
+        this.snackBar.open(e?.error?.error || 'Error al guardar la programación', 'OK', { duration: 4000 });
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ── Finanzas: conceptos de pago ──
+
+  cargarConceptos() {
+    this.finanzasService.listarConceptos().subscribe({
+      next: (conceptos) => {
+        this.conceptos = conceptos;
+        this.cdr.detectChanges();
+      },
+      error: () => { /* silencioso: la lista queda vacía */ }
+    });
+  }
+
+  crearConcepto() {
+    const nombre = this.conceptoNombre.trim();
+    const monto = Number(this.conceptoMonto);
+    if (!nombre) {
+      this.snackBar.open('Escribe el nombre del concepto', 'OK', { duration: 3000 });
+      return;
+    }
+    if (!Number.isFinite(monto) || monto <= 0) {
+      this.snackBar.open('El monto debe ser mayor que cero', 'OK', { duration: 3000 });
+      return;
+    }
+    if (!this.conceptoFecha) {
+      this.snackBar.open('Indica la fecha máxima de pago', 'OK', { duration: 3000 });
+      return;
+    }
+
+    this.dialog.open(ConfirmDialog, {
+      width: '400px',
+      data: {
+        titulo: 'Crear concepto de pago',
+        mensaje: `Se cobrará "${nombre}" por ${dinero(monto)} a todos los estudiantes con matrícula activa. ¿Continuar?`,
+        confirmText: 'Crear concepto',
+        cancelText: 'Cancelar',
+        icon: 'add_card'
+      }
+    }).afterClosed().subscribe((ok) => {
+      if (!ok) return;
+      this.conceptoGuardando = true;
+      this.loadingService.mostrar();
+      this.finanzasService.crearConcepto({ nombre, monto, fechaMaxima: this.conceptoFecha })
+        .pipe(finalize(() => this.loadingService.ocultar()))
+        .subscribe({
+          next: (res) => {
+            this.conceptoGuardando = false;
+            this.conceptoNombre = '';
+            this.conceptoMonto = null;
+            this.conceptoFecha = '';
+            this.snackBar.open(res?.message || 'Concepto creado', 'OK', { duration: 4000 });
+            this.cargarConceptos();
+            this.cdr.detectChanges();
+          },
+          error: (e) => {
+            this.conceptoGuardando = false;
+            this.snackBar.open(e?.error?.error || 'Error al crear el concepto', 'OK', { duration: 4000 });
+            this.cdr.detectChanges();
+          }
+        });
+    });
+  }
+
+  eliminarConcepto(concepto: ConceptoPago) {
+    this.dialog.open(ConfirmDialog, {
+      width: '400px',
+      data: {
+        titulo: 'Eliminar concepto',
+        mensaje: `¿Eliminar "${concepto.nombre}"? Se quitará de todos los estudiantes. Solo es posible si aún no tiene pagos ni comprobantes.`,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        icon: 'delete'
+      }
+    }).afterClosed().subscribe((ok) => {
+      if (!ok) return;
+      // El indicador de carga lo muestra el interceptor (petición DELETE).
+      this.finanzasService.eliminarConcepto(concepto.id).subscribe({
+        next: () => {
+          this.snackBar.open('Concepto eliminado', 'OK', { duration: 3000 });
+          this.cargarConceptos();
+        },
+        error: (e) => {
+          this.snackBar.open(e?.error?.error || 'Error al eliminar el concepto', 'OK', { duration: 4000 });
+          this.cdr.detectChanges();
+        }
+      });
+    });
+  }
+
+  irAFinanzas() {
+    this.router.navigate(['/finanzas']);
   }
 
   cargarPermisos() {
@@ -92,7 +321,8 @@ export class ConfiguracionComponent implements OnInit {
   }
 
   cargar() {
-    this.configService.obtener().subscribe({
+    this.loadingService.mostrar();
+    this.configService.obtener().pipe(finalize(() => this.loadingService.ocultar())).subscribe({
       next: (c: Configuracion) => {
         this.supletorioInicio = this.soloFecha(c.supletorioInicio);
         this.supletorioFin = this.soloFecha(c.supletorioFin);
@@ -103,6 +333,9 @@ export class ConfiguracionComponent implements OnInit {
         this.notaAprobacion = c.notaAprobacion;
         this.loading = false;
         this.cdr.detectChanges();
+        // /configuracion#finanzas abre directamente esa sección.
+        const fragmento = this.route.snapshot.fragment;
+        if (fragmento) setTimeout(() => this.irA(fragmento));
       },
       error: () => {
         this.loading = false;

@@ -14,6 +14,7 @@ import { DatePipe } from '@angular/common';
 import { etiquetaAutorAnuncio } from '../../../services/anuncio-util';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { VisorImagen } from '../../../shared/visor-imagen/visor-imagen';
+import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -22,7 +23,7 @@ import { environment } from '../../../../environments/environment';
   imports: [
     MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatMenuModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, DatePipe,
-    VisorImagen
+    VisorImagen, FotoPerfil
   ],
   templateUrl: './dashboard-profesor.html',
   styleUrl: './dashboard-profesor.scss'

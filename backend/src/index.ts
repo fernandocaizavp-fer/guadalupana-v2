@@ -17,6 +17,9 @@ import reporteRoutes from './routes/reporte.routes';
 import examenGradoRoutes from './routes/examen-grado.routes';
 import cedulaRoutes from './routes/cedula.routes';
 import configuracionRoutes from './routes/configuracion.routes';
+import finanzasRoutes from './routes/finanzas.routes';
+import academicoRoutes from './routes/academico.routes';
+import portalRoutes from './routes/portal.routes';
 import { defensaDoS } from './middlewares/defensa.middleware';
 
 
@@ -47,6 +50,9 @@ app.use('/api/reportes', reporteRoutes);
 app.use('/api/examen-grado', examenGradoRoutes);
 app.use('/api/cedula', cedulaRoutes);
 app.use('/api/configuracion', configuracionRoutes);
+app.use('/api/finanzas', finanzasRoutes);
+app.use('/api/academico', academicoRoutes);
+app.use('/api/portal', portalRoutes);
 
 
 

@@ -1,0 +1,117 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Prospectos</h1>
+        <span>Posibles matrículas del portal web</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <button type="button" class="btn-toolbar" (click)="alternarFormulario()">
+      <mat-icon>{{ formularioAbierto ? 'close' : 'person_add' }}</mat-icon>
+      {{ formularioAbierto ? 'Cancelar' : 'Agregar prospecto' }}
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+
+  @if (formularioAbierto) {
+    <section class="panel">
+      <div class="panel-cabecera">
+        <mat-icon>person_add</mat-icon>
+        <h2>Nuevo prospecto</h2>
+      </div>
+      <form class="panel-cuerpo formulario" (ngSubmit)="guardarNuevo()">
+        <div class="campo">
+          <label for="p-nombres">Nombres</label>
+          <input id="p-nombres" name="nombres" [(ngModel)]="nuevo.nombres" maxlength="100" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="p-apellidos">Apellidos</label>
+          <input id="p-apellidos" name="apellidos" [(ngModel)]="nuevo.apellidos" maxlength="100" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="p-telefono">Teléfono</label>
+          <input id="p-telefono" name="telefono" type="tel" [(ngModel)]="nuevo.telefono" maxlength="20" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="p-especialidad">Especialidad de interés</label>
+          <select id="p-especialidad" name="especialidad" [(ngModel)]="nuevo.especialidadInteres">
+            <option value="" disabled>Selecciona una</option>
+            @for (e of especialidades; track e) {
+              <option [value]="e">{{ e }}</option>
+            }
+          </select>
+        </div>
+        <div class="acciones">
+          <button type="submit" class="btn principal" [disabled]="!nuevoValido">
+            <mat-icon>save</mat-icon> Guardar
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <mat-icon>contact_phone</mat-icon>
+      <h2>Personas interesadas</h2>
+      @if (pendientes > 0) {
+        <span class="contador" title="Por contactar">{{ pendientes }}</span>
+      }
+      <span class="separador"></span>
+      <div class="filtros">
+        <button type="button" [class.activo]="filtro === 'TODOS'" (click)="filtrar('TODOS')">Todos</button>
+        <button type="button" [class.activo]="filtro === 'PENDIENTE'" (click)="filtrar('PENDIENTE')">Pendientes</button>
+        <button type="button" [class.activo]="filtro === 'CONTACTADO'" (click)="filtrar('CONTACTADO')">Contactados</button>
+      </div>
+    </div>
+
+    @if (cargado && visibles.length === 0) {
+      <div class="vacio">
+        <mat-icon>inbox</mat-icon>
+        @if (prospectos.length === 0) {
+          Todavía nadie ha llenado el formulario de pre-inscripción.
+        } @else {
+          No hay prospectos con este filtro.
+        }
+      </div>
+    }
+
+    @for (p of visibles; track p.id) {
+      <div class="fila">
+        <div class="fila-info">
+          <strong>{{ p.apellidos }} {{ p.nombres }}</strong>
+          <span>
+            {{ p.especialidadInteres }} · Tel. {{ p.telefono }} ·
+            Registrado el {{ p.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+        <span class="chip" [class.pendiente]="p.estado === 'PENDIENTE'" [class.ok]="p.estado === 'CONTACTADO'">
+          {{ p.estado === 'PENDIENTE' ? 'Pendiente' : 'Contactado' }}
+        </span>
+        <div class="fila-acciones">
+          <a class="btn exito" [href]="whatsapp(p)" target="_blank" rel="noopener">
+            <mat-icon>chat</mat-icon> WhatsApp
+          </a>
+          @if (p.estado === 'PENDIENTE') {
+            <button type="button" class="btn principal" (click)="cambiarEstado(p)">
+              <mat-icon>check</mat-icon> Marcar contactado
+            </button>
+          } @else {
+            <button type="button" class="btn secundario" (click)="cambiarEstado(p)">
+              <mat-icon>undo</mat-icon> Volver a pendiente
+            </button>
+          }
+          <button type="button" class="btn-icono peligro" (click)="eliminar(p)" title="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>

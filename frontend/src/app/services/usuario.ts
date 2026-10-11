@@ -77,6 +77,16 @@ getCursosConSubmaterias(profesorId: number): Observable<any[]> {
     { headers: this.getHeaders() });
 }
 
+  // Foto de perfil del usuario con sesión iniciada (multipart: el navegador
+  // pone el Content-Type con su boundary, no se fija a mano).
+  subirFoto(archivo: File): Observable<{ fotoUrl: string }> {
+    const datos = new FormData();
+    datos.append('foto', archivo);
+    return this.http.post<{ fotoUrl: string }>(`${this.apiUrl}/usuarios/foto`, datos, {
+      headers: this.getHeaders()
+    });
+  }
+
   getMateriasCurso(cursoId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/cursos/${cursoId}`, {
       headers: this.getHeaders()

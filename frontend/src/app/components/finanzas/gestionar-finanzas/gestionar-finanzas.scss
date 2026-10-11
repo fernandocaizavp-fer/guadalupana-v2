@@ -1,0 +1,418 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$rojo: #c62828;
+$verde: #2e7d32;
+$naranja: #b25f00;
+
+.page-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e);
+  color: #ffffff;
+  height: 85px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      span { font-size: 13px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    }
+  }
+
+  .flex-spacer { flex: 1; }
+}
+
+.btn-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  background: $gold;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: filter 0.2s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover { filter: brightness(1.08); }
+}
+
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ===== PANELES ===== */
+.panel {
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.panel-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid #f0f2f8;
+
+  mat-icon { color: $gold; }
+  h2 { margin: 0; font-size: 16px; font-weight: 800; color: $navy; }
+}
+
+.contador {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #d32f2f;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-cuerpo { padding: 20px 22px; }
+
+.vacio-linea {
+  margin: 0;
+  padding: 20px 22px;
+  font-size: 13px;
+  color: #8a90a2;
+}
+
+.panel-cuerpo .vacio-linea { padding: 12px 0 0; }
+
+/* ===== BANDEJA ===== */
+.pendiente {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 22px;
+  border-top: 1px solid #f0f2f8;
+
+  &:first-child { border-top: none; }
+}
+
+.pendiente-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  strong { font-size: 14px; color: $navy; }
+  span { font-size: 12px; color: #8a90a2; }
+  .pendiente-concepto { color: #4b5563; b { color: $navy; } }
+}
+
+/* ===== BOTONES DE ACCIÓN ===== */
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+%boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.btn-linea {
+  @extend %boton;
+  color: $navy;
+  background: white;
+  border: 1px solid #cfd4e2;
+
+  &:hover { border-color: $navy; background: #f5f7fc; }
+}
+
+.btn-aprobar {
+  @extend %boton;
+  color: white;
+  background: $verde;
+  border: 1px solid $verde;
+
+  &:hover { filter: brightness(1.1); }
+}
+
+.btn-rechazar {
+  @extend %boton;
+  color: $rojo;
+  background: white;
+  border: 1px solid #efb7b7;
+
+  &:hover { background: #fde8e8; }
+
+  &.solido {
+    color: white;
+    background: $rojo;
+    border-color: $rojo;
+    &:hover { filter: brightness(1.1); background: $rojo; }
+  }
+}
+
+/* ===== CAMPOS ===== */
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8a90a2;
+  }
+
+  select, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 10px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1a2238;
+    background: #fff;
+    border: 1px solid #d5d9e4;
+    border-radius: 8px;
+
+    &:focus {
+      outline: none;
+      border-color: $gold;
+      box-shadow: 0 0 0 3px rgba(200, 168, 75, 0.2);
+    }
+  }
+
+  textarea { resize: vertical; }
+}
+
+.campo-curso { max-width: 380px; }
+
+/* ===== ESTUDIANTES ===== */
+.estudiantes {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.estudiante {
+  border: 1px solid #e8eaf0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover, &.abierto {
+    border-color: $gold;
+    box-shadow: 0 4px 14px rgba(200, 168, 75, 0.15);
+  }
+
+  &.abierto .flecha { transform: rotate(180deg); }
+}
+
+.estudiante-fila {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: inherit;
+  text-align: left;
+  background: white;
+  border: none;
+  cursor: pointer;
+}
+
+.estudiante-nombre {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  strong { font-size: 14px; color: $navy; }
+  small { font-size: 12px; color: #8a90a2; }
+}
+
+.chip {
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 4px 10px;
+  white-space: nowrap;
+
+  &.naranja { background: #fff1dd; color: $naranja; }
+  &.rojo { background: #fde8e8; color: $rojo; }
+}
+
+.estudiante-saldo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 16px;
+  font-weight: 800;
+  color: $navy;
+  white-space: nowrap;
+
+  small { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #9aa0b0; }
+  &.al-dia { color: $verde; }
+}
+
+.flecha {
+  color: #b6bccb;
+  transition: transform 0.2s;
+}
+
+.detalle {
+  border-top: 1px solid #f0f2f8;
+  background: #fafbfe;
+}
+
+/* ===== TABLA ===== */
+.tabla-scroll { overflow-x: auto; }
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a90a2;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #4b5563;
+    border-top: 1px solid #eef0f5;
+    white-space: nowrap;
+  }
+
+  .derecha { text-align: right; }
+  .concepto { font-weight: 700; color: $navy; white-space: normal; }
+  .valor { font-weight: 700; color: $navy; }
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+
+  &.pagado { background: #e6f4ea; color: $verde; }
+  &.pendiente { background: #eceef2; color: #5f6675; }
+  &.revisando { background: #fff1dd; color: $naranja; }
+  &.vencido, &.rechazado { background: #fde8e8; color: $rojo; }
+}
+
+.texto-suave {
+  font-size: 12px;
+  color: #8a90a2;
+}
+
+/* ===== MODAL ===== */
+.modal { padding: 24px; }
+
+.modal-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  mat-icon { color: $rojo; }
+  h2 { margin: 0; font-size: 18px; font-weight: 800; color: $navy; }
+}
+
+.modal-texto {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.modal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .page-toolbar {
+    height: auto;
+    padding: 12px 0;
+
+    .toolbar-content { padding: 0 16px; flex-wrap: wrap; row-gap: 10px; }
+    .title-meta h1 { font-size: 20px; }
+  }
+
+  .content { padding: 14px 10px; gap: 14px; }
+  .panel-cuerpo { padding: 16px 14px; }
+
+  .pendiente {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+  }
+
+  .campo-curso { max-width: none; }
+
+  .estudiante-fila { flex-wrap: wrap; gap: 10px; }
+  .estudiante-nombre { flex-basis: calc(100% - 60px); }
+}

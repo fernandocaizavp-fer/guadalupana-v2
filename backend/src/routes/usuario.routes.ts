@@ -6,7 +6,8 @@ import {
   getMisMateria, getPerfilEstudiante
 } from '../controllers/usuario.controller';
 import { verificarToken, soloAdmin } from '../middlewares/auth.middleware';
-import { getCursosConSubmaterias } from '../controllers/usuario.controller';
+import { getCursosConSubmaterias, subirFotoPerfil } from '../controllers/usuario.controller';
+import { subirFoto } from '../middlewares/upload.middleware';
 
 
 const router = Router();
@@ -20,6 +21,7 @@ router.post('/asignar-profesor-principal-materia', verificarToken, soloAdmin, as
 router.post('/desasignar-materia', verificarToken, soloAdmin, desasignarProfesor);
 router.post('/desasignar-profesor-principal', verificarToken, soloAdmin, desasignarProfesorPrincipal);
 router.get('/mis-materias/:profesorId', verificarToken, getMisMateria);
+router.post('/foto', verificarToken, subirFoto, subirFotoPerfil);
 router.get('/perfil-estudiante/:usuarioId', verificarToken, getPerfilEstudiante);
 router.get('/cursos-con-submaterias/:profesorId', verificarToken, getCursosConSubmaterias);
 

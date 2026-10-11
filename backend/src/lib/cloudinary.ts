@@ -1,5 +1,10 @@
 import { v2 as cloudinary } from 'cloudinary';
 
+// LEGADO: desde la migración a Cloudflare R2 (ver lib/r2.ts) los archivos nuevos
+// ya no se suben aquí. Este módulo se conserva solo para poder ELIMINAR de
+// Cloudinary los archivos subidos antes de la migración. Cuando ya no quede
+// ninguno, se puede borrar junto con la dependencia y sus variables de entorno.
+
 // Credenciales SOLO desde variables de entorno (nunca quemadas).
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

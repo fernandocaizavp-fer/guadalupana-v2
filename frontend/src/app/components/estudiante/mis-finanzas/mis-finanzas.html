@@ -1,0 +1,144 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Mis Finanzas</h1>
+        <span>Pagos, saldos y comprobantes</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (cargado && error) {
+    <div class="vacio">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error }}</p>
+      <button type="button" class="btn-subir" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  @if (cargado && !error) {
+    <!-- TARJETAS DE RESUMEN -->
+    <div class="resumen">
+      <div class="resumen-card principal">
+        <span class="resumen-label">Saldo Pendiente</span>
+        <span class="resumen-valor">{{ dinero(resumen.saldoPendiente) }}</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">Vencido</span>
+        <span class="resumen-valor rojo">{{ dinero(resumen.vencido) }}</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">Ya Pagado</span>
+        <span class="resumen-valor verde">{{ dinero(resumen.pagado) }}</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">En Revisión</span>
+        <span class="resumen-valor naranja">{{ dinero(resumen.enRevision) }}</span>
+      </div>
+    </div>
+
+    <!-- HISTORIAL POR CONCEPTO -->
+    <div class="historial">
+      <div class="historial-cabecera">
+        <h2>Mis conceptos de pago</h2>
+        <span class="historial-nota">Sube el comprobante en el concepto que pagaste</span>
+      </div>
+
+      @if (deudas.length === 0) {
+        <div class="vacio en-tarjeta">
+          <mat-icon>receipt_long</mat-icon>
+          <p>Todavía no tienes conceptos de pago registrados</p>
+        </div>
+      } @else {
+        <div class="tabla-scroll">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Concepto / Mes</th>
+                <th>Fecha Máxima</th>
+                <th class="derecha">Valor</th>
+                <th>Estado</th>
+                <th>Comprobante</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (deuda of deudas; track deuda.id) {
+                <tr>
+                  <td class="concepto">{{ deuda.concepto }}</td>
+                  <td>{{ deuda.fechaMaxima | date:'dd/MM/yyyy':'UTC' }}</td>
+                  <td class="derecha valor">{{ dinero(deuda.montoTotal) }}</td>
+                  <td>
+                    <span [class]="'badge ' + estado(deuda).toLowerCase()">{{ etiquetas[estado(deuda)] }}</span>
+                    @if (estado(deuda) === 'RECHAZADO' && ultimo(deuda)?.motivoRechazo) {
+                      <span class="motivo">Motivo: {{ ultimo(deuda)?.motivoRechazo }}</span>
+                    }
+                  </td>
+                  <td>
+                    @if (puedeSubir(deuda)) {
+                      <button type="button" class="btn-subir compacto" (click)="abrirModal(deuda)">
+                        <mat-icon>upload_file</mat-icon>
+                        Subir comprobante
+                      </button>
+                    } @else if (ultimo(deuda)?.metodo === 'EFECTIVO') {
+                      <span class="texto-suave">Pago en efectivo</span>
+                    } @else if (ultimo(deuda)?.urlImagen) {
+                      <a class="enlace" [href]="ultimo(deuda)?.urlImagen" target="_blank" rel="noopener">
+                        <mat-icon>visibility</mat-icon>
+                        Ver comprobante
+                      </a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- MODAL: SUBIR COMPROBANTE DE UN CONCEPTO -->
+<ng-template #modalComprobante>
+  <div class="modal">
+    <div class="modal-cabecera">
+      <mat-icon>receipt_long</mat-icon>
+      <h2>Subir comprobante</h2>
+    </div>
+
+    @if (deudaSeleccionada) {
+      <div class="modal-concepto">
+        <span>{{ deudaSeleccionada.concepto }}</span>
+        <strong>{{ dinero(deudaSeleccionada.saldo) }}</strong>
+      </div>
+    }
+
+    <p class="modal-texto">
+      Adjunta la foto o el PDF del comprobante de este pago. El centro lo revisará
+      antes de registrarlo como pagado.
+    </p>
+
+    <label class="modal-archivo">
+      <span>Archivo del comprobante (máx. 5 MB)</span>
+      <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" (change)="onArchivo($event)">
+    </label>
+
+    @if (errorArchivo) {
+      <p class="modal-error">{{ errorArchivo }}</p>
+    }
+
+    <div class="modal-acciones">
+      <button type="button" class="btn-secundario" mat-dialog-close>Cancelar</button>
+      <button type="button" class="btn-subir" [disabled]="!archivoSeleccionado" (click)="enviarComprobante()">
+        <mat-icon>send</mat-icon>
+        Enviar
+      </button>
+    </div>
+  </div>
+</ng-template>

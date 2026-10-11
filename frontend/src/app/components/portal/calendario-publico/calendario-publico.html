@@ -1,0 +1,109 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Calendario Público</h1>
+        <span>Eventos de la página principal</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    @if (!formularioAbierto) {
+      <button type="button" class="btn-toolbar" (click)="nuevo()">
+        <mat-icon>add</mat-icon>
+        Nuevo evento
+      </button>
+    }
+  </div>
+</mat-toolbar>
+
+<div class="content">
+
+  @if (formularioAbierto) {
+    <section class="panel">
+      <div class="panel-cabecera">
+        <mat-icon>{{ editando ? 'edit_calendar' : 'event_available' }}</mat-icon>
+        <h2>{{ editando ? 'Editar evento' : 'Nuevo evento' }}</h2>
+      </div>
+      <form class="panel-cuerpo formulario" (ngSubmit)="guardar()">
+        <div class="campo ancho">
+          <label for="c-titulo">Título</label>
+          <input id="c-titulo" name="titulo" [(ngModel)]="datos.titulo" maxlength="150" autocomplete="off"
+                 placeholder="Ej: Inicio de matrículas">
+        </div>
+        <div class="campo">
+          <label for="c-inicio">Fecha de inicio</label>
+          <input id="c-inicio" name="fechaInicio" type="date" [(ngModel)]="datos.fechaInicio">
+        </div>
+        <div class="campo">
+          <label for="c-fin">Fecha de fin</label>
+          <input id="c-fin" name="fechaFin" type="date" [(ngModel)]="datos.fechaFin" [min]="datos.fechaInicio">
+          @if (fechasInvertidas) {
+            <small class="error">La fecha de fin no puede ser anterior a la de inicio.</small>
+          } @else {
+            <small>Déjala vacía si el evento dura un solo día.</small>
+          }
+        </div>
+        <div class="campo ancho">
+          <label for="c-descripcion">Descripción (opcional)</label>
+          <textarea id="c-descripcion" name="descripcion" [(ngModel)]="datos.descripcion" maxlength="2000"></textarea>
+        </div>
+        <div class="acciones">
+          <button type="button" class="btn secundario" (click)="cancelar()">Cancelar</button>
+          <button type="submit" class="btn principal" [disabled]="!valido">
+            <mat-icon>save</mat-icon> {{ editando ? 'Guardar cambios' : 'Agendar' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <mat-icon>event</mat-icon>
+      <h2>Eventos agendados</h2>
+    </div>
+
+    @if (cargado && eventos.length === 0) {
+      <div class="vacio">
+        <mat-icon>event_busy</mat-icon>
+        Aún no hay eventos en el calendario público.
+      </div>
+    }
+
+    @for (e of eventos; track e.id) {
+      <div class="fila" [class.pasado]="finalizado(e)">
+        <div class="fecha-caja">
+          <span class="dia">{{ e.fechaInicio | date:'dd':'UTC' }}</span>
+          <span class="mes">{{ mesAnio(e) }}</span>
+        </div>
+        <div class="fila-info">
+          <strong>{{ e.titulo }}</strong>
+          <span>
+            @if (unSoloDia(e)) {
+              {{ e.fechaInicio | date:'dd/MM/yyyy':'UTC' }}
+            } @else {
+              Del {{ e.fechaInicio | date:'dd/MM/yyyy':'UTC' }} al {{ e.fechaFin | date:'dd/MM/yyyy':'UTC' }}
+            }
+          </span>
+          @if (e.descripcion) {
+            <p>{{ e.descripcion }}</p>
+          }
+        </div>
+        <span class="chip" [class.ok]="!finalizado(e)" [class.apagado]="finalizado(e)">
+          {{ finalizado(e) ? 'Finalizado' : 'Visible' }}
+        </span>
+        <div class="fila-acciones">
+          <button type="button" class="btn-icono" (click)="editar(e)" title="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button type="button" class="btn-icono peligro" (click)="eliminar(e)" title="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>

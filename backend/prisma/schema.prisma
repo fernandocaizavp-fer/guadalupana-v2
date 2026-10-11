@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -15,21 +15,26 @@ enum Rol {
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  nombre    String   @db.VarChar(100)
-  apellido  String   @db.VarChar(100)
-  correo    String   @unique @db.VarChar(100)
-  cedula    String?  @unique @db.VarChar(10)
-  password  String   @db.VarChar(60)
-  rol       Rol      @default(ESTUDIANTE)
-  activo    Boolean  @default(true)
-  debeCambiarPassword Boolean @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  nombre              String   @db.VarChar(100)
+  apellido            String   @db.VarChar(100)
+  correo              String   @unique @db.VarChar(100)
+  cedula              String?  @unique @db.VarChar(10)
+  password            String   @db.VarChar(60)
+  rol                 Rol      @default(ESTUDIANTE)
+  activo              Boolean  @default(true)
+  debeCambiarPassword Boolean  @default(true)
+  // Foto de perfil (docentes y estudiantes). La imagen vive en Cloudflare R2;
+  // aquí solo el enlace y el public_id para poder reemplazarla.
+  fotoUrl             String?  @db.VarChar(500)
+  fotoPublicId        String?  @db.VarChar(255)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   materiasComoProfesorPrincipal Materia[]  @relation("ProfesorPrincipalMateria")
   matricula                     Matricula?
   materias                      Materia[]
+  deudas                        Deuda[]
 }
 
 model Curso {
@@ -48,19 +53,25 @@ model Curso {
 }
 
 model Materia {
-  id                  Int      @id @default(autoincrement())
-  nombre              String   @db.VarChar(100)
+  id                  Int       @id @default(autoincrement())
+  nombre              String    @db.VarChar(100)
   cursoId             Int
-  curso               Curso    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  curso               Curso     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
   profesorId          Int?
-  profesor            Usuario? @relation(fields: [profesorId], references: [id], onDelete: SetNull)
-  esSubmateria        Boolean  @default(false)
-  materiaParent       String?  @db.VarChar(100)
+  profesor            Usuario?  @relation(fields: [profesorId], references: [id], onDelete: SetNull)
+  esSubmateria        Boolean   @default(false)
+  materiaParent       String?   @db.VarChar(100)
   profesorPrincipalId Int?
-  profesorPrincipal   Usuario? @relation("ProfesorPrincipalMateria", fields: [profesorPrincipalId], references: [id])
-  activo              Boolean  @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  profesorPrincipal   Usuario?  @relation("ProfesorPrincipalMateria", fields: [profesorPrincipalId], references: [id])
+  // Programación académica (Configuración → Registro de fechas). Nullable: una
+  // materia sin programar simplemente no muestra fechas ni horas. No hace falta
+  // una tabla de periodos: cada año lectivo es un Curso nuevo con sus materias.
+  fechaInicio         DateTime?
+  fechaFin            DateTime?
+  horasTotales        Int?
+  activo              Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   tareas          Tarea[]
   supletorios     Supletorio[]
@@ -184,8 +195,8 @@ model DatosAcademicosMatricula {
 }
 
 model Tarea {
-  id          Int      @id @default(autoincrement())
-  nombre      String   @db.VarChar(150)
+  id          Int       @id @default(autoincrement())
+  nombre      String    @db.VarChar(150)
   descripcion String?
   fecha       DateTime
   // Rango de la tarea: inicio y fecha límite de entrega. Nullable para no
@@ -195,9 +206,9 @@ model Tarea {
   fechaFin    DateTime?
   semestre    Int
   materiaId   Int
-  materia     Materia  @relation(fields: [materiaId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  materia     Materia   @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   notas    NotaTarea[]
   archivos ArchivoTarea[]
@@ -259,23 +270,23 @@ model ObservacionAsistencia {
 }
 
 model Anuncio {
-  id          Int      @id @default(autoincrement())
-  titulo      String   @db.VarChar(150)
-  contenido   String
-  imagen      String?  @db.VarChar(200)
-  activo      Boolean  @default(true)
-  autorRol    Rol?
-  autorNombre String?  @db.VarChar(200)
+  id            Int      @id @default(autoincrement())
+  titulo        String   @db.VarChar(150)
+  contenido     String
+  imagen        String?  @db.VarChar(200)
+  activo        Boolean  @default(true)
+  autorRol      Rol?
+  autorNombre   String?  @db.VarChar(200)
   // Dueño del anuncio: un PROFESOR solo puede editar/eliminar los suyos
   // (el ADMIN puede gestionar todos). Nulo en anuncios creados antes de este campo.
-  autorId     Int?
+  autorId       Int?
   // Materia a la que se refiere el anuncio (etiqueta opcional, denormalizada).
-  materiaNombre String? @db.VarChar(150)
+  materiaNombre String?  @db.VarChar(150)
   // Curso al que se dirige el anuncio. Null = general (lo ven todos). Con valor,
   // solo lo ven los estudiantes matriculados en ese curso.
-  cursoId     Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  cursoId       Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model NotaDisciplina {
@@ -334,7 +345,7 @@ model Configuracion {
   updatedAt            DateTime  @updatedAt
 }
 
-// Archivos que el docente adjunta a una tarea (almacenados en Cloudinary).
+// Archivos que el docente adjunta a una tarea (almacenados en Cloudflare R2; los anteriores a la migración, en Cloudinary).
 model ArchivoTarea {
   id             Int      @id @default(autoincrement())
   url            String   @db.VarChar(500)
@@ -363,7 +374,7 @@ model EntregaTarea {
   @@unique([tareaId, matriculaId])
 }
 
-// Archivos de una entrega del estudiante (almacenados en Cloudinary).
+// Archivos de una entrega del estudiante (almacenados en Cloudflare R2; los anteriores a la migración, en Cloudinary).
 model ArchivoEntrega {
   id             Int          @id @default(autoincrement())
   url            String       @db.VarChar(500)
@@ -375,4 +386,136 @@ model ArchivoEntrega {
   entregaId      Int
   entrega        EntregaTarea @relation(fields: [entregaId], references: [id], onDelete: Cascade)
   createdAt      DateTime     @default(now())
+}
+
+// ---------- FINANZAS ----------
+
+enum EstadoDeuda {
+  PENDIENTE
+  PAGADA
+  MORA
+}
+
+enum EstadoComprobante {
+  EN_REVISION
+  APROBADO
+  RECHAZADO
+}
+
+enum MetodoPago {
+  COMPROBANTE
+  EFECTIVO
+}
+
+// Concepto de cobro que crea el administrador (p. ej. "Pensión Septiembre").
+// Al crearlo se genera una Deuda por cada estudiante con matrícula activa.
+model ConceptoPago {
+  id          Int      @id @default(autoincrement())
+  nombre      String   @db.VarChar(150)
+  monto       Decimal  @db.Decimal(10, 2)
+  fechaMaxima DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  deudas Deuda[]
+}
+
+// Obligación de pago de un estudiante por un concepto. `saldo` arranca igual a
+// `montoTotal` y solo baja al aprobar un comprobante o registrar un pago en
+// efectivo. Dinero en Decimal: Float acumula errores de redondeo.
+model Deuda {
+  id           Int           @id @default(autoincrement())
+  // Copia del nombre y monto del concepto: si el concepto se edita después,
+  // lo ya cobrado no cambia.
+  concepto     String        @db.VarChar(150)
+  montoTotal   Decimal       @db.Decimal(10, 2)
+  saldo        Decimal       @db.Decimal(10, 2)
+  fechaMaxima  DateTime
+  estado       EstadoDeuda   @default(PENDIENTE)
+  // Sin onDelete → Restrict: un registro financiero no debe desaparecer al
+  // borrar al usuario ni al concepto (mismo criterio que Matricula.curso).
+  estudianteId Int
+  estudiante   Usuario       @relation(fields: [estudianteId], references: [id])
+  conceptoId   Int?
+  conceptoPago ConceptoPago? @relation(fields: [conceptoId], references: [id], onDelete: Restrict)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  comprobantes Comprobante[]
+
+  // Un estudiante no recibe dos veces el mismo concepto.
+  @@unique([estudianteId, conceptoId])
+  @@index([estudianteId])
+}
+
+// Pago registrado contra una deuda. COMPROBANTE: voucher que sube el estudiante
+// (la imagen vive en Cloudflare R2, aquí solo el enlace) y que el administrador
+// revisa. EFECTIVO: lo registra el administrador, sin imagen y ya aprobado.
+model Comprobante {
+  id            Int               @id @default(autoincrement())
+  metodo        MetodoPago        @default(COMPROBANTE)
+  urlImagen     String?           @db.VarChar(500)
+  publicId      String?           @db.VarChar(255)
+  montoAbonado  Decimal           @db.Decimal(10, 2)
+  estado        EstadoComprobante @default(EN_REVISION)
+  motivoRechazo String?           @db.VarChar(300)
+  fechaSubida   DateTime          @default(now())
+  deudaId       Int
+  deuda         Deuda             @relation(fields: [deudaId], references: [id])
+
+  @@index([estado])
+  @@index([deudaId])
+}
+
+// ---------- PORTAL PÚBLICO (landing page) ----------
+// Tablas aisladas a propósito: no tienen relación con Usuario, Matricula,
+// Curso ni con el modelo `Anuncio` interno. Lo que se publica aquí lo ve
+// cualquier visitante sin iniciar sesión.
+
+enum EstadoProspecto {
+  PENDIENTE
+  CONTACTADO
+}
+
+// Persona interesada que llenó el formulario de pre-inscripción de la landing.
+// No es una matrícula ni crea un usuario: solo es un dato de contacto.
+model PosibleMatricula {
+  id                  Int             @id @default(autoincrement())
+  nombres             String          @db.VarChar(100)
+  apellidos           String          @db.VarChar(100)
+  telefono            String          @db.VarChar(20)
+  especialidadInteres String          @db.VarChar(100)
+  estado              EstadoProspecto @default(PENDIENTE)
+  fechaRegistro       DateTime        @default(now())
+
+  @@index([estado])
+}
+
+// Noticia para terceros (distinta del `Anuncio` interno de docentes y estudiantes).
+model AnuncioPublico {
+  id               Int      @id @default(autoincrement())
+  titulo           String   @db.VarChar(150)
+  contenido        String   @db.Text
+  imagenUrl        String?  @db.VarChar(500)
+  fechaPublicacion DateTime @default(now())
+  activo           Boolean  @default(true)
+}
+
+// Foto de la galería de la landing (la imagen vive en Cloudflare R2).
+model GaleriaPublica {
+  id          Int      @id @default(autoincrement())
+  titulo      String   @db.VarChar(150)
+  imagenUrl   String   @db.VarChar(500)
+  fechaSubida DateTime @default(now())
+}
+
+// Evento visible en la página principal (p. ej. inicio de matrículas).
+model CalendarioPublico {
+  id          Int      @id @default(autoincrement())
+  titulo      String   @db.VarChar(150)
+  fechaInicio DateTime
+  fechaFin    DateTime
+  descripcion String?  @db.Text
+
+  @@index([fechaFin])
 }

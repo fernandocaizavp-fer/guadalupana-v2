@@ -1,0 +1,70 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.foto {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, $gold, #e0c060);
+  color: $navy;
+  font-family: inherit;
+  font-weight: 800;
+  line-height: 1;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &.editable {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    &:focus-visible {
+      outline: 3px solid $gold;
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Insignia de cámara: indica que la foto se puede cambiar.
+.camara {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 42%;
+  height: 42%;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 50%;
+  background: $navy;
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    color: $gold;
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+  }
+}

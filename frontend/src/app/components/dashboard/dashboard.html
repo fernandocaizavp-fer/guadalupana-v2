@@ -88,13 +88,79 @@
       <span class="card-status active">● Activo</span>
     </div>
 
+    <div class="menu-card active-card" (click)="irAFinanzas()">
+      @if (comprobantesPendientes > 0) {
+        <span class="card-badge" title="Comprobantes pendientes de revisión">{{ comprobantesPendientes }}</span>
+      }
+      <div class="card-icon-wrap">
+        <mat-icon>payments</mat-icon>
+      </div>
+      <div class="card-info">
+        <h3>Finanzas y Pagos</h3>
+        <p>Revisar comprobantes y saldos de los estudiantes</p>
+      </div>
+      <span class="card-status active">● Activo</span>
+    </div>
+
     <div class="menu-card active-card" (click)="irAConfiguracion()">
       <div class="card-icon-wrap">
         <mat-icon>settings</mat-icon>
       </div>
       <div class="card-info">
         <h3>Configuración</h3>
-        <p>Supletorios y rango de calificaciones</p>
+        <p>Calificaciones, plazos, fechas y conceptos de pago</p>
+      </div>
+      <span class="card-status active">● Activo</span>
+    </div>
+
+  </div>
+
+  <div class="section-label" style="margin-top: 36px;">GESTIÓN DEL PORTAL WEB</div>
+  <div class="cards-grid">
+
+    <div class="menu-card active-card" (click)="irAProspectos()">
+      @if (prospectosPendientes > 0) {
+        <span class="card-badge" title="Prospectos por contactar">{{ prospectosPendientes }}</span>
+      }
+      <div class="card-icon-wrap">
+        <mat-icon>contact_phone</mat-icon>
+      </div>
+      <div class="card-info">
+        <h3>Prospectos</h3>
+        <p>Personas interesadas que llenaron la pre-inscripción</p>
+      </div>
+      <span class="card-status active">● Activo</span>
+    </div>
+
+    <div class="menu-card active-card" (click)="irAAnunciosPublicos()">
+      <div class="card-icon-wrap">
+        <mat-icon>newspaper</mat-icon>
+      </div>
+      <div class="card-info">
+        <h3>Anuncios a Terceros</h3>
+        <p>Noticias que ven los visitantes en la página principal</p>
+      </div>
+      <span class="card-status active">● Activo</span>
+    </div>
+
+    <div class="menu-card active-card" (click)="irAGaleriaWeb()">
+      <div class="card-icon-wrap">
+        <mat-icon>photo_library</mat-icon>
+      </div>
+      <div class="card-info">
+        <h3>Galería Web</h3>
+        <p>Subir y eliminar las fotos públicas de la galería</p>
+      </div>
+      <span class="card-status active">● Activo</span>
+    </div>
+
+    <div class="menu-card active-card" (click)="irACalendarioPublico()">
+      <div class="card-icon-wrap">
+        <mat-icon>event</mat-icon>
+      </div>
+      <div class="card-info">
+        <h3>Calendario Público</h3>
+        <p>Agendar eventos visibles en la página principal</p>
       </div>
       <span class="card-status active">● Activo</span>
     </div>

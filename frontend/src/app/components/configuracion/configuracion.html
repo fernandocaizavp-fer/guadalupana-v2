@@ -6,303 +6,519 @@
       </button>
       <div class="title-meta">
         <h1>Configuración</h1>
-        <span>Calificaciones, supletorios y exámenes de grado</span>
+        <span>Calificaciones, plazos, fechas y finanzas</span>
       </div>
     </div>
     <span class="flex-spacer"></span>
   </div>
 </mat-toolbar>
 
-@if (loading) {
-  <div class="loading"><mat-spinner diameter="40"></mat-spinner></div>
-}
-
 @if (!loading) {
+  <!-- ÍNDICE DE SECCIONES: todo está en una sola página; esto solo salta a cada parte -->
+  <nav class="indice">
+    <div class="indice-contenido">
+      @for (s of secciones; track s.id) {
+        <button type="button" class="indice-btn" (click)="irA(s.id)">
+          <mat-icon>{{ s.icono }}</mat-icon>
+          {{ s.titulo }}
+        </button>
+      }
+    </div>
+  </nav>
+
   <div class="content">
 
-    <!-- SECCIÓN: RANGO DE NOTAS -->
-    <div class="config-card">
-      <div class="config-header">
+    <!-- ═════════ CALIFICACIONES ═════════ -->
+    <section id="calificaciones" class="seccion">
+      <div class="seccion-titulo">
         <mat-icon>tune</mat-icon>
-        <h2>Rango de calificaciones</h2>
-      </div>
-      <div class="config-body">
-        <div class="notas-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Nota mínima</mat-label>
-            <input matInput type="number" step="0.1" [(ngModel)]="notaMinima">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Nota máxima</mat-label>
-            <input matInput type="number" step="0.1" [(ngModel)]="notaMaxima">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Nota para aprobar</mat-label>
-            <input matInput type="number" step="0.1" [(ngModel)]="notaAprobacion">
-          </mat-form-field>
+        <div>
+          <h2>Calificaciones</h2>
+          <p>Rango de notas que usa todo el sistema</p>
         </div>
-        <p class="hint">
-          Estos valores se aplican al registrar notas y al calcular aprobados en los reportes.
-        </p>
       </div>
-    </div>
 
-    <!-- SECCIÓN: SUPLETORIOS -->
-    <div class="config-card">
-      <div class="config-header">
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>tune</mat-icon>
+          <h3>Rango de calificaciones</h3>
+        </div>
+        <div class="config-body">
+          <div class="notas-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Nota mínima</mat-label>
+              <input matInput type="number" step="0.1" [(ngModel)]="notaMinima">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Nota máxima</mat-label>
+              <input matInput type="number" step="0.1" [(ngModel)]="notaMaxima">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Nota para aprobar</mat-label>
+              <input matInput type="number" step="0.1" [(ngModel)]="notaAprobacion">
+            </mat-form-field>
+          </div>
+          <p class="hint">
+            Estos valores se aplican al registrar notas y al calcular aprobados en los reportes.
+          </p>
+          <div class="acciones">
+            <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando">
+              <mat-icon>save</mat-icon>
+              {{ guardando ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════════ SUPLETORIOS ═════════ -->
+    <section id="supletorios" class="seccion">
+      <div class="seccion-titulo">
         <mat-icon>event_available</mat-icon>
-        <h2>Plazo de supletorios</h2>
-      </div>
-      <div class="config-body">
-        <p class="hint">
-          Define el período en que los docentes pueden registrar notas de supletorio.
-          Dentro de estas fechas el plazo está abierto; fuera de ellas, cerrado.
-          La fecha de fin es inclusiva (cubre todo ese día). Deja ambas vacías para
-          mantenerlo cerrado.
-        </p>
-
-        <div class="fechas">
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha de inicio</mat-label>
-            <input matInput type="date" [(ngModel)]="supletorioInicio">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha de fin</mat-label>
-            <input matInput type="date" [(ngModel)]="supletorioFin">
-          </mat-form-field>
+        <div>
+          <h2>Supletorios</h2>
+          <p>Plazo general y permisos individuales</p>
         </div>
       </div>
-    </div>
 
-    <!-- SECCIÓN: EXÁMENES DE GRADO -->
-    <div class="config-card">
-      <div class="config-header">
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>event_available</mat-icon>
+          <h3>Plazo de supletorios</h3>
+        </div>
+        <div class="config-body">
+          <p class="hint">
+            Define el período en que los docentes pueden registrar notas de supletorio.
+            Dentro de estas fechas el plazo está abierto; fuera de ellas, cerrado.
+            La fecha de fin es inclusiva (cubre todo ese día). Deja ambas vacías para
+            mantenerlo cerrado.
+          </p>
+
+          <div class="fechas">
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha de inicio</mat-label>
+              <input matInput type="date" [(ngModel)]="supletorioInicio">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha de fin</mat-label>
+              <input matInput type="date" [(ngModel)]="supletorioFin">
+            </mat-form-field>
+          </div>
+          <div class="acciones">
+            <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando">
+              <mat-icon>save</mat-icon>
+              {{ guardando ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>how_to_reg</mat-icon>
+          <h3>Corrección de nota (supletorio)</h3>
+        </div>
+        <div class="config-body">
+          <p class="hint">
+            Autoriza a un estudiante puntual a registrar/corregir su supletorio fuera del
+            plazo general (por un reclamo u oficio). Solo aplica a ese estudiante y hasta
+            la fecha indicada (inclusive ese día); después se cierra automáticamente.
+            Revocar cierra el permiso pero no borra la nota ya corregida.
+          </p>
+
+          <div class="buscador">
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>Buscar estudiante (nombre, apellido o cédula)</mat-label>
+              <input matInput [(ngModel)]="busqueda" (keyup.enter)="buscar()">
+            </mat-form-field>
+            <button mat-flat-button color="primary" (click)="buscar()" [disabled]="buscando">
+              <mat-icon>search</mat-icon> Buscar
+            </button>
+          </div>
+
+          @if (resultados.length > 0) {
+            <div class="resultados">
+              @for (m of resultados; track m.id) {
+                <div class="resultado-item" [class.activo]="seleccionado?.id === m.id">
+                  <div class="info">
+                    <strong>{{ m.apellidos }} {{ m.nombres }}</strong>
+                    <span>CI: {{ m.cedula }} — {{ m.curso?.ramaArtesanal }}</span>
+                    @if (m.supletorioHabilitadoHasta) {
+                      <span class="permiso-vigente">
+                        Permiso hasta {{ m.supletorioHabilitadoHasta | date:'dd/MM/yyyy' }}
+                      </span>
+                    }
+                  </div>
+                  <div class="item-actions">
+                    <button mat-stroked-button (click)="elegir(m)">Habilitar</button>
+                    @if (m.supletorioHabilitadoHasta) {
+                      <button mat-button color="warn" (click)="revocarPermiso(m)">Revocar</button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          @if (seleccionado) {
+            <div class="permiso-form">
+              <h4>Permiso para {{ seleccionado.apellidos }} {{ seleccionado.nombres }}</h4>
+              <div class="permiso-campos">
+                <mat-form-field appearance="outline">
+                  <mat-label>Habilitado hasta</mat-label>
+                  <input matInput type="date" [(ngModel)]="permisoFecha">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="grow">
+                  <mat-label>Motivo (oficio/reclamo)</mat-label>
+                  <input matInput [(ngModel)]="permisoMotivo">
+                </mat-form-field>
+              </div>
+              <div class="permiso-acciones">
+                <button mat-flat-button color="primary" (click)="habilitarPermiso()">
+                  <mat-icon>check</mat-icon> Confirmar permiso
+                </button>
+                <button mat-button (click)="seleccionado = null">Cancelar</button>
+              </div>
+            </div>
+          }
+
+          <!-- Permisos vigentes: se cargan solos y persisten al recargar -->
+          <div class="permisos-activos">
+            <h4>Permisos activos</h4>
+            @if (permisosActivos.length === 0) {
+              <p class="hint">No hay permisos de supletorio vigentes.</p>
+            } @else {
+              <div class="resultados">
+                @for (m of permisosActivos; track m.id) {
+                  <div class="resultado-item">
+                    <div class="info">
+                      <strong>{{ m.apellidos }} {{ m.nombres }}</strong>
+                      <span>CI: {{ m.cedula }} — {{ m.curso?.ramaArtesanal }}</span>
+                      <span class="permiso-vigente">
+                        Permiso hasta {{ m.supletorioHabilitadoHasta | date:'dd/MM/yyyy' }}
+                        @if (m.supletorioMotivo) { — {{ m.supletorioMotivo }} }
+                      </span>
+                    </div>
+                    <div class="item-actions">
+                      <button mat-button color="warn" (click)="revocarPermiso(m)">Revocar</button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════════ EXÁMENES DE GRADO ═════════ -->
+    <section id="examen-grado" class="seccion">
+      <div class="seccion-titulo">
         <mat-icon>school</mat-icon>
-        <h2>Plazo de exámenes de grado</h2>
-      </div>
-      <div class="config-body">
-        <p class="hint">
-          Define el período en que los docentes pueden registrar las notas de los
-          exámenes de grado. Dentro de estas fechas el plazo está abierto; fuera de
-          ellas, cerrado. La fecha de fin es inclusiva (cubre todo ese día). Deja
-          ambas vacías para mantenerlo cerrado.
-        </p>
-
-        <div class="fechas">
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha de inicio</mat-label>
-            <input matInput type="date" [(ngModel)]="examenGradoInicio">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Fecha de fin</mat-label>
-            <input matInput type="date" [(ngModel)]="examenGradoFin">
-          </mat-form-field>
+        <div>
+          <h2>Exámenes de grado</h2>
+          <p>Plazo general y recalificaciones individuales</p>
         </div>
       </div>
-    </div>
 
-    <div class="acciones">
-      <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando">
-        <mat-icon>save</mat-icon>
-        {{ guardando ? 'Guardando...' : 'Guardar configuración' }}
-      </button>
-    </div>
-
-    <!-- SECCIÓN: CORRECCIÓN DE NOTA (SUPLETORIO) -->
-    <div class="config-card">
-      <div class="config-header">
-        <mat-icon>how_to_reg</mat-icon>
-        <h2>Corrección de nota (supletorio)</h2>
-      </div>
-      <div class="config-body">
-        <p class="hint">
-          Autoriza a un estudiante puntual a registrar/corregir su supletorio fuera del
-          plazo general (por un reclamo u oficio). Solo aplica a ese estudiante y hasta
-          la fecha indicada (inclusive ese día); después se cierra automáticamente.
-          Revocar cierra el permiso pero no borra la nota ya corregida.
-        </p>
-
-        <div class="buscador">
-          <mat-form-field appearance="outline" class="grow">
-            <mat-label>Buscar estudiante (nombre, apellido o cédula)</mat-label>
-            <input matInput [(ngModel)]="busqueda" (keyup.enter)="buscar()">
-          </mat-form-field>
-          <button mat-flat-button color="primary" (click)="buscar()" [disabled]="buscando">
-            <mat-icon>search</mat-icon> Buscar
-          </button>
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>school</mat-icon>
+          <h3>Plazo de exámenes de grado</h3>
         </div>
+        <div class="config-body">
+          <p class="hint">
+            Define el período en que los docentes pueden registrar las notas de los
+            exámenes de grado. Dentro de estas fechas el plazo está abierto; fuera de
+            ellas, cerrado. La fecha de fin es inclusiva (cubre todo ese día). Deja
+            ambas vacías para mantenerlo cerrado.
+          </p>
 
-        @if (resultados.length > 0) {
-          <div class="resultados">
-            @for (m of resultados; track m.id) {
-              <div class="resultado-item" [class.activo]="seleccionado?.id === m.id">
-                <div class="info">
-                  <strong>{{ m.apellidos }} {{ m.nombres }}</strong>
-                  <span>CI: {{ m.cedula }} — {{ m.curso?.ramaArtesanal }}</span>
-                  @if (m.supletorioHabilitadoHasta) {
-                    <span class="permiso-vigente">
-                      Permiso hasta {{ m.supletorioHabilitadoHasta | date:'dd/MM/yyyy' }}
-                    </span>
-                  }
-                </div>
-                <div class="item-actions">
-                  <button mat-stroked-button (click)="elegir(m)">Habilitar</button>
-                  @if (m.supletorioHabilitadoHasta) {
-                    <button mat-button color="warn" (click)="revocarPermiso(m)">Revocar</button>
-                  }
-                </div>
-              </div>
-            }
+          <div class="fechas">
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha de inicio</mat-label>
+              <input matInput type="date" [(ngModel)]="examenGradoInicio">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha de fin</mat-label>
+              <input matInput type="date" [(ngModel)]="examenGradoFin">
+            </mat-form-field>
           </div>
-        }
-
-        @if (seleccionado) {
-          <div class="permiso-form">
-            <h3>Permiso para {{ seleccionado.apellidos }} {{ seleccionado.nombres }}</h3>
-            <div class="permiso-campos">
-              <mat-form-field appearance="outline">
-                <mat-label>Habilitado hasta</mat-label>
-                <input matInput type="date" [(ngModel)]="permisoFecha">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="grow">
-                <mat-label>Motivo (oficio/reclamo)</mat-label>
-                <input matInput [(ngModel)]="permisoMotivo">
-              </mat-form-field>
-            </div>
-            <div class="permiso-acciones">
-              <button mat-flat-button color="primary" (click)="habilitarPermiso()">
-                <mat-icon>check</mat-icon> Confirmar permiso
-              </button>
-              <button mat-button (click)="seleccionado = null">Cancelar</button>
-            </div>
+          <div class="acciones">
+            <button mat-flat-button color="primary" (click)="guardar()" [disabled]="guardando">
+              <mat-icon>save</mat-icon>
+              {{ guardando ? 'Guardando...' : 'Guardar' }}
+            </button>
           </div>
-        }
+        </div>
+      </div>
 
-        <!-- Permisos vigentes: se cargan solos y persisten al recargar -->
-        <div class="permisos-activos">
-          <h3>Permisos activos</h3>
-          @if (permisosActivos.length === 0) {
-            <p class="hint">No hay permisos de supletorio vigentes.</p>
-          } @else {
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>fact_check</mat-icon>
+          <h3>Recalificación de examen de grado</h3>
+        </div>
+        <div class="config-body">
+          <p class="hint">
+            Autoriza a un estudiante puntual a corregir su nota de examen de grado fuera
+            del plazo general (por un reclamo). Solo aplica a ese estudiante y hasta la
+            fecha indicada (inclusive ese día); después se cierra automáticamente.
+            Revocar cierra el permiso pero no borra la nota ya corregida.
+          </p>
+
+          <div class="buscador">
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>Buscar estudiante (nombre, apellido o cédula)</mat-label>
+              <input matInput [(ngModel)]="busquedaExamen" (keyup.enter)="buscarExamen()">
+            </mat-form-field>
+            <button mat-flat-button color="primary" (click)="buscarExamen()" [disabled]="buscandoExamen">
+              <mat-icon>search</mat-icon> Buscar
+            </button>
+          </div>
+
+          @if (resultadosExamen.length > 0) {
             <div class="resultados">
-              @for (m of permisosActivos; track m.id) {
-                <div class="resultado-item">
+              @for (m of resultadosExamen; track m.id) {
+                <div class="resultado-item" [class.activo]="seleccionadoExamen?.id === m.id">
                   <div class="info">
                     <strong>{{ m.apellidos }} {{ m.nombres }}</strong>
                     <span>CI: {{ m.cedula }} — {{ m.curso?.ramaArtesanal }}</span>
-                    <span class="permiso-vigente">
-                      Permiso hasta {{ m.supletorioHabilitadoHasta | date:'dd/MM/yyyy' }}
-                      @if (m.supletorioMotivo) { — {{ m.supletorioMotivo }} }
-                    </span>
+                    @if (m.examenGradoHabilitadoHasta) {
+                      <span class="permiso-vigente">
+                        Habilitado hasta {{ m.examenGradoHabilitadoHasta | date:'dd/MM/yyyy' }}
+                      </span>
+                    }
                   </div>
                   <div class="item-actions">
-                    <button mat-button color="warn" (click)="revocarPermiso(m)">Revocar</button>
+                    <button mat-stroked-button (click)="elegirExamen(m)">Habilitar</button>
+                    @if (m.examenGradoHabilitadoHasta) {
+                      <button mat-button color="warn" (click)="revocarRecalificacion(m)">Revocar</button>
+                    }
                   </div>
                 </div>
               }
             </div>
           }
-        </div>
-      </div>
-    </div>
 
-    <!-- SECCIÓN: RECALIFICACIÓN DE EXAMEN DE GRADO -->
-    <div class="config-card">
-      <div class="config-header">
-        <mat-icon>fact_check</mat-icon>
-        <h2>Recalificación de examen de grado</h2>
-      </div>
-      <div class="config-body">
-        <p class="hint">
-          Autoriza a un estudiante puntual a corregir su nota de examen de grado fuera
-          del plazo general (por un reclamo). Solo aplica a ese estudiante y hasta la
-          fecha indicada (inclusive ese día); después se cierra automáticamente.
-          Revocar cierra el permiso pero no borra la nota ya corregida.
-        </p>
+          @if (seleccionadoExamen) {
+            <div class="permiso-form">
+              <h4>Recalificación para {{ seleccionadoExamen.apellidos }} {{ seleccionadoExamen.nombres }}</h4>
+              <div class="permiso-campos">
+                <mat-form-field appearance="outline">
+                  <mat-label>Habilitado hasta</mat-label>
+                  <input matInput type="date" [(ngModel)]="permisoFechaExamen">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="grow">
+                  <mat-label>Motivo (oficio/reclamo)</mat-label>
+                  <input matInput [(ngModel)]="permisoMotivoExamen">
+                </mat-form-field>
+              </div>
+              <div class="permiso-acciones">
+                <button mat-flat-button color="primary" (click)="habilitarRecalificacion()">
+                  <mat-icon>check</mat-icon> Confirmar recalificación
+                </button>
+                <button mat-button (click)="seleccionadoExamen = null">Cancelar</button>
+              </div>
+            </div>
+          }
 
-        <div class="buscador">
-          <mat-form-field appearance="outline" class="grow">
-            <mat-label>Buscar estudiante (nombre, apellido o cédula)</mat-label>
-            <input matInput [(ngModel)]="busquedaExamen" (keyup.enter)="buscarExamen()">
-          </mat-form-field>
-          <button mat-flat-button color="primary" (click)="buscarExamen()" [disabled]="buscandoExamen">
-            <mat-icon>search</mat-icon> Buscar
-          </button>
-        </div>
-
-        @if (resultadosExamen.length > 0) {
-          <div class="resultados">
-            @for (m of resultadosExamen; track m.id) {
-              <div class="resultado-item" [class.activo]="seleccionadoExamen?.id === m.id">
-                <div class="info">
-                  <strong>{{ m.apellidos }} {{ m.nombres }}</strong>
-                  <span>CI: {{ m.cedula }} — {{ m.curso?.ramaArtesanal }}</span>
-                  @if (m.examenGradoHabilitadoHasta) {
-                    <span class="permiso-vigente">
-                      Habilitado hasta {{ m.examenGradoHabilitadoHasta | date:'dd/MM/yyyy' }}
-                    </span>
-                  }
-                </div>
-                <div class="item-actions">
-                  <button mat-stroked-button (click)="elegirExamen(m)">Habilitar</button>
-                  @if (m.examenGradoHabilitadoHasta) {
-                    <button mat-button color="warn" (click)="revocarRecalificacion(m)">Revocar</button>
-                  }
-                </div>
+          <!-- Permisos vigentes: se cargan solos y persisten al recargar -->
+          <div class="permisos-activos">
+            <h4>Permisos activos</h4>
+            @if (permisosExamenActivos.length === 0) {
+              <p class="hint">No hay recalificaciones de examen de grado vigentes.</p>
+            } @else {
+              <div class="resultados">
+                @for (m of permisosExamenActivos; track m.id) {
+                  <div class="resultado-item">
+                    <div class="info">
+                      <strong>{{ m.apellidos }} {{ m.nombres }}</strong>
+                      <span>CI: {{ m.cedula }} — {{ m.curso?.ramaArtesanal }}</span>
+                      <span class="permiso-vigente">
+                        Habilitado hasta {{ m.examenGradoHabilitadoHasta | date:'dd/MM/yyyy' }}
+                        @if (m.examenGradoMotivo) { — {{ m.examenGradoMotivo }} }
+                      </span>
+                    </div>
+                    <div class="item-actions">
+                      <button mat-button color="warn" (click)="revocarRecalificacion(m)">Revocar</button>
+                    </div>
+                  </div>
+                }
               </div>
             }
           </div>
-        }
+        </div>
+      </div>
+    </section>
 
-        @if (seleccionadoExamen) {
-          <div class="permiso-form">
-            <h3>Recalificación para {{ seleccionadoExamen.apellidos }} {{ seleccionadoExamen.nombres }}</h3>
-            <div class="permiso-campos">
-              <mat-form-field appearance="outline">
-                <mat-label>Habilitado hasta</mat-label>
-                <input matInput type="date" [(ngModel)]="permisoFechaExamen">
-              </mat-form-field>
-              <mat-form-field appearance="outline" class="grow">
-                <mat-label>Motivo (oficio/reclamo)</mat-label>
-                <input matInput [(ngModel)]="permisoMotivoExamen">
-              </mat-form-field>
+    <!-- ═════════ REGISTRO DE FECHAS ═════════ -->
+    <section id="fechas" class="seccion">
+      <div class="seccion-titulo">
+        <mat-icon>event_note</mat-icon>
+        <div>
+          <h2>Registro de fechas</h2>
+          <p>Fechas, horas y docente de cada materia</p>
+        </div>
+      </div>
+
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>event_note</mat-icon>
+          <h3>Programación académica</h3>
+        </div>
+        <div class="config-body">
+          <p class="hint">
+            Selecciona un curso y define, para cada materia, sus fechas, sus horas totales
+            y el docente asignado. Los estudiantes lo ven en su Aula Virtual. Puedes dejar
+            una materia sin programar.
+          </p>
+
+          <label class="prog-campo prog-curso">
+            <span>Curso</span>
+            <select [(ngModel)]="progCursoId" (ngModelChange)="onProgCurso()">
+              <option [ngValue]="null">Selecciona un curso…</option>
+              @for (curso of cursos; track curso.id) {
+                <option [ngValue]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</option>
+              }
+            </select>
+          </label>
+
+          @if (progCursoId !== null && progCargado && progMaterias.length === 0) {
+            <p class="hint">Este curso no tiene materias para programar.</p>
+          }
+
+          @if (progMaterias.length > 0) {
+            <div class="prog-tabla">
+              <div class="prog-fila prog-encabezado">
+                <span>Materia</span>
+                <span>Fecha Inicio</span>
+                <span>Fecha Fin</span>
+                <span>Horas Totales</span>
+                <span>Docente</span>
+              </div>
+
+              @for (materia of progMaterias; track materia.materiaId) {
+                <div class="prog-fila">
+                  <div class="prog-materia">
+                    <strong>{{ materia.nombre }}</strong>
+                    @if (materia.grupo) {
+                      <small>{{ materia.grupo }}</small>
+                    }
+                  </div>
+                  <label class="prog-campo">
+                    <span>Fecha Inicio</span>
+                    <input type="date" [(ngModel)]="materia.fechaInicio">
+                  </label>
+                  <label class="prog-campo">
+                    <span>Fecha Fin</span>
+                    <input type="date" [(ngModel)]="materia.fechaFin">
+                  </label>
+                  <label class="prog-campo">
+                    <span>Horas Totales</span>
+                    <input type="number" min="1" step="1" [(ngModel)]="materia.horasTotales">
+                  </label>
+                  <label class="prog-campo">
+                    <span>Docente</span>
+                    <select [(ngModel)]="materia.docenteId">
+                      <option [ngValue]="null">Sin asignar</option>
+                      @for (docente of docentes; track docente.id) {
+                        <option [ngValue]="docente.id">{{ docente.apellido }} {{ docente.nombre }}</option>
+                      }
+                    </select>
+                  </label>
+                </div>
+              }
             </div>
-            <div class="permiso-acciones">
-              <button mat-flat-button color="primary" (click)="habilitarRecalificacion()">
-                <mat-icon>check</mat-icon> Confirmar recalificación
+
+            <div class="acciones prog-acciones">
+              <button mat-flat-button color="primary" (click)="guardarProgramacion()" [disabled]="progGuardando">
+                <mat-icon>save</mat-icon>
+                {{ progGuardando ? 'Guardando...' : 'Guardar Programación' }}
               </button>
-              <button mat-button (click)="seleccionadoExamen = null">Cancelar</button>
             </div>
-          </div>
-        }
+          }
+        </div>
+      </div>
+    </section>
 
-        <!-- Permisos vigentes: se cargan solos y persisten al recargar -->
-        <div class="permisos-activos">
-          <h3>Permisos activos</h3>
-          @if (permisosExamenActivos.length === 0) {
-            <p class="hint">No hay recalificaciones de examen de grado vigentes.</p>
+    <!-- ═════════ FINANZAS ═════════ -->
+    <section id="finanzas" class="seccion">
+      <div class="seccion-titulo">
+        <mat-icon>payments</mat-icon>
+        <div>
+          <h2>Finanzas</h2>
+          <p>Conceptos de pago que se cobran a los estudiantes</p>
+        </div>
+      </div>
+
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>add_card</mat-icon>
+          <h3>Nuevo concepto de pago</h3>
+        </div>
+        <div class="config-body">
+          <p class="hint">
+            Al crear un concepto (por ejemplo "Pensión Septiembre") se genera para todos los
+            estudiantes con matrícula activa, de todos los cursos. Cada estudiante sube su
+            comprobante en ese concepto.
+          </p>
+
+          <div class="concepto-form">
+            <mat-form-field appearance="outline" class="grow">
+              <mat-label>Concepto</mat-label>
+              <input matInput maxlength="150" [(ngModel)]="conceptoNombre" placeholder="Ej: Pensión Septiembre">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Monto ($)</mat-label>
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="conceptoMonto">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Fecha máxima de pago</mat-label>
+              <input matInput type="date" [(ngModel)]="conceptoFecha">
+            </mat-form-field>
+          </div>
+          <div class="acciones">
+            <button mat-flat-button color="primary" (click)="crearConcepto()" [disabled]="conceptoGuardando">
+              <mat-icon>add</mat-icon>
+              {{ conceptoGuardando ? 'Creando...' : 'Crear concepto' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-card">
+        <div class="config-header">
+          <mat-icon>receipt_long</mat-icon>
+          <h3>Conceptos creados</h3>
+        </div>
+        <div class="config-body">
+          @if (conceptos.length === 0) {
+            <p class="hint">Todavía no hay conceptos de pago.</p>
           } @else {
             <div class="resultados">
-              @for (m of permisosExamenActivos; track m.id) {
+              @for (c of conceptos; track c.id) {
                 <div class="resultado-item">
                   <div class="info">
-                    <strong>{{ m.apellidos }} {{ m.nombres }}</strong>
-                    <span>CI: {{ m.cedula }} — {{ m.curso?.ramaArtesanal }}</span>
-                    <span class="permiso-vigente">
-                      Habilitado hasta {{ m.examenGradoHabilitadoHasta | date:'dd/MM/yyyy' }}
-                      @if (m.examenGradoMotivo) { — {{ m.examenGradoMotivo }} }
-                    </span>
+                    <strong>{{ c.nombre }} — {{ dinero(c.monto) }}</strong>
+                    <span>Fecha máxima: {{ c.fechaMaxima | date:'dd/MM/yyyy':'UTC' }}</span>
+                    <span>{{ c.pagados }} de {{ c.estudiantes }} estudiante(s) al día</span>
                   </div>
                   <div class="item-actions">
-                    <button mat-button color="warn" (click)="revocarRecalificacion(m)">Revocar</button>
+                    <button mat-button color="warn" (click)="eliminarConcepto(c)">Eliminar</button>
                   </div>
                 </div>
               }
             </div>
           }
+          <div class="acciones enlace-finanzas">
+            <button mat-stroked-button (click)="irAFinanzas()">
+              <mat-icon>payments</mat-icon>
+              Ir a revisar pagos
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
   </div>
 }

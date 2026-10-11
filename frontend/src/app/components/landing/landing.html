@@ -1,173 +1,397 @@
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="nav-brand">
-    <img src="logo.jpg" alt="Logo" class="nav-logo">
-    <div class="nav-text">
-      <span class="nav-title">CFA Guadalupana</span>
-      <span class="nav-sub">Centro de Formación Artesanal</span>
-    </div>
-  </div>
-  <button class="btn-login" (click)="irALogin()">
-    <mat-icon>login</mat-icon> Iniciar Sesión
-  </button>
-</nav>
+<!-- CABECERA: logo a la izquierda, menú centrado y botón de acceso a la derecha -->
+<header class="cabecera">
+  <a class="marca" href="#inicio" (click)="$event.preventDefault(); irA('inicio')">
+    <img src="logo.jpg" alt="" class="marca-logo">
+    <span>Guadalupana</span>
+  </a>
+  <nav class="menu" aria-label="Principal">
+    <button type="button" (click)="irA('inicio')">Inicio</button>
+    <button type="button" (click)="irA('especialidades')">Especialidades</button>
+    <button type="button" (click)="irA('nosotros')">Nosotros</button>
+    <button type="button" (click)="irA('galeria')">Galería</button>
+    <button type="button" (click)="irA('novedades')">Noticias</button>
+    <button type="button" (click)="irA('contacto')">Contacto</button>
+  </nav>
+  <button type="button" class="btn-acceder" (click)="irALogin()">Acceder</button>
+</header>
 
-<!-- HERO SLIDER -->
-<section class="hero">
-  @for (slide of slides; track $index) {
-    <div class="slide" [class.active]="currentSlide === $index" [style.backgroundImage]="'url(' + slide.img + ')'">
-      <div class="slide-overlay">
-        <div class="slide-content">
-          <h1>{{ slide.title }}</h1>
-          <p>{{ slide.subtitle }}</p>
-          <button class="btn-hero" (click)="irALogin()">Conoce más →</button>
+<main>
+
+  <!-- HERO: titular a la izquierda, composición geométrica con la foto a la derecha -->
+  <section class="hero" id="inicio">
+    <div class="hero-grid">
+      <div class="hero-texto">
+        <h1>Invierte en tu<br>futuro con un<br>título artesanal</h1>
+        <p>
+          ¡Inscríbete en una formación práctica y con respaldo oficial! Matrículas abiertas en Belleza,
+          Maquillaje y Fotografía: docentes especializados y título avalado por la JNDA. ¡Únete hoy!
+        </p>
+        <button type="button" class="btn-matricular" (click)="irA('preinscripcion')">Matricular</button>
+      </div>
+
+      <div class="hero-visual">
+        <span class="disco" aria-hidden="true"></span>
+        <span class="punto p1" aria-hidden="true"></span>
+        <span class="punto p2" aria-hidden="true"></span>
+        <span class="punto p3" aria-hidden="true"></span>
+        <span class="punto p4" aria-hidden="true"></span>
+        <span class="equis x1" aria-hidden="true"></span>
+        <span class="equis x2" aria-hidden="true"></span>
+        <!-- Las estudiantes van por delante del disco y de las formas. -->
+        <div class="figura">
+          <img class="hero-students" src="chicassuperpuestas.webp" width="1000" height="1367"
+               alt="Dos estudiantes del Centro de Formación Artesanal Guadalupana, sonrientes y de brazos cruzados">
         </div>
       </div>
     </div>
-  }
-  <div class="slide-dots">
-    @for (slide of slides; track $index) {
-      <span class="dot" [class.active]="currentSlide === $index" (click)="goToSlide($index)"></span>
-    }
-  </div>
-</section>
+  </section>
 
-<!-- SOBRE NOSOTROS -->
-<section class="about">
-  <div class="about-grid">
-    <div class="about-text">
-      <span class="section-tag">Sobre Nosotros</span>
-      <h2>Una institución nacida para transformar vidas</h2>
-      <p>El <strong>Centro de Formación Artesanal Particular Guadalupana</strong> nació en 2017 como una idea visionaria, impulsada por la convicción de que la educación técnica puede ser una herramienta poderosa para transformar vidas y fortalecer la economía local.</p>
-      <p>Autorizado el <strong>07 de Diciembre de 2022</strong> mediante Resolución Interinstitucional N.- JNDA-MDT-2022-135 por el Ministerio de Trabajo y la Junta Nacional de Defensa del Artesano, el CFA Guadalupana se ha consolidado como un referente de formación artesanal en la región.</p>
-      <div class="about-stats">
-        <div class="stat">
-          <span class="stat-number">2017</span>
-          <span class="stat-label">Año de fundación</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number">3</span>
-          <span class="stat-label">Especialidades</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number">100%</span>
-          <span class="stat-label">Compromiso</span>
-        </div>
-      </div>
+  <!-- ESPECIALIDADES -->
+  <section class="seccion" id="especialidades">
+    <div class="encabezado">
+      <span class="etiqueta">Lo que ofrecemos</span>
+      <h2>Nuestras especialidades</h2>
+      <p>Formación técnica con titulación oficial. Elige la tuya y te contamos cómo empezar.</p>
     </div>
-    <div class="about-img">
-      <img src="graduados.jpg" alt="Graduados CFA">
-      <div class="about-badge">
-        <mat-icon>verified</mat-icon>
-        <span>Avalado por la JNDA</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ESPECIALIDADES -->
-<section class="especialidades">
-  <div class="section-header">
-    <span class="section-tag light">Lo que ofrecemos</span>
-    <h2>Nuestras Especialidades</h2>
-    <p>Formación técnica de calidad con titulación oficial</p>
-  </div>
-  <div class="esp-grid">
-    @for (esp of especialidades; track esp.nombre) {
-      <div class="esp-card">
-        <div class="esp-icon">
-          <mat-icon>{{ esp.icon }}</mat-icon>
-        </div>
-        <h3>{{ esp.nombre }}</h3>
-        <p>{{ esp.desc }}</p>
-      </div>
-    }
-  </div>
-</section>
-
-<!-- POR QUÉ ELEGIRNOS -->
-<section class="why">
-  <div class="why-grid">
-    <div class="why-img">
-      <img src="graduados2.jpg" alt="Estudiantes">
-    </div>
-    <div class="why-text">
-      <span class="section-tag">¿Por qué elegirnos?</span>
-      <h2>Formación con propósito y excelencia</h2>
-      <div class="why-items">
-        <div class="why-item">
-          <div class="why-icon gold"><mat-icon>school</mat-icon></div>
-          <div>
-            <h4>Titulación oficial</h4>
-            <p>Avalada por la Junta Nacional de Defensa del Artesano.</p>
+    <div class="esp-grid">
+      @for (esp of especialidadesActivas; track esp.nombre) {
+        <article class="esp-card">
+          <div class="esp-foto">
+            <img [src]="esp.imagen" [alt]="'Estudiantes de ' + esp.nombre + ' en una práctica'" loading="lazy"
+                 width="1200" height="642">
           </div>
-        </div>
-        <div class="why-item">
-          <div class="why-icon blue"><mat-icon>people</mat-icon></div>
-          <div>
-            <h4>Docentes especializados</h4>
-            <p>Personal capacitado con experiencia en cada especialidad.</p>
+          <div class="esp-cuerpo">
+            <span class="esp-icono" aria-hidden="true"><mat-icon>{{ esp.icono }}</mat-icon></span>
+            <h3>
+              <span class="esp-pregunta">¿Por qué estudiar</span>
+              <span class="esp-nombre">{{ esp.nombre }}?</span>
+            </h3>
+            <p>{{ esp.descripcion }}</p>
+            <ul class="esp-beneficios">
+              @for (b of esp.beneficios; track b.texto) {
+                <li><mat-icon aria-hidden="true">{{ b.icono }}</mat-icon> {{ b.texto }}</li>
+              }
+            </ul>
+            <button type="button" class="esp-cta" (click)="elegirEspecialidad(esp.nombre)"
+                    [attr.aria-label]="'Me interesa ' + esp.nombre">
+              Me interesa <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            </button>
           </div>
-        </div>
-        <div class="why-item">
-          <div class="why-icon teal"><mat-icon>emoji_events</mat-icon></div>
-          <div>
-            <h4>Formación integral</h4>
-            <p>Ética profesional, técnica y espíritu emprendedor.</p>
-          </div>
-        </div>
-        <div class="why-item">
-          <div class="why-icon navy"><mat-icon>location_on</mat-icon></div>
-          <div>
-            <h4>Ubicación estratégica</h4>
-            <p>Alfredo Pareja y Agustín Cueva, sector ECU 911, Riobamba.</p>
-          </div>
-        </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- IDENTIDAD: misión y visión -->
+  <section class="seccion crema" id="nosotros">
+    <div class="encabezado">
+      <span class="etiqueta">Nosotros</span>
+      <h2>Nuestra identidad</h2>
+      <p>Lo que nos mueve y hacia dónde vamos.</p>
+    </div>
+    <div class="identidad-grid">
+      <article class="identidad-card">
+        <span class="identidad-icono" aria-hidden="true"><mat-icon>track_changes</mat-icon></span>
+        <h3>Nuestra Misión</h3>
+        <p>
+          Formar artesanos de excelencia en las áreas de Belleza, Maquillaje y Fotografía mediante una
+          educación práctica, integral y de alta calidad. Nuestro propósito es dotar a los estudiantes de
+          herramientas técnicas y el respaldo de una titulación oficial para que puedan emprender sus
+          propios negocios, generar ingresos con su talento y transformar su calidad de vida.
+        </p>
+      </article>
+      <article class="identidad-card">
+        <span class="identidad-icono" aria-hidden="true"><mat-icon>landscape</mat-icon></span>
+        <h3>Nuestra Visión</h3>
+        <p>
+          Ser el Centro de Formación Artesanal líder y referente en Riobamba y la región, reconocido por
+          el éxito laboral y de emprendimiento de nuestros graduados. Aspiramos a consolidarnos como el
+          principal motor de desarrollo para profesionales creativos, destacando por nuestra ética,
+          innovación técnica y formación con propósito.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- POR QUÉ ELEGIRNOS -->
+  <section class="seccion" id="por-que">
+    <div class="why-grid">
+      <div class="why-visual">
+        <span class="forma marco" aria-hidden="true"></span>
+        <img src="titulosreales.jpg" alt="Así son los títulos artesanales legales, con el respaldo del Ministerio del Trabajo"
+             loading="lazy" width="886" height="870">
+      </div>
+      <div class="why-texto">
+        <span class="etiqueta">¿Por qué elegirnos?</span>
+        <h2>Títulos reales, con respaldo legal</h2>
+        <p class="why-intro">
+          El Centro de Formación Artesanal Particular Guadalupana nació en 2017 y fue autorizado el
+          07 de diciembre de 2022 mediante la Resolución Interinstitucional N.º JNDA-MDT-2022-135
+          del Ministerio del Trabajo y la Junta Nacional de Defensa del Artesano.
+        </p>
+        <ul class="why-items">
+          <li>
+            <span class="why-icono"><mat-icon>workspace_premium</mat-icon></span>
+            <div>
+              <h3>Titulación oficial</h3>
+              <p>Tu título lo emite la Junta Nacional de Defensa del Artesano.</p>
+            </div>
+          </li>
+          <li>
+            <span class="why-icono"><mat-icon>groups</mat-icon></span>
+            <div>
+              <h3>Docentes especializados</h3>
+              <p>Personal con experiencia profesional en cada especialidad.</p>
+            </div>
+          </li>
+          <li>
+            <span class="why-icono"><mat-icon>storefront</mat-icon></span>
+            <div>
+              <h3>Formación para emprender</h3>
+              <p>Técnica, ética profesional y las bases para abrir tu propio taller.</p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- CONTACTO -->
-<section class="contact">
-  <div class="section-header">
-    <span class="section-tag light">Contáctanos</span>
-    <h2>Estamos aquí para ayudarte</h2>
-    <p>Visítanos o escríbenos, con gusto te orientamos</p>
-  </div>
-  <div class="contact-grid">
-    <div class="contact-card">
-      <mat-icon>location_on</mat-icon>
-      <h4>Dirección</h4>
-      <p>Alfredo Pareja y Agustín Cueva<br>Sector ECU 911, Riobamba, Ecuador</p>
+  <!-- GALERÍA -->
+  <section class="seccion crema" id="galeria">
+    <div class="encabezado">
+      <span class="etiqueta">Galería</span>
+      <h2>Momentos que nos enorgullecen</h2>
+      <p>Graduaciones, prácticas y actividades de nuestra comunidad.</p>
     </div>
-    <a class="contact-card contact-link" [href]="whatsappUrl" target="_blank" rel="noopener">
-      <svg class="wa-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.359.101 11.892c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 005.71 1.454h.005c6.581 0 11.943-5.359 11.945-11.892a11.821 11.821 0 00-3.495-8.411"/>
-      </svg>
-      <h4>WhatsApp</h4>
-      <p>099 688 3085</p>
-    </a>
-    <div class="contact-card">
-      <mat-icon>email</mat-icon>
-      <h4>Correo</h4>
-      <p>guadalupanacfa&#64;gmail.com</p>
+    <div class="galeria-grid">
+      @for (foto of fotos; track foto.imagenUrl) {
+        <figure class="galeria-item">
+          <img [src]="foto.imagenUrl" [alt]="foto.titulo" loading="lazy">
+          <figcaption>{{ foto.titulo }}</figcaption>
+        </figure>
+      }
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- NOTICIAS Y CALENDARIO -->
+  <section class="seccion" id="novedades">
+    <div class="encabezado">
+      <span class="etiqueta">Novedades</span>
+      <h2>Noticias y calendario</h2>
+      <p>Entérate de lo que viene en el centro.</p>
+    </div>
+    <div class="novedades-grid">
+
+      <div class="novedades-col">
+        <h3 class="col-titulo"><mat-icon>newspaper</mat-icon> Últimas noticias</h3>
+        @if (!novedadesCargadas) {
+          <div class="esqueleto alto" aria-hidden="true"></div>
+          <div class="esqueleto alto" aria-hidden="true"></div>
+        } @else if (anuncios.length === 0) {
+          <p class="sin-datos">Por ahora no hay noticias publicadas. Vuelve pronto.</p>
+        } @else {
+          @for (a of anuncios; track a.id) {
+            <article class="noticia">
+              @if (a.imagenUrl) {
+                <img [src]="a.imagenUrl" [alt]="a.titulo" loading="lazy">
+              }
+              <div class="noticia-cuerpo">
+                <span class="noticia-fecha">{{ fechaNoticia(a) }}</span>
+                <h4>{{ a.titulo }}</h4>
+                <p [class.recortado]="esLargo(a) && !expandido(a)">{{ a.contenido }}</p>
+                @if (esLargo(a)) {
+                  <button type="button" class="enlace" (click)="alternar(a)" [attr.aria-expanded]="expandido(a)">
+                    {{ expandido(a) ? 'Ver menos' : 'Leer más' }}
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        }
+      </div>
+
+      <div class="novedades-col">
+        <h3 class="col-titulo"><mat-icon>event</mat-icon> Próximos eventos</h3>
+        @if (!novedadesCargadas) {
+          <div class="esqueleto" aria-hidden="true"></div>
+          <div class="esqueleto" aria-hidden="true"></div>
+          <div class="esqueleto" aria-hidden="true"></div>
+        } @else if (eventos.length === 0) {
+          <p class="sin-datos">No hay eventos programados por el momento.</p>
+        } @else {
+          @for (e of eventos; track e.id) {
+            <article class="evento">
+              <div class="evento-fecha">
+                <span class="dia">{{ dia(e.fechaInicio) }}</span>
+                <span class="mes">{{ mes(e.fechaInicio) }}</span>
+              </div>
+              <div class="evento-cuerpo">
+                <h4>{{ e.titulo }}</h4>
+                <span class="evento-rango">{{ rango(e) }}</span>
+                @if (e.descripcion) {
+                  <p>{{ e.descripcion }}</p>
+                }
+              </div>
+            </article>
+          }
+        }
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PRE-INSCRIPCIÓN -->
+  <section class="seccion crema" id="preinscripcion">
+    <div class="pre-grid">
+      <div class="pre-texto">
+        <span class="etiqueta">Pre-inscripción</span>
+        <h2>Da el primer paso hoy</h2>
+        <p>Déjanos tus datos y te llamamos para contarte horarios, requisitos y fechas de matrícula. No tiene costo ni te compromete a nada.</p>
+        <ul class="pre-lista">
+          <li><mat-icon>check_circle</mat-icon> Respuesta por teléfono o WhatsApp</li>
+          <li><mat-icon>check_circle</mat-icon> Cupos limitados por cohorte</li>
+          <li><mat-icon>check_circle</mat-icon> Sin costo de pre-inscripción</li>
+        </ul>
+        <img class="pre-imagen" src="rolestudiante.jpg" alt="Estudiantes del centro en su formación" loading="lazy"
+             width="2400" height="1792">
+      </div>
+
+      <div class="pre-tarjeta">
+        @if (enviado) {
+          <div class="pre-exito" role="status">
+            <mat-icon>task_alt</mat-icon>
+            <h3>¡Recibimos tu solicitud!</h3>
+            <p>Gracias, {{ datos.nombres }}. Te contactaremos pronto al {{ datos.telefono }}.</p>
+            <button type="button" class="boton secundario" (click)="otraSolicitud()">Enviar otra solicitud</button>
+          </div>
+        } @else {
+          <form (ngSubmit)="enviar()" novalidate>
+            <h3>Formulario de pre-inscripción</h3>
+
+            <div class="campo">
+              <label for="pre-nombres">Nombres</label>
+              <input id="pre-nombres" name="nombres" [(ngModel)]="datos.nombres" maxlength="100"
+                     autocomplete="given-name" [class.invalido]="intentoEnvio && !nombresValidos">
+              @if (intentoEnvio && !nombresValidos) {
+                <small class="error">Escribe tus nombres.</small>
+              }
+            </div>
+
+            <div class="campo">
+              <label for="pre-apellidos">Apellidos</label>
+              <input id="pre-apellidos" name="apellidos" [(ngModel)]="datos.apellidos" maxlength="100"
+                     autocomplete="family-name" [class.invalido]="intentoEnvio && !apellidosValidos">
+              @if (intentoEnvio && !apellidosValidos) {
+                <small class="error">Escribe tus apellidos.</small>
+              }
+            </div>
+
+            <div class="campo">
+              <label for="pre-telefono">Teléfono o WhatsApp</label>
+              <input id="pre-telefono" name="telefono" type="tel" inputmode="tel" [(ngModel)]="datos.telefono"
+                     maxlength="20" autocomplete="tel" placeholder="Ej: 0991234567"
+                     [class.invalido]="intentoEnvio && !telefonoValido">
+              @if (intentoEnvio && !telefonoValido) {
+                <small class="error">Escribe un número válido, solo dígitos (7 a 15).</small>
+              }
+            </div>
+
+            <div class="campo">
+              <label for="pre-especialidad">Especialidad de interés</label>
+              <select id="pre-especialidad" name="especialidad" [(ngModel)]="datos.especialidadInteres"
+                      [class.invalido]="intentoEnvio && !datos.especialidadInteres">
+                <option value="" disabled>Selecciona una</option>
+                @for (e of opcionesEspecialidad; track e) {
+                  <option [value]="e">{{ e }}</option>
+                }
+              </select>
+              @if (intentoEnvio && !datos.especialidadInteres) {
+                <small class="error">Elige una especialidad.</small>
+              }
+            </div>
+
+            <!-- Campo trampa contra bots: oculto para las personas y los lectores de pantalla. -->
+            <div class="trampa" aria-hidden="true">
+              <label for="pre-sitio">Sitio web</label>
+              <input id="pre-sitio" name="sitioWeb" [(ngModel)]="sitioWeb" tabindex="-1" autocomplete="off">
+            </div>
+
+            @if (errorEnvio) {
+              <p class="aviso-error" role="alert">{{ errorEnvio }}</p>
+            }
+
+            <button type="submit" class="boton primario ancho" [disabled]="enviando">
+              {{ enviando ? 'Enviando…' : 'Enviar pre-inscripción' }}
+            </button>
+            <p class="nota">Usaremos tus datos solo para contactarte sobre la matrícula.</p>
+          </form>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section class="seccion" id="contacto">
+    <div class="encabezado">
+      <span class="etiqueta">Contáctanos</span>
+      <h2>Estamos aquí para ayudarte</h2>
+      <p>Visítanos o escríbenos, con gusto te orientamos.</p>
+    </div>
+    <div class="contacto-grid">
+      <div class="contacto-card">
+        <mat-icon>location_on</mat-icon>
+        <h3>Dirección</h3>
+        <p>Av. Diego de Rodríguez e Isidoro Barriga<br>Sector de la gasolinera de la ESPOCH, vía Ricpamba<br>Riobamba, Ecuador · 060514</p>
+      </div>
+      <a class="contacto-card" [href]="whatsappUrl" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.359.101 11.892c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652a11.882 11.882 0 005.71 1.454h.005c6.581 0 11.943-5.359 11.945-11.892a11.821 11.821 0 00-3.495-8.411"/>
+        </svg>
+        <h3>WhatsApp</h3>
+        <p>096 149 3337</p>
+      </a>
+      <a class="contacto-card" href="mailto:guadalupanacfa&#64;gmail.com">
+        <mat-icon>email</mat-icon>
+        <h3>Correo</h3>
+        <p>guadalupanacfa&#64;gmail.com</p>
+      </a>
+    </div>
+  </section>
+
+</main>
 
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-brand">
-      <img src="logo.jpg" alt="Logo" class="footer-logo">
+      <img src="logo.jpg" alt="" class="footer-logo">
       <div>
         <p class="footer-title">CFA Guadalupana</p>
         <p class="footer-sub">Centro de Formación Artesanal Particular</p>
       </div>
     </div>
-    <p class="footer-copy">© 2026 Centro de Formación Artesanal Guadalupana. Todos los derechos reservados.</p>
+
+    <div class="footer-redes">
+      <p class="redes-titulo">Síguenos en nuestras redes</p>
+      <div class="redes-iconos">
+        <a class="red-facebook" href="https://www.facebook.com/profile.php?id=61556218463979" target="_blank" rel="noopener noreferrer"
+           aria-label="Facebook del Centro Guadalupana (se abre en una pestaña nueva)" title="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+          </svg>
+        </a>
+        <a class="red-instagram" href="https://www.instagram.com/guadalupanacfap/" target="_blank" rel="noopener noreferrer"
+           aria-label="Instagram del Centro Guadalupana (se abre en una pestaña nueva)" title="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+      </div>
+    </div>
   </div>
+  <p class="footer-copy">© 2026 Centro de Formación Artesanal Guadalupana. Todos los derechos reservados.</p>
 </footer>
 
 <!-- BOTÓN FLOTANTE DE WHATSAPP -->

@@ -96,6 +96,6 @@ export class DetalleMateria implements OnInit {
   }
 
   volver() {
-    this.router.navigate(['/estudiante']);
+    this.router.navigate(['/estudiante/aula-virtual']);
   }
 }

@@ -29,6 +29,14 @@ import { RecuperarPassword } from './components/recuperar-password/recuperar-pas
 import { ConfiguracionComponent } from './components/configuracion/configuracion';
 import { DetalleTarea } from './components/tareas/detalle-tarea/detalle-tarea';
 import { DetalleTareaEstudiante } from './components/estudiante/detalle-tarea-estudiante/detalle-tarea-estudiante';
+import { AulaVirtual } from './components/estudiante/aula-virtual/aula-virtual';
+import { MisFinanzas } from './components/estudiante/mis-finanzas/mis-finanzas';
+import { MisAsistencias } from './components/estudiante/mis-asistencias/mis-asistencias';
+import { GestionarFinanzas } from './components/finanzas/gestionar-finanzas/gestionar-finanzas';
+import { Prospectos } from './components/portal/prospectos/prospectos';
+import { AnunciosPublicos } from './components/portal/anuncios-publicos/anuncios-publicos';
+import { GaleriaPublica } from './components/portal/galeria-publica/galeria-publica';
+import { CalendarioPublico } from './components/portal/calendario-publico/calendario-publico';
 
 
 
@@ -51,6 +59,16 @@ export const routes: Routes = [
   { path: 'docentes', component: GestionDocentes, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'estudiante/materia/:materiaId/:semestre', component: DetalleMateria, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
   { path: 'estudiante/tarea/:materiaId/:tareaId/:semestre', component: DetalleTareaEstudiante, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'estudiante/aula-virtual', component: AulaVirtual, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'estudiante/finanzas', component: MisFinanzas, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'estudiante/asistencias', component: MisAsistencias, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'finanzas', component: GestionarFinanzas, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  // Gestión del Portal Web: lo que ve el público en la landing (solo ADMIN).
+  // Se entra desde las cuatro tarjetas del panel; no hay vista intermedia.
+  { path: 'portal-web/prospectos', component: Prospectos, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'portal-web/anuncios', component: AnunciosPublicos, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'portal-web/galeria', component: GaleriaPublica, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'portal-web/calendario', component: CalendarioPublico, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'supletorios/:cursoId', component: IngresarSupletorios, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'supletorios/materia/:materiaId', component: SupletorioDocente, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'asistencia/materia/:materiaId', component: RegistrarAsistencia, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },

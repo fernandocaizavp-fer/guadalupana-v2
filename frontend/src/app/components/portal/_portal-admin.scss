@@ -1,0 +1,280 @@
+// Estilos comunes de las pantallas de "Gestión del Portal Web" (panel del
+// administrador). Cada pantalla lo incluye con `@use '../portal-admin';`.
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$rojo: #c62828;
+$verde: #2e7d32;
+$naranja: #b25f00;
+
+.page-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e);
+  color: #ffffff;
+  height: 85px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      span { font-size: 13px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    }
+  }
+
+  .flex-spacer { flex: 1; }
+}
+
+.btn-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  background: $gold;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: filter 0.2s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover { filter: brightness(1.08); }
+}
+
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ===== PANELES ===== */
+.panel {
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.panel-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid #f0f2f8;
+
+  mat-icon { color: $gold; }
+  h2 { margin: 0; font-size: 16px; font-weight: 800; color: $navy; }
+  .separador { flex: 1; }
+}
+
+.panel-cuerpo { padding: 20px 22px; }
+
+.contador {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #d32f2f;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== FORMULARIOS ===== */
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  .ancho { grid-column: 1 / -1; }
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  label { font-size: 12px; font-weight: 700; color: #555; letter-spacing: 0.3px; }
+
+  input, select, textarea {
+    font-family: inherit;
+    font-size: 14px;
+    color: #222;
+    background: #fafbfd;
+    border: 1px solid #d9dde8;
+    border-radius: 10px;
+    padding: 10px 12px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: $navy;
+      box-shadow: 0 0 0 3px rgba(26, 42, 94, 0.12);
+    }
+  }
+
+  textarea { resize: vertical; min-height: 110px; line-height: 1.5; }
+  small { font-size: 12px; color: #888; }
+}
+
+.casilla {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+
+  input { width: 18px; height: 18px; accent-color: $navy; }
+}
+
+.acciones {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: filter 0.2s, background 0.2s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &.principal { background: $navy; color: white; &:hover:not(:disabled) { filter: brightness(1.15); } }
+  &.secundario { background: white; color: $navy; border-color: #d9dde8; &:hover:not(:disabled) { background: #f4f5f9; } }
+  &.peligro { background: white; color: $rojo; border-color: #f0c9c9; &:hover:not(:disabled) { background: #fdf1f1; } }
+  &.exito { background: #edf7ee; color: $verde; border-color: #cfe8d1; &:hover:not(:disabled) { background: #e1f1e3; } }
+}
+
+.btn-icono {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid #e3e6ee;
+  background: white;
+  color: $navy;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  mat-icon { font-size: 19px; width: 19px; height: 19px; }
+  &:hover { background: #f4f5f9; }
+  &.peligro { color: $rojo; &:hover { background: #fdf1f1; } }
+}
+
+/* ===== LISTAS ===== */
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 22px;
+  border-bottom: 1px solid #f0f2f8;
+
+  &:last-child { border-bottom: none; }
+
+  .fila-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    strong { font-size: 15px; color: $navy; overflow-wrap: anywhere; }
+    span { font-size: 13px; color: #777; overflow-wrap: anywhere; }
+    p { margin: 4px 0 0; font-size: 13px; color: #555; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+  }
+
+  .fila-acciones { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 4px 10px;
+  white-space: nowrap;
+
+  &.pendiente { background: #fff4e0; color: $naranja; }
+  &.ok { background: #e8f5e9; color: $verde; }
+  &.apagado { background: #eef0f5; color: #777; }
+}
+
+.vacio {
+  padding: 36px 22px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+
+  mat-icon { display: block; margin: 0 auto 8px; font-size: 36px; width: 36px; height: 36px; color: #c9cedb; }
+}
+
+@media (max-width: 768px) {
+  .page-toolbar {
+    height: auto;
+    padding: 12px 0;
+
+    .toolbar-content { padding: 0 14px; flex-wrap: wrap; gap: 10px; }
+    .nav-group { gap: 12px; }
+    .nav-group .title-meta h1 { font-size: 18px; }
+    .nav-group .title-meta span { font-size: 11px; }
+  }
+
+  .content { padding: 18px 12px; }
+  .formulario { grid-template-columns: 1fr; }
+  .fila { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 16px; }
+  .fila .fila-acciones { flex-wrap: wrap; }
+}

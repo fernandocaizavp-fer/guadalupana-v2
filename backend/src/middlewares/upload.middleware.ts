@@ -6,7 +6,7 @@ export const LIMITE_BYTES = 10 * 1024 * 1024;
 // Tope duro de seguridad en multer (evita llenar memoria con archivos enormes).
 const TOPE_MULTER = 50 * 1024 * 1024;
 
-// Almacenamiento en memoria: el archivo se sube luego a Cloudinary, no a disco.
+// Almacenamiento en memoria: el archivo se sube luego a Cloudflare R2, no a disco.
 // Sin fileFilter → se permite cualquier tipo de archivo. Subida múltiple.
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -48,3 +48,52 @@ export function manejarErrorMulter(
   }
   next(err);
 }
+
+// ---------- Subida de UN archivo con tipo restringido (fotos y comprobantes) ----------
+
+const LIMITE_IMAGEN_BYTES = 5 * 1024 * 1024;
+const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
+
+class TipoNoPermitido extends Error {}
+
+// A diferencia de `subirArchivos` (cualquier tipo, para tareas), aquí se limita
+// el tipo y el tamaño: son archivos que otra persona va a abrir (el
+// administrador revisa comprobantes, todos ven las fotos de perfil). Los
+// errores de multer se responden aquí mismo con un mensaje claro.
+function unArchivo(campo: string, tipos: string[], descripcion: string) {
+  const subir = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: LIMITE_IMAGEN_BYTES, files: 1 },
+    fileFilter: (req, file, cb) => {
+      if (tipos.includes(file.mimetype)) cb(null, true);
+      else cb(new TipoNoPermitido());
+    }
+  }).single(campo);
+
+  return (req: Request, res: Response, next: NextFunction) => {
+    subir(req, res, (err: any) => {
+      if (!err) return next();
+      if (err instanceof TipoNoPermitido) {
+        return res.status(400).json({ error: `Tipo de archivo no permitido. Se acepta: ${descripcion}` });
+      }
+      if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'El archivo supera el tamaño máximo de 5 MB' });
+      }
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ error: 'Error al subir el archivo' });
+      }
+      next(err);
+    });
+  };
+}
+
+// Campo `foto`: foto de perfil de docentes y estudiantes.
+export const subirFoto = unArchivo('foto', TIPOS_IMAGEN, 'imagen JPG, PNG o WEBP');
+// Campo `comprobante`: voucher de pago (foto o PDF).
+export const subirComprobante = unArchivo(
+  'comprobante',
+  [...TIPOS_IMAGEN, 'application/pdf'],
+  'imagen JPG, PNG, WEBP o PDF'
+);
+// Campo `imagen`: imágenes del portal público (anuncios a terceros y galería).
+export const subirImagen = unArchivo('imagen', TIPOS_IMAGEN, 'imagen JPG, PNG o WEBP');

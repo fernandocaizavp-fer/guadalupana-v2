@@ -1,0 +1,388 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$rojo: #c62828;
+$verde: #2e7d32;
+$naranja: #e07b00;
+
+.page-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e);
+  color: #ffffff;
+  height: 85px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      span { font-size: 13px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    }
+  }
+
+  .flex-spacer { flex: 1; }
+}
+
+.content {
+  padding: 32px 48px;
+  background: #f0f2f8;
+  min-height: calc(100vh - 85px);
+  box-sizing: border-box;
+}
+
+/* ===== RESUMEN ===== */
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.resumen-card {
+  flex: 1 1 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+  // La tarjeta del saldo es la protagonista: más ancha, sobre azul marino.
+  &.principal {
+    flex: 1.6 1 240px;
+    background: linear-gradient(135deg, $navy, #2a4f9f);
+    border-color: transparent;
+
+    .resumen-label { color: rgba(255, 255, 255, 0.7); }
+    .resumen-valor { color: $gold; font-size: 40px; }
+  }
+}
+
+.resumen-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #9aa0b0;
+}
+
+.resumen-valor {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: $navy;
+
+  &.rojo { color: $rojo; }
+  &.verde { color: $verde; }
+  &.naranja { color: $naranja; }
+}
+
+/* ===== HISTORIAL ===== */
+.historial {
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.historial-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #f0f2f8;
+
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: $navy;
+  }
+}
+
+.btn-subir {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, $navy, #2a4f9f);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(26, 42, 94, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; color: $gold; }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26, 42, 94, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.tabla-scroll { overflow-x: auto; }
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    padding: 12px 24px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a90a2;
+    background: #f8f9fc;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 16px 24px;
+    font-size: 14px;
+    color: #4b5563;
+    border-top: 1px solid #f0f2f8;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    transition: background 0.15s;
+    &:hover { background: #fafbfe; }
+  }
+
+  .derecha { text-align: right; }
+  .concepto { font-weight: 700; color: $navy; white-space: normal; }
+  .valor { font-weight: 700; color: $navy; }
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+
+  &.pagado { background: #e6f4ea; color: $verde; }
+  &.pendiente { background: #eceef2; color: #5f6675; }
+  &.revisando { background: #fff1dd; color: #b25f00; }
+  &.vencido { background: #fde8e8; color: $rojo; }
+}
+
+/* ===== MODAL ===== */
+.modal { padding: 24px; }
+
+.modal-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+
+  mat-icon { color: $gold; }
+  h2 { margin: 0; font-size: 18px; font-weight: 800; color: $navy; }
+}
+
+.modal-texto {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.modal-archivo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 2px dashed #cfd4e2;
+  border-radius: 12px;
+  background: #f8f9fc;
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a90a2;
+  }
+
+  input {
+    font-family: inherit;
+    font-size: 13px;
+    color: $navy;
+    max-width: 100%;
+  }
+}
+
+.modal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.btn-secundario {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5f6675;
+  background: transparent;
+  border: 1px solid #d5d9e4;
+  border-radius: 10px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: #f0f2f8; }
+}
+
+@media (max-width: 768px) {
+  .page-toolbar {
+    height: auto;
+    padding: 12px 0;
+
+    .toolbar-content { padding: 0 16px; }
+    .title-meta h1 { font-size: 20px; }
+  }
+
+  .content { padding: 16px 12px; }
+
+  .resumen { gap: 12px; }
+
+  .resumen-card {
+    padding: 16px 18px;
+
+    &.principal {
+      flex-basis: 100%;
+      .resumen-valor { font-size: 32px; }
+    }
+  }
+
+  .historial-cabecera {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+
+    .btn-subir { justify-content: center; }
+  }
+
+  .tabla th, .tabla td { padding: 12px 16px; }
+}
+
+/* ===== DATOS REALES: estados y acciones por concepto ===== */
+.historial-nota {
+  font-size: 12px;
+  color: #9aa0b0;
+}
+
+.badge.rechazado { background: #fde8e8; color: $rojo; }
+
+.motivo {
+  display: block;
+  margin-top: 4px;
+  max-width: 240px;
+  font-size: 11px;
+  color: $rojo;
+  white-space: normal;
+}
+
+.btn-subir.compacto {
+  font-size: 12px;
+  padding: 7px 14px;
+  box-shadow: none;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $navy;
+  text-decoration: none;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; color: $gold; }
+
+  &:hover { text-decoration: underline; }
+}
+
+.texto-suave {
+  font-size: 13px;
+  color: #8a90a2;
+}
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 48px;
+  color: #8a90a2;
+  text-align: center;
+
+  mat-icon { font-size: 64px; width: 64px; height: 64px; color: #cfd4e2; }
+  p { margin: 0; font-size: 15px; }
+
+  &.en-tarjeta { margin: 0; padding: 40px 24px; }
+}
+
+.modal-concepto {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #f0f2f8;
+  font-size: 14px;
+  font-weight: 700;
+  color: $navy;
+
+  strong { font-size: 18px; }
+}
+
+.modal-error {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: $rojo;
+}

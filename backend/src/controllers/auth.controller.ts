@@ -18,7 +18,7 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: '8h' }
     );
 
-    res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol, debeCambiarPassword: usuario.debeCambiarPassword } });
+    res.json({ token, usuario: { id: usuario.id, nombre: usuario.nombre, rol: usuario.rol, debeCambiarPassword: usuario.debeCambiarPassword, fotoUrl: usuario.fotoUrl } });
   } catch (error) {
     res.status(500).json({ error: 'Error del servidor' });
   }

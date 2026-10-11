@@ -1,0 +1,205 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Finanzas y Pagos</h1>
+        <span>Revisión de comprobantes y saldos</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <button type="button" class="btn-toolbar" (click)="irAConceptos()">
+      <mat-icon>add_card</mat-icon>
+      Conceptos de pago
+    </button>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+
+  <!-- BANDEJA: COMPROBANTES POR REVISAR -->
+  <section class="panel">
+    <div class="panel-cabecera">
+      <mat-icon>mark_email_unread</mat-icon>
+      <h2>Comprobantes por revisar</h2>
+      @if (pendientes.length > 0) {
+        <span class="contador">{{ pendientes.length }}</span>
+      }
+    </div>
+
+    @if (pendientes.length === 0) {
+      <p class="vacio-linea">No hay comprobantes pendientes de revisión.</p>
+    } @else {
+      <div class="pendientes">
+        @for (c of pendientes; track c.id) {
+          <div class="pendiente">
+            <div class="pendiente-info">
+              <strong>{{ c.deuda.estudiante.apellido }} {{ c.deuda.estudiante.nombre }}</strong>
+              <span>{{ nombreCurso(c) }} · CI {{ c.deuda.estudiante.cedula || '—' }}</span>
+              <span class="pendiente-concepto">
+                {{ c.deuda.concepto }} — <b>{{ dinero(c.montoAbonado) }}</b>
+                · enviado el {{ c.fechaSubida | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+            </div>
+            <div class="acciones">
+              @if (c.urlImagen) {
+                <a class="btn-linea" [href]="c.urlImagen" target="_blank" rel="noopener">
+                  <mat-icon>visibility</mat-icon> Ver comprobante
+                </a>
+              }
+              <button type="button" class="btn-aprobar"
+                (click)="aprobar(c.id, c.deuda.concepto, c.deuda.estudiante.apellido + ' ' + c.deuda.estudiante.nombre)">
+                <mat-icon>check</mat-icon> Aprobar
+              </button>
+              <button type="button" class="btn-rechazar" (click)="rechazar(c.id)">
+                <mat-icon>close</mat-icon> Rechazar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- CONSULTA POR CURSO Y ESTUDIANTE -->
+  <section class="panel">
+    <div class="panel-cabecera">
+      <mat-icon>groups</mat-icon>
+      <h2>Estudiantes por curso</h2>
+    </div>
+
+    <div class="panel-cuerpo">
+      <label class="campo campo-curso">
+        <span>Curso</span>
+        <select [(ngModel)]="cursoId" (ngModelChange)="onCurso()">
+          <option [ngValue]="null">Selecciona un curso…</option>
+          @for (curso of cursos; track curso.id) {
+            <option [ngValue]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</option>
+          }
+        </select>
+      </label>
+
+      @if (cursoId !== null && estudiantesCargados && estudiantes.length === 0) {
+        <p class="vacio-linea">Este curso no tiene estudiantes matriculados.</p>
+      }
+
+      @if (estudiantes.length > 0) {
+        <div class="estudiantes">
+          @for (e of estudiantes; track e.usuarioId) {
+            <div class="estudiante" [class.abierto]="seleccionado?.usuarioId === e.usuarioId">
+              <button type="button" class="estudiante-fila" (click)="abrirEstudiante(e)">
+                <app-foto-perfil [fotoUrl]="e.fotoUrl" [nombre]="e.nombres" [tamano]="42" />
+                <span class="estudiante-nombre">
+                  <strong>{{ e.apellidos }} {{ e.nombres }}</strong>
+                  <small>CI {{ e.cedula }}</small>
+                </span>
+                @if (e.comprobantesPorRevisar > 0) {
+                  <span class="chip naranja">{{ e.comprobantesPorRevisar }} por revisar</span>
+                }
+                @if (e.vencido > 0) {
+                  <span class="chip rojo">Vencido {{ dinero(e.vencido) }}</span>
+                }
+                <span class="estudiante-saldo" [class.al-dia]="e.saldoPendiente === 0">
+                  <small>Saldo</small>
+                  {{ dinero(e.saldoPendiente) }}
+                </span>
+                <mat-icon class="flecha">expand_more</mat-icon>
+              </button>
+
+              @if (seleccionado?.usuarioId === e.usuarioId && cuenta) {
+                <div class="detalle">
+                  @if (cuenta.deudas.length === 0) {
+                    <p class="vacio-linea">Este estudiante no tiene conceptos de pago.</p>
+                  } @else {
+                    <div class="tabla-scroll">
+                      <table class="tabla">
+                        <thead>
+                          <tr>
+                            <th>Concepto</th>
+                            <th>Fecha Máxima</th>
+                            <th class="derecha">Valor</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (deuda of cuenta.deudas; track deuda.id) {
+                            <tr>
+                              <td class="concepto">{{ deuda.concepto }}</td>
+                              <td>{{ deuda.fechaMaxima | date:'dd/MM/yyyy':'UTC' }}</td>
+                              <td class="derecha valor">{{ dinero(deuda.montoTotal) }}</td>
+                              <td>
+                                <span [class]="'badge ' + estado(deuda).toLowerCase()">{{ etiquetas[estado(deuda)] }}</span>
+                              </td>
+                              <td>
+                                <div class="acciones">
+                                  @if (enRevision(deuda); as comprobante) {
+                                    @if (comprobante.urlImagen) {
+                                      <a class="btn-linea" [href]="comprobante.urlImagen" target="_blank" rel="noopener">
+                                        <mat-icon>visibility</mat-icon> Ver
+                                      </a>
+                                    }
+                                    <button type="button" class="btn-aprobar"
+                                      (click)="aprobar(comprobante.id, deuda.concepto, e.apellidos + ' ' + e.nombres)">
+                                      <mat-icon>check</mat-icon> Aprobar
+                                    </button>
+                                    <button type="button" class="btn-rechazar" (click)="rechazar(comprobante.id)">
+                                      <mat-icon>close</mat-icon> Rechazar
+                                    </button>
+                                  }
+                                  @if (deuda.estado !== 'PAGADA') {
+                                    <button type="button" class="btn-linea" (click)="pagoEfectivo(deuda)">
+                                      <mat-icon>payments</mat-icon> Pago en efectivo
+                                    </button>
+                                  } @else if (aprobado(deuda); as pago) {
+                                    @if (pago.metodo === 'EFECTIVO') {
+                                      <span class="texto-suave">Pagado en efectivo</span>
+                                    } @else if (pago.urlImagen) {
+                                      <a class="btn-linea" [href]="pago.urlImagen" target="_blank" rel="noopener">
+                                        <mat-icon>visibility</mat-icon> Ver comprobante
+                                      </a>
+                                    }
+                                  }
+                                </div>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>
+
+<!-- MODAL: MOTIVO DEL RECHAZO -->
+<ng-template #modalRechazo>
+  <div class="modal">
+    <div class="modal-cabecera">
+      <mat-icon>cancel</mat-icon>
+      <h2>Rechazar comprobante</h2>
+    </div>
+    <p class="modal-texto">
+      El estudiante verá este motivo y podrá subir un comprobante nuevo.
+    </p>
+    <label class="campo">
+      <span>Motivo (opcional)</span>
+      <textarea rows="3" maxlength="300" [(ngModel)]="motivoRechazo"
+        placeholder="Ej: la imagen no es legible, el valor no coincide…"></textarea>
+    </label>
+    <div class="modal-acciones">
+      <button type="button" class="btn-linea" [mat-dialog-close]="false">Cancelar</button>
+      <button type="button" class="btn-rechazar solido" [mat-dialog-close]="true">
+        <mat-icon>close</mat-icon> Rechazar
+      </button>
+    </div>
+  </div>
+</ng-template>

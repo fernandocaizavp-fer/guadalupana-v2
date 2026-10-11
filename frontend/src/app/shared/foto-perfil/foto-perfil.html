@@ -1,0 +1,21 @@
+@if (editable) {
+  <button type="button" class="foto editable" title="Cambiar foto de perfil"
+    [style.width.px]="tamano" [style.height.px]="tamano" [style.font-size.px]="tamano * 0.42"
+    (click)="selector.click()">
+    @if (url) {
+      <img [src]="url" alt="Foto de perfil">
+    } @else {
+      <span>{{ inicial }}</span>
+    }
+    <span class="camara"><mat-icon>photo_camera</mat-icon></span>
+  </button>
+  <input #selector type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onArchivo($event)">
+} @else {
+  <span class="foto" [style.width.px]="tamano" [style.height.px]="tamano" [style.font-size.px]="tamano * 0.42">
+    @if (url) {
+      <img [src]="url" [alt]="'Foto de ' + (nombre || 'usuario')">
+    } @else {
+      <span>{{ inicial }}</span>
+    }
+  </span>
+}

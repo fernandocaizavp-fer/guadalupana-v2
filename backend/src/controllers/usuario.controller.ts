@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma';
+import { subirArchivo, eliminarArchivo } from '../lib/r2';
 
 export const crearDocente = async (req: Request, res: Response) => {
   const { nombre, apellido, correo, cedula } = req.body;
@@ -192,6 +193,33 @@ export const getMisMateria = async (req: Request, res: Response) => {
     res.json(materiasConInfo);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener materias' });
+  }
+};
+
+// POST /api/usuarios/foto  (multipart: archivo `foto`)
+// Cualquier usuario autenticado (docente o estudiante) sube o reemplaza SU
+// propia foto de perfil. La imagen va a Cloudflare R2; en la base solo el enlace.
+export const subirFotoPerfil = async (req: any, res: Response) => {
+  const archivo = req.file as Express.Multer.File | undefined;
+  if (!archivo) return res.status(400).json({ error: 'Selecciona una imagen' });
+
+  try {
+    const id = Number(req.usuario.id);
+    const anterior = await prisma.usuario.findUnique({ where: { id }, select: { fotoPublicId: true } });
+    if (!anterior) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const subida = await subirArchivo(archivo.buffer, archivo.originalname, 'cf_guadalupana/fotos', archivo.mimetype);
+    await prisma.usuario.update({
+      where: { id },
+      data: { fotoUrl: subida.url, fotoPublicId: subida.publicId }
+    });
+    // La foto anterior se borra al final: si algo falló antes, el usuario la conserva.
+    if (anterior.fotoPublicId) await eliminarArchivo(anterior.fotoPublicId);
+
+    res.json({ message: 'Foto actualizada', fotoUrl: subida.url });
+  } catch (error) {
+    console.error('Error al subir foto de perfil', error);
+    res.status(500).json({ error: 'Error al subir la foto' });
   }
 };
 

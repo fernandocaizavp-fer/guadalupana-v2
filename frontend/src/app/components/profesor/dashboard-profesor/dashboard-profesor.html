@@ -17,9 +17,7 @@
 
     <div class="user-box">
 
-      <div class="avatar">
-        {{ usuario?.nombre?.charAt(0) }}
-      </div>
+      <app-foto-perfil [editable]="true" [tamano]="42" [nombre]="usuario?.nombre" />
 
       <div class="user-info">
         <small>Docente</small>

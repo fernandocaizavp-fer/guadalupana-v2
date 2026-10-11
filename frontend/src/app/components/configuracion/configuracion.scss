@@ -42,10 +42,83 @@ $gold: #c8a84b;
   .flex-spacer { flex: 1; }
 }
 
-.loading {
+/* ===== ÍNDICE DE SECCIONES ===== */
+.indice {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  border-bottom: 1px solid #e8eaf0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.indice-contenido {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px 24px;
   display: flex;
-  justify-content: center;
-  padding: 60px;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.indice-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: $navy;
+  background: #f0f2f8;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; color: $gold; }
+
+  &:hover {
+    background: $navy;
+    color: #fff;
+  }
+}
+
+/* ===== SECCIONES ===== */
+.seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  // Deja libre el alto del índice fijo al saltar a la sección.
+  scroll-margin-top: 70px;
+
+  & + .seccion {
+    margin-top: 20px;
+    padding-top: 28px;
+    border-top: 2px solid #e3e6ef;
+  }
+}
+
+.seccion-titulo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  > mat-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    line-height: 44px;
+    text-align: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, $navy, #2a4f9f);
+    color: $gold;
+    flex-shrink: 0;
+  }
+
+  h2 { margin: 0; font-size: 20px; font-weight: 800; color: $navy; }
+  p { margin: 2px 0 0; font-size: 13px; color: #8a90a2; }
 }
 
 .content {
@@ -73,7 +146,7 @@ $gold: #c8a84b;
   border-bottom: 1px solid #f0f2f8;
 
   mat-icon { color: $gold; }
-  h2 { margin: 0; font-size: 16px; color: #1a2238; }
+  h3 { margin: 0; font-size: 16px; font-weight: 500; color: #1a2238; }
 }
 
 .config-body {
@@ -105,6 +178,101 @@ $gold: #c8a84b;
   align-items: center;
 
   .grow { flex: 1; }
+}
+
+/* ===== PROGRAMACIÓN ACADÉMICA ===== */
+.prog-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8a90a2;
+  }
+
+  input, select {
+    width: 100%;
+    box-sizing: border-box;
+    height: 38px;
+    padding: 0 10px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #1a2238;
+    background: #fff;
+    border: 1px solid #d5d9e4;
+    border-radius: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: $gold;
+      box-shadow: 0 0 0 3px rgba(200, 168, 75, 0.2);
+    }
+  }
+}
+
+.prog-curso {
+  max-width: 320px;
+  margin-bottom: 18px;
+}
+
+.prog-tabla {
+  border: 1px solid #eef0f5;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.prog-fila {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.8fr 1.4fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-top: 1px solid #eef0f5;
+
+  &:first-child { border-top: none; }
+
+  // En escritorio el encabezado de la tabla ya nombra cada columna.
+  .prog-campo span { display: none; }
+}
+
+.prog-encabezado {
+  background: $navy;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.prog-materia {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  strong { font-size: 14px; color: $navy; }
+  small { font-size: 11px; color: #8a90a2; }
+}
+
+/* ===== FINANZAS: CONCEPTOS ===== */
+.concepto-form {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  mat-form-field { min-width: 170px; }
+  .grow { flex: 1; min-width: 220px; }
+}
+
+.enlace-finanzas { margin-top: 16px; }
+
+.prog-acciones {
+  margin-top: 16px;
 }
 
 .resultados {
@@ -142,7 +310,7 @@ $gold: #c8a84b;
   border-radius: 10px;
   background: #fdfbf5;
 
-  h3 { margin: 0 0 12px; font-size: 14px; color: #1a2238; }
+  h4 { margin: 0 0 12px; font-size: 14px; font-weight: 500; color: #1a2238; }
 
   .permiso-campos {
     display: flex;
@@ -160,7 +328,7 @@ $gold: #c8a84b;
   padding-top: 16px;
   border-top: 1px solid #e6e6e6;
 
-  h3 { margin: 0 0 12px; font-size: 14px; color: #1a2238; }
+  h4 { margin: 0 0 12px; font-size: 14px; font-weight: 500; color: #1a2238; }
 }
 
 @media (max-width: 768px) {
@@ -206,6 +374,29 @@ $gold: #c8a84b;
       min-width: 0 !important;
       flex: none;
     }
+  }
+
+  // Cada materia pasa a ser un bloque apilado con la etiqueta sobre su campo.
+  .prog-encabezado { display: none; }
+
+  .prog-fila {
+    grid-template-columns: 1fr 1fr;
+
+    .prog-campo span { display: block; }
+    .prog-materia { grid-column: 1 / -1; }
+  }
+
+  .prog-curso { max-width: none; }
+
+  .indice-contenido { padding: 8px 10px; }
+
+  .seccion-titulo h2 { font-size: 18px; }
+
+  .concepto-form {
+    flex-direction: column;
+    gap: 14px;
+
+    mat-form-field { width: 100%; min-width: 0; }
   }
 
   .buscador {

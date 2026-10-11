@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import { subirArchivo, eliminarArchivo } from '../lib/cloudinary';
+import { subirArchivo, eliminarArchivo } from '../lib/r2';
 import { validarTamano } from '../middlewares/upload.middleware';
 
 // Multer decodifica el nombre del archivo como latin1; lo reinterpretamos como
@@ -29,7 +29,7 @@ export const subirArchivosTarea = async (req: Request, res: Response) => {
     const creados = [];
     for (const archivo of archivos) {
       const nombre = nombreUtf8(archivo.originalname);
-      const subido = await subirArchivo(archivo.buffer, nombre);
+      const subido = await subirArchivo(archivo.buffer, nombre, 'cf_guadalupana/tareas', archivo.mimetype);
       const fila = await prisma.archivoTarea.create({
         data: {
           url: subido.url,
@@ -96,7 +96,7 @@ export const subirEntrega = async (req: any, res: Response) => {
     const creados = [];
     for (const archivo of archivos) {
       const nombre = nombreUtf8(archivo.originalname);
-      const subido = await subirArchivo(archivo.buffer, nombre);
+      const subido = await subirArchivo(archivo.buffer, nombre, 'cf_guadalupana/tareas', archivo.mimetype);
       const fila = await prisma.archivoEntrega.create({
         data: {
           url: subido.url,

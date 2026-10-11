@@ -204,7 +204,7 @@ export class GestionarAnuncios implements OnInit {
 
   getImagenUrl(imagen: string): string {
     if (!imagen) return '';
-    // Cloudinary devuelve URL completa (http...); los anuncios viejos guardan
+    // El almacenamiento devuelve URL completa (http...); los anuncios viejos guardan
     // una ruta relativa servida por el backend.
     return imagen.startsWith('http')
       ? imagen

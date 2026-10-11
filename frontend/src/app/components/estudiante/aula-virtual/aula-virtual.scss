@@ -1,0 +1,327 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+
+.page-toolbar {
+  background: linear-gradient(135deg, $navy, #0d1a3e);
+  color: #ffffff;
+  height: 85px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+
+  .toolbar-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 30px;
+  }
+
+  .nav-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .back-pill {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateX(-3px);
+      }
+    }
+
+    .title-meta {
+      h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      span { font-size: 13px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    }
+  }
+
+  .flex-spacer { flex: 1; }
+}
+
+.content {
+  padding: 32px 48px;
+  background: #f0f2f8;
+  min-height: calc(100vh - 85px);
+  box-sizing: border-box;
+}
+
+.materias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 24px;
+}
+
+.materia-card {
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    border-color: $gold;
+    box-shadow: 0 16px 36px rgba(26, 42, 94, 0.16);
+  }
+}
+
+.materia-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+  background: linear-gradient(135deg, $navy, #2a4f9f);
+}
+
+.materia-titulos {
+  flex: 1;
+  min-width: 0;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 19px;
+    font-weight: 800;
+    color: white;
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; color: $gold; }
+}
+
+.materia-cuerpo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 22px;
+  border-left: 1px solid #f0f2f8;
+  min-width: 0;
+
+  &:first-child { border-left: none; }
+}
+
+.dato-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #9aa0b0;
+  margin-bottom: 2px;
+}
+
+.dato-valor {
+  font-size: 26px;
+  font-weight: 800;
+  color: $navy;
+  line-height: 1.1;
+
+  &.baja { color: #c62828; }
+}
+
+.dato-fecha {
+  font-size: 13px;
+  color: #6b7280;
+
+  strong { color: $navy; }
+}
+
+.barra {
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 4px;
+  background: #e8eaf0;
+  overflow: hidden;
+}
+
+.barra-relleno {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, $navy, $gold);
+  transition: width 0.4s ease;
+
+  &.baja { background: #c62828; }
+}
+
+.sin-dato { color: #b6bccb !important; }
+
+.dato-nota {
+  font-size: 12px;
+  color: #9aa0b0;
+}
+
+.chip-submaterias {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: $navy;
+  background: $gold;
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+.flecha {
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.5);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.materia-card:hover .flecha {
+  color: $gold;
+  transform: translateX(4px);
+}
+
+.materia-card:focus-visible {
+  outline: 3px solid $gold;
+  outline-offset: 3px;
+}
+
+/* ===== DISCIPLINA ===== */
+// No se abre: sin cursor de mano ni elevación.
+.disciplina-card {
+  cursor: default;
+
+  &:hover {
+    transform: none;
+    border-color: #e8eaf0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  .materia-cabecera { background: linear-gradient(135deg, #8a6d1c, $gold); }
+  .materia-titulos span { color: rgba(255, 255, 255, 0.9); }
+}
+
+.disciplina-icono {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon { color: white; font-size: 30px; width: 30px; height: 30px; }
+}
+
+.disciplina-cuerpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 22px;
+}
+
+.disciplina-nota {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: $navy;
+}
+
+/* ===== SEMESTRES ===== */
+.semestre-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab-btn {
+  padding: 6px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  &.active {
+    background: $gold;
+    border-color: $gold;
+    color: $navy;
+  }
+
+  &:hover:not(.active) {
+    border-color: white;
+    color: white;
+  }
+}
+
+/* ===== VACÍO / ERROR ===== */
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 60px;
+  color: #8a90a2;
+  text-align: center;
+
+  mat-icon { font-size: 64px; width: 64px; height: 64px; color: #cfd4e2; }
+  p { margin: 0; font-size: 15px; }
+}
+
+.btn-reintentar {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  background: $navy;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .page-toolbar {
+    height: auto;
+    padding: 12px 0;
+
+    // Los semestres bajan a una segunda fila.
+    .toolbar-content { padding: 0 16px; flex-wrap: wrap; row-gap: 10px; }
+    .title-meta h1 { font-size: 20px; }
+    .flex-spacer { display: none; }
+    .semestre-tabs { width: 100%; .tab-btn { flex: 1; } }
+  }
+
+  .content { padding: 16px 12px; }
+
+  .chip-submaterias { display: none; }
+
+  .materias-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .materia-cabecera { padding: 18px 16px; }
+
+  // Las tres columnas se apilan: en un teléfono no caben lado a lado.
+  .materia-cuerpo { grid-template-columns: 1fr; }
+
+  .dato {
+    padding: 14px 16px;
+    border-left: none;
+    border-top: 1px solid #f0f2f8;
+
+    &:first-child { border-top: none; }
+  }
+}

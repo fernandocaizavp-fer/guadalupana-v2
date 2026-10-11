@@ -1,0 +1,115 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Aula Virtual</h1>
+        <span>{{ curso ? curso.ramaArtesanal + ' — ' + curso.anioFormativo : 'Mis materias' }}</span>
+      </div>
+    </div>
+    <span class="flex-spacer"></span>
+    <div class="semestre-tabs">
+      <button type="button" class="tab-btn" [class.active]="semestre === 1" (click)="cambiarSemestre(1)">
+        1er Semestre
+      </button>
+      <button type="button" class="tab-btn" [class.active]="semestre === 2" (click)="cambiarSemestre(2)">
+        2do Semestre
+      </button>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="content">
+  @if (cargado && error) {
+    <div class="vacio">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error }}</p>
+      <button type="button" class="btn-reintentar" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  @if (cargado && !error && materias.length === 0) {
+    <div class="vacio">
+      <mat-icon>menu_book</mat-icon>
+      <p>Tu curso todavía no tiene materias registradas</p>
+    </div>
+  }
+
+  @if (cargado && !error && materias.length > 0) {
+    <div class="materias-grid">
+      @for (materia of materias; track materia.id) {
+        <article class="materia-card" tabindex="0" role="button"
+          (click)="abrirMateria(materia)" (keydown.enter)="abrirMateria(materia)">
+          <header class="materia-cabecera">
+            <app-foto-perfil [fotoUrl]="materia.docente?.fotoUrl" [nombre]="materia.docente?.nombre" [tamano]="56" />
+            <div class="materia-titulos">
+              <h2>{{ materia.nombre }}</h2>
+              <span>
+                <mat-icon>person</mat-icon>
+                {{ nombreDocente(materia) }}
+              </span>
+            </div>
+            @if (materia.tieneSubmaterias) {
+              <span class="chip-submaterias">{{ materia.submaterias }} submaterias</span>
+            }
+            <mat-icon class="flecha">chevron_right</mat-icon>
+          </header>
+
+          <div class="materia-cuerpo">
+            <div class="dato">
+              <span class="dato-label">Horas Totales</span>
+              <span class="dato-valor" [class.sin-dato]="materia.horasTotales === null">
+                {{ materia.horasTotales !== null ? materia.horasTotales + 'h' : '—' }}
+              </span>
+            </div>
+
+            <div class="dato">
+              <span class="dato-label">% Asistencia</span>
+              @if (materia.asistencia !== null) {
+                <span class="dato-valor" [class.baja]="materia.asistencia < 70">{{ materia.asistencia }}%</span>
+                <div class="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                  [attr.aria-valuenow]="materia.asistencia">
+                  <div class="barra-relleno" [class.baja]="materia.asistencia < 70"
+                    [style.width.%]="materia.asistencia"></div>
+                </div>
+              } @else {
+                <span class="dato-valor sin-dato">—</span>
+                <span class="dato-nota">Sin clases registradas</span>
+              }
+            </div>
+
+            <div class="dato">
+              <span class="dato-label">Fechas</span>
+              @if (materia.fechaInicio || materia.fechaFin) {
+                <span class="dato-fecha">Inicio: <strong>{{ fechaCorta(materia.fechaInicio) }}</strong></span>
+                <span class="dato-fecha">Fin: <strong>{{ fechaCorta(materia.fechaFin) }}</strong></span>
+              } @else {
+                <span class="dato-nota">Por definir</span>
+              }
+            </div>
+          </div>
+        </article>
+      }
+
+      <!-- Disciplina no es una materia: solo tiene una nota por semestre, no se abre. -->
+      <article class="materia-card disciplina-card">
+        <header class="materia-cabecera">
+          <div class="disciplina-icono"><mat-icon>star</mat-icon></div>
+          <div class="materia-titulos">
+            <h2>Disciplina</h2>
+            <span>Semestre {{ semestre }}</span>
+          </div>
+        </header>
+        <div class="disciplina-cuerpo">
+          <span class="dato-label">Nota de disciplina</span>
+          <span class="disciplina-nota" [class.sin-dato]="disciplina === null">{{ notaDisciplina() }}</span>
+          @if (disciplina === null) {
+            <span class="dato-nota">Aún no registrada en este semestre</span>
+          }
+        </div>
+      </article>
+    </div>
+  }
+</div>

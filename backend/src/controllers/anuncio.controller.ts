@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
 import multer from 'multer';
-import { subirArchivo } from '../lib/cloudinary';
+import { subirArchivo } from '../lib/r2';
 
-// La imagen del anuncio se sube a Cloudinary (no a disco: Railway borra los
-// archivos en cada redeploy). Se guarda en memoria y luego se sube.
+// La imagen del anuncio se sube a Cloudflare R2 (no a disco: el servidor borra
+// sus archivos en cada redeploy). Se guarda en memoria y luego se sube.
 export const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
@@ -18,9 +18,9 @@ export const upload = multer({
 export const crearAnuncio = async (req: any, res: Response) => {
   const { titulo, contenido, materiaNombre, cursoId } = req.body;
   try {
-    // Sube la imagen a Cloudinary y guarda la URL completa (permanente).
+    // Sube la imagen al almacenamiento y guarda la URL completa (permanente).
     const imagen = req.file
-      ? (await subirArchivo(req.file.buffer, req.file.originalname, 'cf_guadalupana/anuncios')).url
+      ? (await subirArchivo(req.file.buffer, req.file.originalname, 'cf_guadalupana/anuncios', req.file.mimetype)).url
       : null;
     // El autor se deriva del usuario autenticado (token), no del body.
     // El JWT solo trae { id, rol }, por eso consultamos el nombre.
@@ -102,7 +102,7 @@ export const actualizarAnuncio = async (req: any, res: Response) => {
       cursoId: cursoId ? Number(cursoId) : null
     };
     if (req.file) {
-      data.imagen = (await subirArchivo(req.file.buffer, req.file.originalname, 'cf_guadalupana/anuncios')).url;
+      data.imagen = (await subirArchivo(req.file.buffer, req.file.originalname, 'cf_guadalupana/anuncios', req.file.mimetype)).url;
     }
     const anuncio = await prisma.anuncio.update({
       where: { id: Number(id) },
