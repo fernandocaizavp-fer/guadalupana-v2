@@ -18,7 +18,6 @@ import { AcademicoService } from '../../services/academico';
 import { FinanzasService, ConceptoPago, dinero } from '../../services/finanzas';
 import { LoadingService } from '../../services/loading';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
-import { IngresoRapido } from './ingreso-rapido/ingreso-rapido';
 
 // Fila editable de la programación académica de una materia.
 interface FilaProgramacion {
@@ -35,7 +34,7 @@ interface FilaProgramacion {
   selector: 'app-configuracion',
   imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
-    MatFormFieldModule, MatInputModule, DatePipe, IngresoRapido],
+    MatFormFieldModule, MatInputModule, DatePipe],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss'
 })
@@ -80,8 +79,7 @@ export class ConfiguracionComponent implements OnInit {
     { id: 'supletorios', titulo: 'Supletorios', icono: 'event_available' },
     { id: 'examen-grado', titulo: 'Exámenes de grado', icono: 'school' },
     { id: 'fechas', titulo: 'Registro de fechas', icono: 'event_note' },
-    { id: 'finanzas', titulo: 'Finanzas', icono: 'payments' },
-    { id: 'ingreso-rapido', titulo: 'Ingreso rápido', icono: 'bolt' }
+    { id: 'finanzas', titulo: 'Finanzas', icono: 'payments' }
   ];
 
   // ── Registro de fechas (programación académica) ──

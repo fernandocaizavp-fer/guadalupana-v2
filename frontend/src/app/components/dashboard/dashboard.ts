@@ -87,6 +87,10 @@ export class Dashboard implements OnInit {
     this.router.navigate(['/configuracion']);
   }
 
+  irAIngresoMasivo() {
+    this.router.navigate(['/ingreso-masivo']);
+  }
+
   irACursos() {
     this.router.navigate(['/cursos']);
   }

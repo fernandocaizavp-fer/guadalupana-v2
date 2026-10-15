@@ -33,6 +33,7 @@ import { AulaVirtual } from './components/estudiante/aula-virtual/aula-virtual';
 import { MisFinanzas } from './components/estudiante/mis-finanzas/mis-finanzas';
 import { MisAsistencias } from './components/estudiante/mis-asistencias/mis-asistencias';
 import { GestionarFinanzas } from './components/finanzas/gestionar-finanzas/gestionar-finanzas';
+import { IngresoMasivo } from './components/ingreso-masivo/ingreso-masivo';
 import { Prospectos } from './components/portal/prospectos/prospectos';
 import { AnunciosPublicos } from './components/portal/anuncios-publicos/anuncios-publicos';
 import { GaleriaPublica } from './components/portal/galeria-publica/galeria-publica';
@@ -79,6 +80,7 @@ export const routes: Routes = [
   { path: 'documentos', component: Documentos, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'examen-grado/:materiaId', component: IngresarExamenGrado, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'configuracion', component: ConfiguracionComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'ingreso-masivo', component: IngresoMasivo, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'cambiar-password', component: CambiarPassword, canActivate: [AuthGuard] },
   { path: 'recuperar-password', component: RecuperarPassword },
   

@@ -1,5 +1,8 @@
-import { Component, ChangeDetectorRef, ElementRef, Input } from '@angular/core';
+import { Component, ChangeDetectorRef, ElementRef, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -7,26 +10,29 @@ import { Observable, finalize } from 'rxjs';
 import {
   IngresoRapidoService, EstudianteRapido, ClaveMateria, ColumnaMateria,
   MATERIAS_NOTAS, MATERIAS_EXAMEN
-} from '../../../services/ingreso-rapido';
-import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+} from '../../services/ingreso-rapido';
+import { CursoService } from '../../services/curso';
+import { ConfiguracionService } from '../../services/configuracion';
+import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 
 type Pestana = 'notas' | 'examenes' | 'asistencias';
 type Valor = number | null;
 
-// Ingreso rápido masivo: tablas tipo hoja de cálculo para escribir de una vez las
+// Ingreso rápido masivo (página a pantalla completa, solo ADMIN): tablas tipo hoja de cálculo para escribir de una vez las
 // notas finales, los exámenes de grado y la asistencia de todo un curso. Lo que se
 // guarda aquí tiene prioridad en los formatos AL; una casilla vacía deja que el
 // dato se siga calculando desde el flujo normal.
 @Component({
-  selector: 'app-ingreso-rapido',
-  imports: [FormsModule, MatIconModule, MatSnackBarModule, MatDialogModule],
-  templateUrl: './ingreso-rapido.html',
-  styleUrl: './ingreso-rapido.scss'
+  selector: 'app-ingreso-masivo',
+  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule, MatDialogModule],
+  templateUrl: './ingreso-masivo.html',
+  styleUrl: './ingreso-masivo.scss'
 })
-export class IngresoRapido {
-  @Input() cursos: any[] = [];
-  @Input() notaMinima = 0;
-  @Input() notaMaxima = 10;
+export class IngresoMasivo implements OnInit {
+  cursos: any[] = [];
+  // Rango de notas guardado en Configuración (el servidor valida con el mismo).
+  notaMinima = 0;
+  notaMaxima = 10;
 
   readonly pestanas: { id: Pestana; titulo: string; icono: string; formato: string }[] = [
     { id: 'notas', titulo: 'Notas', icono: 'grading', formato: 'AL14 · AL15 · AL16 · AL19 · AL22' },
@@ -56,11 +62,32 @@ export class IngresoRapido {
 
   constructor(
     private servicio: IngresoRapidoService,
+    private cursoService: CursoService,
+    private configuracionService: ConfiguracionService,
+    private router: Router,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private cdr: ChangeDetectorRef,
     private host: ElementRef<HTMLElement>
   ) {}
+
+  ngOnInit() {
+    this.cursoService.listarCursos().subscribe({
+      next: (cursos) => { this.cursos = cursos; this.cdr.detectChanges(); },
+      error: () => this.snackBar.open('Error al cargar los cursos', 'OK', { duration: 3000 })
+    });
+    this.configuracionService.obtener().subscribe({
+      next: (config) => {
+        this.notaMinima = config.notaMinima;
+        this.notaMaxima = config.notaMaxima;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  async volver() {
+    if (await this.puedeDescartar()) this.router.navigate(['/dashboard']);
+  }
 
   // ── Claves de las casillas ──
 

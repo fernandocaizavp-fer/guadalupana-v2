@@ -1,3 +1,18 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill" aria-label="Volver al panel">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Ingreso rápido de notas</h1>
+        <span>Notas finales, exámenes de grado y asistencia por curso</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="pagina">
 <div class="ir">
   <!-- Pestañas -->
   <div class="ir-pestanas" role="tablist">
@@ -100,7 +115,7 @@
             @for (e of estudiantes; track e.id; let i = $index) {
               <tr>
                 <td class="col-num">{{ i + 1 }}</td>
-                <td class="col-nombre">{{ e.apellidos }} {{ e.nombres }}</td>
+                <td class="col-nombre" [title]="e.apellidos + ' ' + e.nombres">{{ e.apellidos }} {{ e.nombres }}</td>
 
                 @if (pestana === 'notas') {
                   @for (m of materiasNotas; track m.clave; let j = $index) {
@@ -157,4 +172,5 @@
       </div>
     }
   </div>
+</div>
 </div>
