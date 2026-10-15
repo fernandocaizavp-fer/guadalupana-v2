@@ -16,10 +16,11 @@ import { SuplетorioService } from '../../../services/supletorio';
 import { ReporteService } from '../../../services/reporte';
 import { ExamenGradoService } from '../../../services/examen-grado';
 import { calcularDisciplinaPonderada } from '../../../services/disciplina-util';
+import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 
 @Component({
   selector: 'app-reportes',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [BotonCalendario, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatSelectModule,
     MatFormFieldModule, MatInputModule],
   templateUrl: './reportes.html',
@@ -34,7 +35,7 @@ export class Reportes implements OnInit {
   resumen: any[] = [];
   totalClases = 0;
   loading = false;
-  lugarFecha = '';
+  lugarFecha = lugarFechaHoy();
   jornada = 'MATUTINA';
   observaciones: { [key: number]: string } = {};
 
@@ -45,22 +46,22 @@ export class Reportes implements OnInit {
   materiasCalificaciones: any[] = [];
   todasMateriasCalificaciones: any[] = [];
   loadingCalificaciones = false;
-  lugarFechaCalificaciones = '';
+  lugarFechaCalificaciones = lugarFechaHoy();
 
   // Cuadro Final AL15
   cursoAL15: number | null = null;
-  lugarFechaAL15 = '';
+  lugarFechaAL15 = lugarFechaHoy();
   jornadaAL15 = 'MATUTINA';
 
   // Nómina AL9
   cursoAL9: number | null = null;
-  lugarFechaAL9 = '';
+  lugarFechaAL9 = lugarFechaHoy();
   jornadaAL9 = 'MATUTINA';
   regimenAL9 = 'SIERRA';
 
   // Examen Grado AL23
   cursoAL23: number | null = null;
-  lugarFechaAL23 = '';
+  lugarFechaAL23 = lugarFechaHoy();
   jornadaAL23 = 'MATUTINA';
   loadingAL23 = false;
   resumenAL23: any[] = [];
@@ -69,12 +70,12 @@ export class Reportes implements OnInit {
 
   // Proyectos Productivos AL19
   cursoAL19: number | null = null;
-  lugarFechaAL19 = '';
+  lugarFechaAL19 = lugarFechaHoy();
   jornadaAL19 = 'MATUTINA';
 
   // Certificado de Promoción AL16 (individual por estudiante)
   cursoAL16: number | null = null;
-  lugarFechaAL16 = '';
+  lugarFechaAL16 = lugarFechaHoy();
   jornadaAL16 = 'MATUTINA';
   estudiantesAL16: any[] = [];
   loadingAL16 = false;
@@ -82,7 +83,7 @@ export class Reportes implements OnInit {
 
   // Cuadro Aprobados y No Aprobados AL22
   cursoAL22: number | null = null;
-  lugarFechaAL22 = '';
+  lugarFechaAL22 = lugarFechaHoy();
   jornadaAL22 = 'MATUTINA';
   regimenAL22 = 'SIERRA';
 

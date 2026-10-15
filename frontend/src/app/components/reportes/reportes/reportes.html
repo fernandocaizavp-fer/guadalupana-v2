@@ -22,12 +22,12 @@
     </div>
 
     <div class="reportes-grid">
-      <div class="reporte-card-modern" (click)="abrirSeccion('asistencia')">
-        <div class="card-accent asistencia"></div>
-        <div class="icon-box asistencia"><mat-icon>how_to_reg</mat-icon></div>
+      <div class="reporte-card-modern" (click)="abrirSeccion('nomina')">
+        <div class="card-accent nomina"></div>
+        <div class="icon-box nomina"><mat-icon>people</mat-icon></div>
         <div class="info">
-          <h3>Reporte de Asistencia</h3>
-          <p>Porcentaje de asistencia por estudiante. Documento oficial <strong>AL18</strong></p>
+          <h3>Nómina de Participantes</h3>
+          <p>Listado de matriculados. Documento oficial <strong>AL9</strong></p>
         </div>
         <mat-icon class="arrow">chevron_right</mat-icon>
       </div>
@@ -52,22 +52,22 @@
         <mat-icon class="arrow">chevron_right</mat-icon>
       </div>
 
-      <div class="reporte-card-modern" (click)="abrirSeccion('nomina')">
-        <div class="card-accent nomina"></div>
-        <div class="icon-box nomina"><mat-icon>people</mat-icon></div>
+      <div class="reporte-card-modern" (click)="abrirSeccion('certificado')">
+        <div class="card-accent certificado"></div>
+        <div class="icon-box certificado"><mat-icon>workspace_premium</mat-icon></div>
         <div class="info">
-          <h3>Nómina de Participantes</h3>
-          <p>Listado de matriculados. Documento oficial <strong>AL9</strong></p>
+          <h3>Certificado de Promoción</h3>
+          <p>Certificado individual por estudiante. Documento oficial <strong>AL16</strong></p>
         </div>
         <mat-icon class="arrow">chevron_right</mat-icon>
       </div>
 
-      <div class="reporte-card-modern" (click)="abrirSeccion('examenGrado')">
-        <div class="card-accent examen"></div>
-        <div class="icon-box examen"><mat-icon>assignment_turned_in</mat-icon></div>
+      <div class="reporte-card-modern" (click)="abrirSeccion('asistencia')">
+        <div class="card-accent asistencia"></div>
+        <div class="icon-box asistencia"><mat-icon>how_to_reg</mat-icon></div>
         <div class="info">
-          <h3>Examen Escrito de Grado</h3>
-          <p>Cuadro de exámenes escritos de grado. Documento oficial <strong>AL23</strong></p>
+          <h3>Reporte de Asistencia</h3>
+          <p>Porcentaje de asistencia por estudiante. Documento oficial <strong>AL18</strong></p>
         </div>
         <mat-icon class="arrow">chevron_right</mat-icon>
       </div>
@@ -82,22 +82,22 @@
         <mat-icon class="arrow">chevron_right</mat-icon>
       </div>
 
-      <div class="reporte-card-modern" (click)="abrirSeccion('certificado')">
-        <div class="card-accent certificado"></div>
-        <div class="icon-box certificado"><mat-icon>workspace_premium</mat-icon></div>
-        <div class="info">
-          <h3>Certificado de Promoción</h3>
-          <p>Certificado individual por estudiante. Documento oficial <strong>AL16</strong></p>
-        </div>
-        <mat-icon class="arrow">chevron_right</mat-icon>
-      </div>
-
       <div class="reporte-card-modern" (click)="abrirSeccion('aprobados')">
         <div class="card-accent aprobados"></div>
         <div class="icon-box aprobados"><mat-icon>fact_check</mat-icon></div>
         <div class="info">
           <h3>Aprobados y No Aprobados</h3>
           <p>Cuadro de participantes aprobados y no aprobados (grados). Documento oficial <strong>AL22</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="reporte-card-modern" (click)="abrirSeccion('examenGrado')">
+        <div class="card-accent examen"></div>
+        <div class="icon-box examen"><mat-icon>assignment_turned_in</mat-icon></div>
+        <div class="info">
+          <h3>Examen Escrito de Grado</h3>
+          <p>Cuadro de exámenes escritos de grado. Documento oficial <strong>AL23</strong></p>
         </div>
         <mat-icon class="arrow">chevron_right</mat-icon>
       </div>
@@ -133,6 +133,7 @@
         <mat-form-field appearance="outline" class="span-2">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFecha" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFecha" />
         </mat-form-field>
         <div class="action-btn">
           @if (cursoSeleccionado) {
@@ -245,6 +246,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFechaCalificaciones" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaCalificaciones" />
         </mat-form-field>
         <div class="action-btn">
           @if (cursoCalificaciones) {
@@ -342,6 +344,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFechaAL15" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaAL15" />
         </mat-form-field>
         <div class="action-btn">
           @if (cursoAL15) {
@@ -395,6 +398,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFechaAL9" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaAL9" />
         </mat-form-field>
         <div class="action-btn">
           @if (cursoAL9) {
@@ -441,6 +445,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFechaAL23" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaAL23" />
         </mat-form-field>
         <div class="action-btn">
           @if (cursoAL23) {
@@ -524,6 +529,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFechaAL19" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaAL19" />
         </mat-form-field>
         <div class="action-btn">
           @if (cursoAL19) {
@@ -570,6 +576,7 @@
         <mat-form-field appearance="outline" class="span-2">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFechaAL16" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaAL16" />
         </mat-form-field>
       </div>
     </div>
@@ -663,6 +670,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Lugar y Fecha</mat-label>
           <input matInput [(ngModel)]="lugarFechaAL22" placeholder="Riobamba, 24 de abril del 2026">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaAL22" />
         </mat-form-field>
         <div class="action-btn">
           @if (cursoAL22) {

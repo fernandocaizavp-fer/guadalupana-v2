@@ -324,10 +324,14 @@
           <mat-form-field appearance="outline">
             <mat-label>Lugar y Fecha de Matrícula</mat-label>
             <input matInput formControlName="lugarfechamatricula" placeholder="Ej. Riobamba, 03 de marzo del 2026">
+            <app-boton-calendario matSuffix [valor]="form.controls.lugarfechamatricula.value"
+              (valorChange)="form.controls.lugarfechamatricula.setValue($event); form.controls.lugarfechamatricula.markAsDirty()" />
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Lugar y Fecha de Certificado</mat-label>
             <input matInput formControlName="lugarfechacertificado" placeholder="Ej. Riobamba, 03 de marzo del 2026">
+            <app-boton-calendario matSuffix [valor]="form.controls.lugarfechacertificado.value"
+              (valorChange)="form.controls.lugarfechacertificado.setValue($event); form.controls.lugarfechacertificado.markAsDirty()" />
           </mat-form-field>
         </div>
       </div>

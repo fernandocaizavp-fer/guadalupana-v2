@@ -21,6 +21,7 @@
     <mat-form-field appearance="outline" class="lugar-fecha">
       <mat-label>Lugar y Fecha</mat-label>
       <input matInput [(ngModel)]="lugarFecha" placeholder="Ej: Riobamba, 20 de abril del 2026">
+      <app-boton-calendario matSuffix [(valor)]="lugarFecha" />
     </mat-form-field>
     <button mat-raised-button style="margin-left: 12px; background: #c8a84b; color: #1a2a5e; font-weight: 700;"
       (click)="descargarAL14()">

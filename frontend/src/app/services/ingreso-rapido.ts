@@ -93,4 +93,11 @@ export class IngresoRapidoService {
   guardarAsistencias(cursoId: number, asistencias: { matriculaId: number; porcentaje: number | null }[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/asistencias-bulk`, { cursoId, asistencias }, { headers: this.getHeaders() });
   }
+
+  // Borra todos los registros rápidos de un curso para una pestaña.
+  limpiar(tipo: 'notas' | 'examenes' | 'asistencias', cursoId: number): Observable<{ message: string; borrados: number }> {
+    return this.http.delete<{ message: string; borrados: number }>(
+      `${this.apiUrl}/${tipo}-bulk/${cursoId}`, { headers: this.getHeaders() }
+    );
+  }
 }

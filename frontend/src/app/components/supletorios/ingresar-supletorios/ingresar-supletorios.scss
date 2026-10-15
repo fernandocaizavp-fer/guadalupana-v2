@@ -134,6 +134,13 @@
 
   &.wide { flex: 2; }
 
+  .con-calendario {
+    display: flex;
+    align-items: center;
+
+    input { flex: 1; min-width: 0; }
+  }
+
   label {
     font-size: 12px;
     font-weight: 600;

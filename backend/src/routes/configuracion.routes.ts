@@ -15,7 +15,10 @@ import {
   obtenerExamenesBulk,
   guardarExamenesBulk,
   obtenerAsistenciasBulk,
-  guardarAsistenciasBulk
+  guardarAsistenciasBulk,
+  limpiarNotasBulk,
+  limpiarExamenesBulk,
+  limpiarAsistenciasBulk
 } from '../controllers/ingreso-rapido.controller';
 import { verificarToken, soloAdmin } from '../middlewares/auth.middleware';
 
@@ -37,5 +40,8 @@ router.get('/examenes-bulk/:cursoId', verificarToken, soloAdmin, obtenerExamenes
 router.post('/examenes-bulk', verificarToken, soloAdmin, guardarExamenesBulk);
 router.get('/asistencias-bulk/:cursoId', verificarToken, soloAdmin, obtenerAsistenciasBulk);
 router.post('/asistencias-bulk', verificarToken, soloAdmin, guardarAsistenciasBulk);
+router.delete('/notas-bulk/:cursoId', verificarToken, soloAdmin, limpiarNotasBulk);
+router.delete('/examenes-bulk/:cursoId', verificarToken, soloAdmin, limpiarExamenesBulk);
+router.delete('/asistencias-bulk/:cursoId', verificarToken, soloAdmin, limpiarAsistenciasBulk);
 
 export default router;

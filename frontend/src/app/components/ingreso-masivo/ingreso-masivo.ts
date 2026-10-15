@@ -294,6 +294,45 @@ export class IngresoMasivo implements OnInit {
     siguiente?.select();
   }
 
+  // ── Limpiar ──
+
+  // Borra en la base todos los datos de la pestaña actual para el curso elegido,
+  // previa confirmación. Los AL vuelven a calcularse desde el flujo normal.
+  limpiar() {
+    if (this.cursoId === null || this.guardando) return;
+    const cursoId = this.cursoId;
+    const tipo = this.pestana;
+    const curso = this.cursos.find((c) => c.id === cursoId);
+    const nombreCurso = curso ? `${curso.ramaArtesanal} — ${curso.anioFormativo}` : 'este curso';
+    const que = tipo === 'notas'
+      ? 'todas las notas (ambos semestres)'
+      : tipo === 'examenes' ? 'todas las notas de exámenes de grado' : 'todos los porcentajes de asistencia';
+
+    this.dialog.open(ConfirmDialog, {
+      width: '440px',
+      data: {
+        titulo: '¿Realmente quiere borrar todos los datos?',
+        mensaje: `Se borrarán ${que} ingresadas aquí para ${nombreCurso}. Los documentos AL volverán a usar el cálculo normal. Esta acción no se puede deshacer.`,
+        confirmText: 'Sí, borrar todo',
+        cancelText: 'Cancelar',
+        icon: 'delete_sweep'
+      }
+    }).afterClosed().subscribe((ok) => {
+      if (!ok) return;
+      this.guardando = true;
+      this.cdr.detectChanges();
+      this.servicio.limpiar(tipo, cursoId)
+        .pipe(finalize(() => { this.guardando = false; this.cdr.detectChanges(); }))
+        .subscribe({
+          next: (res) => {
+            this.snackBar.open(`Datos borrados (${res.borrados} registro(s))`, 'OK', { duration: 3000 });
+            this.cargar();
+          },
+          error: (e) => this.snackBar.open(e?.error?.error || 'Error al borrar los datos', 'OK', { duration: 4000 })
+        });
+    });
+  }
+
   // ── Guardar ──
 
   guardar() {

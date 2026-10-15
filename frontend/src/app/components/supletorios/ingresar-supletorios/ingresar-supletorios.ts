@@ -11,12 +11,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CursoService } from '../../../services/curso';
 import { SuplетorioService } from '../../../services/supletorio';
+import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 
 @Component({
   selector: 'app-ingresar-supletorios',
   imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule],
+    MatInputModule, MatSelectModule, BotonCalendario],
   templateUrl: './ingresar-supletorios.html',
   styleUrl: './ingresar-supletorios.scss'
 })
@@ -27,7 +28,7 @@ export class IngresarSupletorios implements OnInit {
   materias: any[] = [];
   loading = true;
   guardando = false;
-  lugarFecha = '';
+  lugarFecha = lugarFechaHoy();
   jornada = 'MATUTINA';
 
   // supletorios[matriculaId][materiaId] = valor

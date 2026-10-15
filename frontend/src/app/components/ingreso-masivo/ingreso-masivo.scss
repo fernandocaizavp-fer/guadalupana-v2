@@ -213,6 +213,13 @@ select, input {
     &:hover:not(:disabled) { filter: brightness(1.06); }
   }
 
+  &.peligro {
+    color: $rojo;
+    background: transparent;
+    border: 1px solid transparent;
+    &:hover:not(:disabled) { background: #fdf3f3; }
+  }
+
   &.principal {
     color: #fff;
     background: $verde;
@@ -311,10 +318,13 @@ select, input {
 .ir-pie {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
   margin-top: 16px;
 }
+
+.ir-pie-separador { flex: 1; }
 
 .ir-pie-texto {
   font-size: 13px;

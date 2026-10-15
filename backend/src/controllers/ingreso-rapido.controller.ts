@@ -224,3 +224,27 @@ export const guardarAsistenciasBulk = async (req: any, res: Response) => {
     responderError(res, error, 'Error al guardar las asistencias');
   }
 };
+
+// ===== LIMPIAR =====
+// Borra de una vez los registros rápidos de un curso (una pestaña). Los AL vuelven
+// a calcularse desde el flujo normal; no toca tareas, listas ni exámenes por materia.
+// Incluye matrículas archivadas del curso para no dejar registros huérfanos.
+
+const limpiar = (tipo: 'notas' | 'examenes' | 'asistencias') => async (req: Request, res: Response) => {
+  try {
+    const cursoId = leerCursoId(req.params.cursoId);
+    const where = { matricula: { cursoId } };
+    const { count } = tipo === 'notas'
+      ? await prisma.registroNotaGlobal.deleteMany({ where })
+      : tipo === 'examenes'
+        ? await prisma.registroExamenGlobal.deleteMany({ where })
+        : await prisma.registroAsistenciaGlobal.deleteMany({ where });
+    res.json({ message: 'Datos borrados', borrados: count });
+  } catch (error) {
+    responderError(res, error, 'Error al borrar los datos');
+  }
+};
+
+export const limpiarNotasBulk = limpiar('notas');
+export const limpiarExamenesBulk = limpiar('examenes');
+export const limpiarAsistenciasBulk = limpiar('asistencias');

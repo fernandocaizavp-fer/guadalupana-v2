@@ -18,13 +18,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatriculaService } from '../../../services/matricula';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Title } from '@angular/platform-browser';
+import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 
 @Component({
   selector: 'app-nueva-matricula',
   imports: [
     ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatCardModule, MatSelectModule, MatDividerModule,
-    MatSnackBarModule, MatProgressSpinnerModule, MatToolbarModule
+    MatSnackBarModule, MatProgressSpinnerModule, MatToolbarModule, BotonCalendario
   ],
   templateUrl: './nueva-matricula.html',
   styleUrl: './nueva-matricula.scss'
@@ -40,8 +41,13 @@ export class NuevaMatricula implements OnInit {
   private readonly overlay = inject(Overlay);
   private panelLlenado?: MatDialogRef<LlenadoInteligenteDialog, ResultadoLlenado>;
   private readonly destroyRef = inject(DestroyRef);
+  // Lugar y fecha precargados con el día de hoy (siguen siendo editables).
+  private readonly lugarFechaInicial = lugarFechaHoy();
+
   readonly form = this.fb.nonNullable.group({
     ...DATOS_MATRICULA_INICIALES,
+    lugarfechamatricula: this.lugarFechaInicial,
+    lugarfechacertificado: this.lugarFechaInicial,
     cursoId: [DATOS_MATRICULA_INICIALES.cursoId, Validators.required],
     nombres: ['', [Validators.required, Validators.maxLength(100)]],
     apellidos: ['', [Validators.required, Validators.maxLength(100)]],
@@ -78,7 +84,11 @@ export class NuevaMatricula implements OnInit {
       const valor = resultado.datos[campo];
       if (typeof valor !== 'string' || !valor.trim()) continue;
       const control = this.form.controls[campo];
-      const esPredeterminado = !control.dirty && control.value === DATOS_MATRICULA_INICIALES[campo];
+      // La fecha precargada cuenta como valor inicial: el llenado inteligente puede reemplazarla.
+      const inicial = campo === 'lugarfechamatricula' || campo === 'lugarfechacertificado'
+        ? this.lugarFechaInicial
+        : DATOS_MATRICULA_INICIALES[campo];
+      const esPredeterminado = !control.dirty && control.value === inicial;
       if (resultado.reemplazar || !control.value.trim() || esPredeterminado) cambios[campo] = valor.trim();
     }
     if (!Object.keys(cambios).length) {

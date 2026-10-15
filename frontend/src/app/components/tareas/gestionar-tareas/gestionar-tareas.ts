@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -79,7 +80,7 @@ export class GestionarTareas implements OnInit {
   }
 
   descargarAL14() {
-    const lugarFecha = prompt('Ingresa el lugar y fecha (Ej: Riobamba, 20 de abril del 2026)');
+    const lugarFecha = prompt('Ingresa el lugar y fecha', lugarFechaHoy());
     if (!lugarFecha) return;
     
     // Necesitamos el cursoId

@@ -9,6 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
@@ -20,7 +21,7 @@ import { MatriculaService } from '../../../services/matricula';
 @Component({
   selector: 'app-editar-matricula-dialog',
   imports: [FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule,
-    MatDialogModule, MatDividerModule, MatIconModule, MatSelectModule],
+    MatDialogModule, MatDividerModule, MatIconModule, MatSelectModule, BotonCalendario],
   template: `
     <div class="dialog-container">
       <div class="dialog-header">
@@ -198,6 +199,7 @@ import { MatriculaService } from '../../../services/matricula';
             <mat-form-field appearance="outline">
               <mat-label>Lugar y Fecha Certificado</mat-label>
               <input matInput [(ngModel)]="datos.lugarfechacertificado">
+              <app-boton-calendario matSuffix [(valor)]="datos.lugarfechacertificado" />
             </mat-form-field>
           </div>
 
@@ -302,6 +304,8 @@ export class EditarMatriculaDialog {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.datos = { ...data };
+    // Sin fecha guardada, se propone la de hoy (editable).
+    if (!this.datos.lugarfechacertificado) this.datos.lugarfechacertificado = lugarFechaHoy();
   }
 
   onNivelChange() {

@@ -35,7 +35,10 @@
           </div>
           <div class="field wide">
             <label>Lugar y Fecha</label>
-            <input type="text" [(ngModel)]="lugarFecha" placeholder="Riobamba, 20 de abril del 2026">
+            <div class="con-calendario">
+              <input type="text" [(ngModel)]="lugarFecha" placeholder="Riobamba, 20 de abril del 2026">
+              <app-boton-calendario [(valor)]="lugarFecha" />
+            </div>
           </div>
         </div>
         <button mat-raised-button style="background: linear-gradient(135deg, #1a2a5e, #2a4f9f); color: white; width: 100%; margin-top: 16px; height: 44px;"
