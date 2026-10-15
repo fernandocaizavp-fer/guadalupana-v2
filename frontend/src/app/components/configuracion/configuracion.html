@@ -520,5 +520,18 @@
       </div>
     </section>
 
+    <!-- ═════════ INGRESO RÁPIDO MASIVO ═════════ -->
+    <section id="ingreso-rapido" class="seccion">
+      <div class="seccion-titulo">
+        <mat-icon>bolt</mat-icon>
+        <div>
+          <h2>Ingreso rápido</h2>
+          <p>Notas finales, exámenes de grado y asistencia de todo un curso para los formatos AL</p>
+        </div>
+      </div>
+
+      <app-ingreso-rapido [cursos]="cursos" [notaMinima]="notaMinima" [notaMaxima]="notaMaxima" />
+    </section>
+
   </div>
 }

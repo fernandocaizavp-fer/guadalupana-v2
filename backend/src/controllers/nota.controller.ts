@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import { calcularDisciplinaPonderada, calcularDisciplinaAnual } from '../lib/disciplina';
+import { claveMateria, disciplinaAnual, disciplinaSemestre, notaGlobal, notaGlobalAnual } from '../lib/registro-global';
 import { primeraPalabra } from '../lib/curso-nombre';
 
 const formatearNota = (valor: number | string): string => {
@@ -48,7 +48,8 @@ export const descargarAL14 = async (req: Request, res: Response) => {
             notasDisciplina: {
               where: semestre ? { semestre: Number(semestre) } : undefined,
               include: { materia: { select: { nombre: true, esSubmateria: true, materiaParent: true } } }
-            }
+            },
+            notasGlobales: true
           },
           orderBy: { apellidos: 'asc' }
         }
@@ -106,31 +107,35 @@ export const descargarAL14 = async (req: Request, res: Response) => {
         return formatearNota(suma / notasMateria.length);
       };
 
-      // Disciplina — doble ponderación (submaterias → Práctica/Teoría, luego con materias normales)
+      // Disciplina — nota rápida o doble ponderación (submaterias → Práctica/Teoría, luego con materias normales)
       const getPromedioDisciplina = (): string => {
-        const notas = (m as any).notasDisciplina || [];
-        const valor = semestre
-          ? calcularDisciplinaPonderada(notas)
-          : calcularDisciplinaAnual(notas);
+        const valor = semestre ? disciplinaSemestre(m, Number(semestre)) : disciplinaAnual(m);
         return valor !== null ? formatearNota(valor) : '';
       };
 
+      // Nota del ingreso rápido (Configuración), que tiene prioridad sobre las tareas.
+      const getNotaRapida = (nombreMateria: string): string | null => {
+        const clave = claveMateria(nombreMateria);
+        const valor = semestre ? notaGlobal(m, clave, Number(semestre)) : notaGlobalAnual(m, clave);
+        return valor !== null ? formatearNota(valor) : null;
+      };
+
       // Promedio general (excluye submaterias)
-      const teoria = submateriasPractica.length > 0
+      const teoria = getNotaRapida('Teoría') ?? (submateriasPractica.length > 0
         ? getPromedioSubmaterias(submateriasTeoria)
-        : getPromedioPorMateria('Teoría');
+        : getPromedioPorMateria('Teoría'));
 
-      const practica = submateriasPractica.length > 0
+      const practica = getNotaRapida('Práctica') ?? (submateriasPractica.length > 0
         ? getPromedioSubmaterias(submateriasPractica)
-        : getPromedioPorMateria('Práctica');
+        : getPromedioPorMateria('Práctica'));
 
-      const administracion = getPromedioPorMateria('Administración');
-      const contabilidad = getPromedioPorMateria('Contabilidad');
-      const tics = getPromedioPorMateria('TICs');
-      const ingles = getPromedioPorMateria('Inglés');
-      const desarrollo = getPromedioPorMateria('Desarrollo Humano');
-      const proyect = getPromedioPorMateria('Elaboración');
-      const legislacion = getPromedioPorMateria('Legislación');
+      const administracion = getNotaRapida('Administración') ?? getPromedioPorMateria('Administración');
+      const contabilidad = getNotaRapida('Contabilidad') ?? getPromedioPorMateria('Contabilidad');
+      const tics = getNotaRapida('TICs') ?? getPromedioPorMateria('TICs');
+      const ingles = getNotaRapida('Inglés') ?? getPromedioPorMateria('Inglés');
+      const desarrollo = getNotaRapida('Desarrollo Humano') ?? getPromedioPorMateria('Desarrollo Humano');
+      const proyect = getNotaRapida('Elaboración') ?? getPromedioPorMateria('Elaboración');
+      const legislacion = getNotaRapida('Legislación') ?? getPromedioPorMateria('Legislación');
       const disciplina = getPromedioDisciplina();
 
       const notasParaPromedio = [teoria, practica, administracion, contabilidad,

@@ -1,0 +1,160 @@
+<div class="ir">
+  <!-- Pestañas -->
+  <div class="ir-pestanas" role="tablist">
+    @for (p of pestanas; track p.id) {
+      <button type="button" role="tab" class="ir-pestana" [class.activa]="pestana === p.id"
+              [attr.aria-selected]="pestana === p.id" (click)="cambiarPestana(p.id)">
+        <mat-icon>{{ p.icono }}</mat-icon>
+        <span>{{ p.titulo }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="ir-cuerpo">
+    <p class="ir-ayuda">
+      Lo que guardes aquí se usa en <strong>{{ pestanaActual.formato }}</strong> en lugar del cálculo normal.
+      Una casilla vacía deja que ese dato se siga calculando desde tareas, listas o exámenes.
+    </p>
+
+    <!-- Controles superiores -->
+    <div class="ir-controles">
+      <label class="ir-campo ir-curso">
+        <span>Curso</span>
+        <select [ngModel]="cursoId" (ngModelChange)="cambiarCurso($event)">
+          <option [ngValue]="null">Selecciona un curso…</option>
+          @for (curso of cursos; track curso.id) {
+            <option [ngValue]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</option>
+          }
+        </select>
+      </label>
+
+      @if (pestana === 'notas') {
+        <div class="ir-campo">
+          <span>Semestre</span>
+          <div class="ir-segmento" role="radiogroup" aria-label="Semestre">
+            <button type="button" [class.activo]="semestre === 1" (click)="semestre = 1">Primer Semestre</button>
+            <button type="button" [class.activo]="semestre === 2" (click)="semestre = 2">Segundo Semestre</button>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (cursoId !== null && !cargando && estudiantes.length > 0) {
+      <!-- Atajos -->
+      <div class="ir-atajos">
+        <div class="ir-masivo">
+          @if (pestana === 'asistencias') {
+            <span class="ir-masivo-texto">Asistencia para todos</span>
+          } @else {
+            <span class="ir-masivo-texto">Llenar columna</span>
+            <select [(ngModel)]="columnaMasiva" aria-label="Columna a llenar">
+              @for (m of columnasActuales; track m.clave) {
+                <option [ngValue]="m.clave">{{ m.nombre }}</option>
+              }
+            </select>
+          }
+          <input type="number" step="0.01" [(ngModel)]="valorMasivo" [class.invalido]="valorMasivoInvalido"
+                 [placeholder]="pestana === 'asistencias' ? '%' : 'Nota'" aria-label="Valor para todos"
+                 (keydown.enter)="aplicarATodos()">
+          <button type="button" class="ir-btn secundario" (click)="aplicarATodos()"
+                  [disabled]="valorMasivo === null || valorMasivoInvalido">
+            Aplicar a todos
+          </button>
+        </div>
+
+        @if (pestana === 'notas') {
+          <button type="button" class="ir-btn destacado" (click)="copiarPrimerSemestre()">
+            <mat-icon>content_copy</mat-icon>
+            Copiar notas del Primer Semestre al Segundo
+          </button>
+        }
+      </div>
+    }
+
+    @if (cargando) {
+      <p class="ir-estado">Cargando estudiantes…</p>
+    } @else if (cursoId === null) {
+      <p class="ir-estado">Elige un curso para ver la tabla.</p>
+    } @else if (estudiantes.length === 0) {
+      <p class="ir-estado">Este curso no tiene estudiantes con matrícula activa.</p>
+    } @else {
+      <div class="ir-tabla-scroll">
+        <table class="ir-tabla">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th class="col-nombre">Estudiante</th>
+              @if (pestana === 'asistencias') {
+                <th class="col-nota">% Asistencia</th>
+              } @else {
+                @for (m of columnasActuales; track m.clave) {
+                  <th class="col-nota" [title]="m.nombre">{{ m.corto }}</th>
+                }
+                @if (pestana === 'examenes') {
+                  <th class="col-nota col-promedio">Promedio</th>
+                }
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of estudiantes; track e.id; let i = $index) {
+              <tr>
+                <td class="col-num">{{ i + 1 }}</td>
+                <td class="col-nombre">{{ e.apellidos }} {{ e.nombres }}</td>
+
+                @if (pestana === 'notas') {
+                  @for (m of materiasNotas; track m.clave; let j = $index) {
+                    <td class="col-nota">
+                      <input type="number" step="0.01" [attr.data-fila]="i" [attr.data-col]="j"
+                             [(ngModel)]="notas[claveNota(e.id, m.clave)]" (ngModelChange)="marcarCambio()"
+                             [class.invalido]="fueraDeRango(notas[claveNota(e.id, m.clave)])"
+                             [attr.aria-label]="m.nombre + ' de ' + e.apellidos"
+                             (keydown.enter)="bajar($event, i, j)">
+                    </td>
+                  }
+                } @else if (pestana === 'examenes') {
+                  @for (m of materiasExamen; track m.clave; let j = $index) {
+                    <td class="col-nota">
+                      <input type="number" step="0.01" [attr.data-fila]="i" [attr.data-col]="j"
+                             [(ngModel)]="examenes[claveExamen(e.id, m.clave)]" (ngModelChange)="marcarCambio()"
+                             [class.invalido]="fueraDeRango(examenes[claveExamen(e.id, m.clave)])"
+                             [attr.aria-label]="m.nombre + ' de ' + e.apellidos"
+                             (keydown.enter)="bajar($event, i, j)">
+                    </td>
+                  }
+                  <td class="col-nota col-promedio">{{ promedioExamen(e.id) }}</td>
+                } @else {
+                  <td class="col-nota">
+                    <input type="number" step="0.01" min="0" max="100" [attr.data-fila]="i" [attr.data-col]="0"
+                           [(ngModel)]="asistencias[e.id]" (ngModelChange)="marcarCambio()"
+                           [class.invalido]="porcentajeInvalido(asistencias[e.id])"
+                           [attr.aria-label]="'Asistencia de ' + e.apellidos"
+                           (keydown.enter)="bajar($event, i, 0)">
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="ir-pie">
+        <span class="ir-pie-texto">
+          @if (hayErrores) {
+            <span class="error">
+              {{ pestana === 'asistencias' ? 'Hay porcentajes fuera de 0 a 100.' : 'Hay notas fuera del rango ' + notaMinima + ' – ' + notaMaxima + '.' }}
+            </span>
+          } @else if (sinGuardar) {
+            Cambios sin guardar
+          } @else {
+            {{ estudiantes.length }} estudiante(s)
+          }
+        </span>
+        <button type="button" class="ir-btn principal" (click)="guardar()" [disabled]="guardando || hayErrores || !sinGuardar">
+          <mat-icon>save</mat-icon>
+          {{ guardando ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -193,7 +193,8 @@ export const generarAL18 = async (req: Request, res: Response) => {
       where: { cursoId: Number(cursoId) },
       include: {
         observacionAsistencia: true,
-        asistenciaDetalles: true
+        asistenciaDetalles: true,
+        asistenciaGlobal: true
       },
       orderBy: { apellidos: 'asc' }
     });
@@ -203,10 +204,14 @@ export const generarAL18 = async (req: Request, res: Response) => {
     });
 
     const estudiantes = matriculas.map((m, index) => {
+      // El porcentaje del ingreso rápido (Configuración) tiene prioridad sobre las listas diarias.
       const totalPresente = m.asistenciaDetalles.filter(d => d.presente).length;
-      const porcentaje = totalClases > 0
-        ? Math.round((totalPresente / totalClases) * 100)
-        : 0;
+      const rapido = m.asistenciaGlobal?.porcentaje;
+      const porcentaje = rapido !== undefined
+        ? (rapido % 1 === 0 ? String(rapido) : rapido.toFixed(1))
+        : totalClases > 0
+          ? Math.round((totalPresente / totalClases) * 100)
+          : 0;
 
       return {
         num: String(index + 1),

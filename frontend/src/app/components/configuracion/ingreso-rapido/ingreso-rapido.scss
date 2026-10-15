@@ -1,0 +1,286 @@
+$navy: #1a2a5e;
+$gold: #c8a84b;
+$rojo: #c62828;
+$verde: #2e7d32;
+$borde: #e2e5ee;
+
+:host { display: block; }
+
+.ir {
+  background: #fff;
+  border: 1px solid #eef0f5;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+/* ===== PESTAÑAS ===== */
+.ir-pestanas {
+  display: flex;
+  border-bottom: 1px solid #f0f2f8;
+  overflow-x: auto;
+}
+
+.ir-pestana {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8a90a2;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  &:hover { color: $navy; }
+  &.activa { color: $navy; border-bottom-color: $gold; mat-icon { color: $gold; } }
+}
+
+.ir-cuerpo { padding: 20px; }
+
+.ir-ayuda {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+
+  strong { color: $navy; }
+}
+
+/* ===== CONTROLES ===== */
+.ir-controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.ir-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  > span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8a90a2;
+  }
+}
+
+.ir-curso { flex: 1 1 280px; max-width: 420px; }
+
+select, input {
+  box-sizing: border-box;
+  height: 38px;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #1a2238;
+  background: #fff;
+  border: 1px solid #d5d9e4;
+  border-radius: 8px;
+
+  &:focus { outline: none; border-color: $gold; box-shadow: 0 0 0 3px rgba(200, 168, 75, 0.2); }
+  &.invalido { border-color: $rojo; background: #fdf3f3; color: $rojo; }
+}
+
+.ir-segmento {
+  display: inline-flex;
+  padding: 3px;
+  background: #f1f3f8;
+  border-radius: 10px;
+
+  button {
+    height: 32px;
+    padding: 0 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b7280;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &.activo { color: $navy; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); }
+  }
+}
+
+/* ===== ATAJOS ===== */
+.ir-atajos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+  background: #fafbfd;
+  border: 1px solid #eef0f5;
+  border-radius: 12px;
+}
+
+.ir-masivo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  input { width: 90px; }
+}
+
+.ir-masivo-texto { font-size: 13px; font-weight: 700; color: $navy; }
+
+/* ===== BOTONES ===== */
+.ir-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s, background 0.15s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &.secundario {
+    color: $navy;
+    background: #fff;
+    border: 1px solid #cfd4e2;
+    &:hover:not(:disabled) { background: #f5f7fc; }
+  }
+
+  &.destacado {
+    color: $navy;
+    background: $gold;
+    border: 1px solid $gold;
+    &:hover:not(:disabled) { filter: brightness(1.06); }
+  }
+
+  &.principal {
+    color: #fff;
+    background: $verde;
+    border: 1px solid $verde;
+    &:hover:not(:disabled) { filter: brightness(1.1); }
+  }
+}
+
+/* ===== TABLA TIPO HOJA DE CÁLCULO ===== */
+.ir-estado { margin: 8px 0; font-size: 13px; color: #8a90a2; }
+
+.ir-tabla-scroll {
+  overflow: auto;
+  max-height: 70vh;
+  border: 1px solid $borde;
+  border-radius: 10px;
+}
+
+.ir-tabla {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+
+  th, td {
+    border-bottom: 1px solid #eef0f5;
+    border-right: 1px solid #eef0f5;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 10px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: #5f6675;
+    background: #f6f7fb;
+    white-space: nowrap;
+  }
+
+  td { padding: 0; background: #fff; }
+  tbody tr:hover td { background: #fafbfe; }
+
+  .col-num {
+    width: 36px;
+    text-align: center;
+    color: #9aa0b0;
+    font-weight: 700;
+  }
+
+  // Número y nombre quedan fijos al desplazar la tabla en horizontal.
+  .col-num, .col-nombre { position: sticky; z-index: 1; }
+  .col-num { left: 0; }
+  .col-nombre {
+    left: 36px;
+    min-width: 200px;
+    padding: 0 12px;
+    font-weight: 600;
+    color: $navy;
+    white-space: nowrap;
+    box-shadow: 1px 0 0 #e2e5ee;
+  }
+  th.col-num, th.col-nombre { z-index: 3; }
+
+  .col-nota {
+    min-width: 76px;
+    text-align: center;
+
+    input {
+      width: 100%;
+      height: 38px;
+      text-align: center;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      -moz-appearance: textfield;
+
+      &::-webkit-outer-spin-button, &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+      &:focus { box-shadow: inset 0 0 0 2px $gold; background: #fffdf5; }
+      &.invalido { box-shadow: inset 0 0 0 2px $rojo; background: #fdf3f3; }
+    }
+  }
+
+  .col-promedio { font-weight: 800; color: $navy; background: #f6f7fb; }
+}
+
+/* ===== PIE ===== */
+.ir-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ir-pie-texto {
+  font-size: 13px;
+  color: #8a90a2;
+
+  .error { color: $rojo; font-weight: 600; }
+}
+
+@media (max-width: 768px) {
+  .ir-cuerpo { padding: 14px; }
+  .ir-pestana { padding: 12px 14px; font-size: 13px; }
+  .ir-atajos { flex-direction: column; align-items: stretch; }
+  .ir-btn.destacado { justify-content: center; white-space: normal; }
+  .ir-tabla .col-nombre { min-width: 150px; }
+}

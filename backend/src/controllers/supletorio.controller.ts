@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import { calcularDisciplinaAnual } from '../lib/disciplina';
+import { claveMateria, disciplinaAnual, notaGlobal } from '../lib/registro-global';
 import { notaALetras } from '../lib/numeroALetras';
 import { primeraPalabra } from '../lib/curso-nombre';
 import { getConfiguracion, ventanaSupletorioAbierta, notaEnRango, vigenteHasta } from '../lib/configuracion';
@@ -31,8 +31,11 @@ const MESES_MAYUS = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
 const MESES_CAP = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
-// Promedio de las notas de tarea de una materia en un semestre (usado por AL15 y AL16).
+// Nota de una materia en un semestre (AL15, AL16, AL22): la nota del ingreso rápido
+// si el administrador la registró; si no, el promedio de las notas de tarea.
 const getNota = (matricula: any, nombreMateria: string, semestre: number): number | null => {
+  const rapida = notaGlobal(matricula, claveMateria(nombreMateria), semestre);
+  if (rapida !== null) return rapida;
   const notas = matricula.notasTarea.filter((n: any) =>
     n.tarea.materia.nombre.toLowerCase().includes(nombreMateria.toLowerCase()) &&
     n.tarea.semestre === semestre && n.valor !== null
@@ -202,7 +205,8 @@ export const generarAL15 = async (req: Request, res: Response) => {
             supletorios: { include: { materia: true } },
             notasDisciplina: {
               include: { materia: { select: { nombre: true, esSubmateria: true, materiaParent: true } } }
-            }
+            },
+            notasGlobales: true
           },
           orderBy: { apellidos: 'asc' }
         }
@@ -267,8 +271,8 @@ export const generarAL15 = async (req: Request, res: Response) => {
       const proy_n2 = getN2(m, 'Elaboración');
       const proy_sup = getSup(m, 'Elaboración');
 
-      // Disciplina anual: doble ponderación por semestre y promedio de ambos
-      const disciplinaVal = calcularDisciplinaAnual(m.notasDisciplina || []);
+      // Disciplina anual: nota rápida o doble ponderación por semestre, y promedio de ambos
+      const disciplinaVal = disciplinaAnual(m);
 
       const promediosPf = [
         calcularPfNum(teoria_n1, teoria_n2, teoria_sup),
@@ -401,7 +405,8 @@ export const generarAL16 = async (req: Request, res: Response) => {
         supletorios: { include: { materia: true } },
         notasDisciplina: {
           include: { materia: { select: { nombre: true, esSubmateria: true, materiaParent: true } } }
-        }
+        },
+        notasGlobales: true
       }
     });
 
@@ -420,7 +425,7 @@ export const generarAL16 = async (req: Request, res: Response) => {
     const desarrolloPf = pf('Desarrollo');
     const proyPf = pf('Elaboración');
     const legislacionPf = pf('Legislación');
-    const disciplinaVal = calcularDisciplinaAnual(m.notasDisciplina || []);
+    const disciplinaVal = disciplinaAnual(m);
 
     // El promedio general NO incluye disciplina: solo las materias (teoría,
     // práctica, administración, contabilidad, inglés, desarrollo TICS, proyecto,
@@ -507,7 +512,8 @@ export const generarAL22 = async (req: Request, res: Response) => {
           orderBy: { apellidos: 'asc' },
           include: {
             notasTarea: { include: { tarea: { include: { materia: true } } } },
-            supletorios: { include: { materia: true } }
+            supletorios: { include: { materia: true } },
+            notasGlobales: true
           }
         }
       }
@@ -580,7 +586,8 @@ export const generarAL19 = async (req: Request, res: Response) => {
             notasTarea: {
               include: { tarea: { include: { materia: true } } }
             },
-            supletorios: { include: { materia: true } }
+            supletorios: { include: { materia: true } },
+            notasGlobales: true
           },
           orderBy: { apellidos: 'asc' }
         }
@@ -590,6 +597,8 @@ export const generarAL19 = async (req: Request, res: Response) => {
     if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
 
     const getN = (matricula: any, semestre: number): number | null => {
+      const rapida = notaGlobal(matricula, 'PROYECTOS', semestre);
+      if (rapida !== null) return rapida;
       const notas = matricula.notasTarea.filter((n: any) =>
         n.tarea.materia.nombre.toLowerCase().includes('elaboración') &&
         n.tarea.semestre === semestre && n.valor !== null

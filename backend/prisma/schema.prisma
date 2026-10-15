@@ -122,6 +122,11 @@ model Matricula {
   observacionAsistencia ObservacionAsistencia?
   entregasTarea         EntregaTarea[]
 
+  // Ingreso rápido (Configuración): notas finales escritas por el administrador
+  notasGlobales    RegistroNotaGlobal[]
+  examenesGlobales RegistroExamenGlobal[]
+  asistenciaGlobal RegistroAsistenciaGlobal?
+
   // NOTA: la unicidad de (cursoId, matriculaNo) NO se declara con @@unique
   // porque debe ser PARCIAL (solo entre matrículas activas), y Prisma no
   // soporta índices parciales en el schema. Se gestiona por SQL crudo en la
@@ -534,4 +539,68 @@ model CalendarioPublico {
   descripcion String?  @db.Text
 
   @@index([fechaFin])
+}
+
+// ===== INGRESO RÁPIDO MASIVO (Configuración → Ingreso rápido) =====
+// El administrador escribe directamente las notas finales para generar los
+// formatos ministeriales sin pasar por tareas, listas de asistencia ni exámenes
+// por materia. En los AL, un registro de aquí tiene prioridad casilla por
+// casilla; donde no existe, se sigue calculando desde el flujo normal.
+// Las filas cuelgan de Matricula (que ya conoce su curso) y se borran con ella.
+
+// Las materias fijas de los formatos AL. Enum y no texto libre para que
+// "Ingles" o "Inglés técnico" no creen columnas distintas.
+enum MateriaGlobal {
+  TEORIA
+  PRACTICA
+  ADMINISTRACION
+  CONTABILIDAD
+  TICS
+  INGLES
+  DESARROLLO
+  PROYECTOS
+  LEGISLACION
+  DISCIPLINA
+}
+
+// Nota final de una materia en un semestre (AL14, AL15, AL16, AL19, AL22).
+model RegistroNotaGlobal {
+  id              Int           @id @default(autoincrement())
+  matriculaId     Int
+  matricula       Matricula     @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  materia         MateriaGlobal
+  semestre        Int
+  nota            Float
+  // Trazabilidad: administrador que hizo el último registro (sin FK a propósito,
+  // para que borrar un administrador no arrastre ni bloquee las notas).
+  registradoPorId Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([matriculaId, materia, semestre])
+}
+
+// Nota del examen de grado por materia (AL23). PROYECTOS no aparece en el AL23.
+model RegistroExamenGlobal {
+  id              Int           @id @default(autoincrement())
+  matriculaId     Int
+  matricula       Matricula     @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  materia         MateriaGlobal
+  nota            Float
+  registradoPorId Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([matriculaId, materia])
+}
+
+// Porcentaje de asistencia anual escrito a mano (AL18).
+model RegistroAsistenciaGlobal {
+  id              Int       @id @default(autoincrement())
+  matriculaId     Int       @unique
+  matricula       Matricula @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  porcentaje      Float
+  registradoPorId Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }

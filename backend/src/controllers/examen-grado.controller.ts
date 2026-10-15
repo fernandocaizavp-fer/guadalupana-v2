@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import { calcularDisciplinaAnual } from '../lib/disciplina';
+import { ClaveMateria, disciplinaAnual, examenGlobal } from '../lib/registro-global';
 import { getConfiguracion, primeraNotaFueraDeRango, ventanaExamenGradoAbierta, vigenteHasta } from '../lib/configuracion';
 import { primeraPalabra } from '../lib/curso-nombre';
 import path from 'path';
@@ -184,7 +184,9 @@ export const generarAL23 = async (req: Request, res: Response) => {
         examenesGrado: true,
         notasDisciplina: {
           include: { materia: { select: { nombre: true, esSubmateria: true, materiaParent: true } } }
-        }
+        },
+        notasGlobales: true,
+        examenesGlobales: true
       },
       orderBy: { apellidos: 'asc' }
     });
@@ -209,9 +211,9 @@ export const generarAL23 = async (req: Request, res: Response) => {
       return prom % 1 === 0 ? String(prom) : prom.toFixed(1);
     };
 
-    // Helper disciplina — anual con doble ponderación
+    // Helper disciplina — anual con doble ponderación (o nota rápida de disciplina)
     const getDisciplina = (matricula: any): string => {
-      const prom = calcularDisciplinaAnual(matricula.notasDisciplina || []);
+      const prom = disciplinaAnual(matricula);
       if (prom === null) return '-';
       return prom % 1 === 0 ? String(prom) : prom.toFixed(1);
     };
@@ -224,16 +226,23 @@ export const generarAL23 = async (req: Request, res: Response) => {
     const idDesarrollo = getMateriaId('Desarrollo Humano y Ética Profesional');
     const idLegislacion = getMateriaId('Legislación');
 
+    // Nota del ingreso rápido (Configuración → Exámenes de grado), con prioridad.
+    const getRapido = (matricula: any, clave: ClaveMateria): string | null => {
+      const v = examenGlobal(matricula, clave);
+      if (v === null) return null;
+      return v % 1 === 0 ? String(v) : v.toFixed(1);
+    };
+
     const estudiantes = matriculas.map((m, index) => {
-      const teoria = getPromedioSubs(m, subsTeoría);
-      const practica = getPromedioSubs(m, subsPractica);
-      const administracion = idAdmon ? getExamen(m, idAdmon) : '-';
-      const contabilidad = idContabilidad ? getExamen(m, idContabilidad) : '-';
-      const tics = idTics ? getExamen(m, idTics) : '-';
-      const ingles = idIngles ? getExamen(m, idIngles) : '-';
-      const desarrollo = idDesarrollo ? getExamen(m, idDesarrollo) : '-';
-      const legislacion = idLegislacion ? getExamen(m, idLegislacion) : '-';
-      const disciplina = getDisciplina(m);
+      const teoria = getRapido(m, 'TEORIA') ?? getPromedioSubs(m, subsTeoría);
+      const practica = getRapido(m, 'PRACTICA') ?? getPromedioSubs(m, subsPractica);
+      const administracion = getRapido(m, 'ADMINISTRACION') ?? (idAdmon ? getExamen(m, idAdmon) : '-');
+      const contabilidad = getRapido(m, 'CONTABILIDAD') ?? (idContabilidad ? getExamen(m, idContabilidad) : '-');
+      const tics = getRapido(m, 'TICS') ?? (idTics ? getExamen(m, idTics) : '-');
+      const ingles = getRapido(m, 'INGLES') ?? (idIngles ? getExamen(m, idIngles) : '-');
+      const desarrollo = getRapido(m, 'DESARROLLO') ?? (idDesarrollo ? getExamen(m, idDesarrollo) : '-');
+      const legislacion = getRapido(m, 'LEGISLACION') ?? (idLegislacion ? getExamen(m, idLegislacion) : '-');
+      const disciplina = getRapido(m, 'DISCIPLINA') ?? getDisciplina(m);
 
       // Promedio general
       const valoresStr = [teoria, practica, administracion, contabilidad,
