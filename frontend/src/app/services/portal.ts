@@ -35,10 +35,22 @@ export interface AnuncioPublico {
   activo: boolean;
 }
 
+export type FormatoGrid = 'GRANDE' | 'VERTICAL' | 'HORIZONTAL' | 'PEQUENA_1' | 'PEQUENA_2';
+
+// Formas que puede ocupar una foto en la cuadrícula de la galería de la landing.
+export const FORMATOS_GRID: { valor: FormatoGrid; etiqueta: string }[] = [
+  { valor: 'GRANDE', etiqueta: 'Grande' },
+  { valor: 'VERTICAL', etiqueta: 'Alargada vertical' },
+  { valor: 'HORIZONTAL', etiqueta: 'Alargada horizontal' },
+  { valor: 'PEQUENA_1', etiqueta: 'Pequeña 1' },
+  { valor: 'PEQUENA_2', etiqueta: 'Pequeña 2' }
+];
+
 export interface FotoGaleria {
   id: number;
   titulo: string;
   imagenUrl: string;
+  formatoGrid: FormatoGrid;
   fechaSubida: string;
 }
 
@@ -140,15 +152,16 @@ export class PortalService {
     return this.http.get<FotoGaleria[]>(`${this.adminUrl}/galeria`, { headers: this.getHeaders() });
   }
 
-  subirFoto(titulo: string, imagen: File): Observable<FotoGaleria> {
+  subirFoto(titulo: string, imagen: File, formatoGrid: FormatoGrid): Observable<FotoGaleria> {
     const datos = new FormData();
     datos.append('titulo', titulo);
+    datos.append('formatoGrid', formatoGrid);
     datos.append('imagen', imagen);
     return this.http.post<FotoGaleria>(`${this.adminUrl}/galeria`, datos, { headers: this.getHeaders() });
   }
 
-  renombrarFoto(id: number, titulo: string): Observable<any> {
-    return this.http.put(`${this.adminUrl}/galeria/${id}`, { titulo }, { headers: this.getHeaders() });
+  renombrarFoto(id: number, titulo: string, formatoGrid: FormatoGrid): Observable<any> {
+    return this.http.put(`${this.adminUrl}/galeria/${id}`, { titulo, formatoGrid }, { headers: this.getHeaders() });
   }
 
   eliminarFoto(id: number): Observable<any> {

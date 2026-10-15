@@ -37,8 +37,8 @@ export class Login {
     { id: 'ADMINISTRATIVO', etiqueta: 'Administrativo', icono: 'admin_panel_settings' }
   ];
 
-  // El perfil elegido solo define el diseño de la pantalla: el rol real lo determina
-  // el backend a partir de las credenciales y la redirección usa ese rol.
+  // El perfil elegido se envía al backend, que rechaza el ingreso si no coincide con
+  // el rol del usuario (p. ej. un estudiante por la entrada de docentes).
   perfil = signal<Perfil | null>(null);
   perfilActual = computed(() => this.perfiles.find((p) => p.id === this.perfil()) ?? null);
 
@@ -72,7 +72,7 @@ export class Login {
 
     // La petición real corre en paralelo con el temporizador: si las credenciales
     // son inválidas, forkJoin falla de inmediato y el indicador se oculta sin esperar.
-    forkJoin([this.authService.login(this.correo, this.password), timer(DURACION_CARGA_MS)])
+    forkJoin([this.authService.login(this.correo, this.password, this.perfil()), timer(DURACION_CARGA_MS)])
       .pipe(
         finalize(() => {
           this.loadingService.ocultar();

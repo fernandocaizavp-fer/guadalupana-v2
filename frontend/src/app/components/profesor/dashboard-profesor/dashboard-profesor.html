@@ -17,7 +17,8 @@
 
     <div class="user-box">
 
-      <app-foto-perfil [editable]="true" [tamano]="42" [nombre]="usuario?.nombre" />
+      <!-- La foto del docente la gestiona el administrador: aquí solo se muestra. -->
+      <app-foto-perfil [fotoUrl]="usuario?.fotoUrl" [tamano]="42" [nombre]="usuario?.nombre" />
 
       <div class="user-info">
         <small>Docente</small>

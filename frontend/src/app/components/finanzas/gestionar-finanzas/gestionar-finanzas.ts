@@ -12,7 +12,7 @@ import { CursoService } from '../../../services/curso';
 import { LoadingService } from '../../../services/loading';
 import {
   FinanzasService, ComprobantePendiente, EstudianteFinanzas, EstadoCuenta, Deuda, Comprobante,
-  ETIQUETA_ESTADO, estadoVisible, dinero
+  ETIQUETA_ESTADO, estadoVisible, dinero, MetodoManual, NOMBRE_METODO
 } from '../../../services/finanzas';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
@@ -26,6 +26,8 @@ import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 })
 export class GestionarFinanzas implements OnInit {
   @ViewChild('modalRechazo') modalRechazo!: TemplateRef<unknown>;
+  @ViewChild('modalPago') modalPago!: TemplateRef<unknown>;
+  @ViewChild('modalEditarPago') modalEditarPago!: TemplateRef<unknown>;
 
   etiquetas = ETIQUETA_ESTADO;
   estado = estadoVisible;
@@ -43,6 +45,14 @@ export class GestionarFinanzas implements OnInit {
   cuenta: EstadoCuenta | null = null;
 
   motivoRechazo = '';
+
+  // Modales de pago manual: método elegido y datos del concepto en curso.
+  nombreMetodo = NOMBRE_METODO;
+  metodoPago: MetodoManual = 'EFECTIVO';
+  pagoEnCurso: { concepto: string; monto: number; esManual: boolean; fecha?: string } | null = null;
+  // En el modal de edición, el motivo de anulación solo aparece tras pulsar "Anular pago".
+  anulando = false;
+  motivoAnulacion = '';
 
   constructor(
     private finanzasService: FinanzasService,
@@ -199,30 +209,65 @@ export class GestionarFinanzas implements OnInit {
       });
   }
 
-  pagoEfectivo(deuda: Deuda) {
-    if (!this.seleccionado) return;
-    const estudiante = `${this.seleccionado.apellidos} ${this.seleccionado.nombres}`;
-    this.dialog.open(ConfirmDialog, {
-      width: '400px',
-      data: {
-        titulo: 'Registrar pago en efectivo',
-        mensaje: `¿Confirmas que ${estudiante} pagó ${dinero(deuda.saldo)} en efectivo por "${deuda.concepto}"? El concepto quedará pagado.`,
-        confirmText: 'Registrar pago',
-        cancelText: 'Cancelar',
-        icon: 'payments'
-      }
-    }).afterClosed().subscribe((ok) => {
-      if (!ok) return;
-      this.conCarga(this.finanzasService.registrarPagoEfectivo(deuda.id)).subscribe({
-        next: () => {
-          this.snackBar.open('Pago en efectivo registrado', 'OK', { duration: 3000 });
-          this.refrescar();
-        },
-        error: (e) => {
-          this.avisarError(e, 'Error al registrar el pago');
-          this.refrescar();
+  // Pago recibido fuera del sistema: el administrador elige efectivo o transferencia.
+  registrarPago(deuda: Deuda) {
+    this.metodoPago = 'EFECTIVO';
+    this.pagoEnCurso = { concepto: deuda.concepto, monto: deuda.saldo, esManual: true };
+    this.dialog.open(this.modalPago, { width: '440px', maxWidth: '95vw' })
+      .afterClosed().subscribe((ok) => {
+        if (!ok) return;
+        this.conCarga(this.finanzasService.registrarPago(deuda.id, this.metodoPago)).subscribe({
+          next: (res) => {
+            this.snackBar.open(res?.message || 'Pago registrado', 'OK', { duration: 3000 });
+            this.refrescar();
+          },
+          error: (e) => {
+            this.avisarError(e, 'Error al registrar el pago');
+            this.refrescar();
+          }
+        });
+      });
+  }
+
+  // Editar un pago ya procesado: cambiar el método (solo pagos manuales) o
+  // anularlo para que el concepto vuelva a quedar pendiente.
+  editarPago(deuda: Deuda, pago: Comprobante) {
+    const esManual = pago.metodo === 'EFECTIVO' || pago.metodo === 'TRANSFERENCIA';
+    this.metodoPago = pago.metodo === 'TRANSFERENCIA' ? 'TRANSFERENCIA' : 'EFECTIVO';
+    this.motivoAnulacion = '';
+    this.anulando = false;
+    this.pagoEnCurso = { concepto: deuda.concepto, monto: pago.montoAbonado, esManual, fecha: pago.fechaSubida };
+    this.dialog.open(this.modalEditarPago, { width: '460px', maxWidth: '95vw' })
+      .afterClosed().subscribe((accion: 'guardar' | 'anular' | undefined) => {
+        if (accion === 'guardar') {
+          if (pago.metodo === this.metodoPago) return;
+          this.conCarga(this.finanzasService.cambiarMetodo(pago.id, this.metodoPago)).subscribe({
+            next: (res) => {
+              this.snackBar.open(res?.message || 'Método actualizado', 'OK', { duration: 3000 });
+              this.refrescar();
+            },
+            error: (e) => {
+              this.avisarError(e, 'Error al cambiar el método de pago');
+              this.refrescar();
+            }
+          });
+        } else if (accion === 'anular') {
+          // La confirmación ya ocurrió dentro del modal ("Anular pago" → "Confirmar anulación").
+          this.anularPago(pago);
         }
       });
+  }
+
+  private anularPago(pago: Comprobante) {
+    this.conCarga(this.finanzasService.anularPago(pago.id, this.motivoAnulacion.trim())).subscribe({
+      next: () => {
+        this.snackBar.open('Pago anulado: el concepto vuelve a estar pendiente', 'OK', { duration: 3500 });
+        this.refrescar();
+      },
+      error: (e) => {
+        this.avisarError(e, 'Error al anular el pago');
+        this.refrescar();
+      }
     });
   }
 

@@ -30,7 +30,7 @@ export const listarDocentes = async (req: Request, res: Response) => {
   try {
     const docentes = await prisma.usuario.findMany({
       where: { rol: 'PROFESOR' },
-      select: { id: true, nombre: true, apellido: true, correo: true, cedula: true, rol: true, createdAt: true },
+      select: { id: true, nombre: true, apellido: true, correo: true, cedula: true, rol: true, fotoUrl: true, createdAt: true },
       orderBy: { apellido: 'asc' }
     });
     res.json(docentes);
@@ -199,12 +199,28 @@ export const getMisMateria = async (req: Request, res: Response) => {
 // POST /api/usuarios/foto  (multipart: archivo `foto`)
 // Cualquier usuario autenticado (docente o estudiante) sube o reemplaza SU
 // propia foto de perfil. La imagen va a Cloudflare R2; en la base solo el enlace.
+// POST /api/usuarios/foto          → foto propia (administrador y estudiante)
+// POST /api/usuarios/:id/foto      → el administrador cambia la foto de un docente
+// El docente no gestiona su propia foto: la sube el administrador.
 export const subirFotoPerfil = async (req: any, res: Response) => {
   const archivo = req.file as Express.Multer.File | undefined;
   if (!archivo) return res.status(400).json({ error: 'Selecciona una imagen' });
 
+  const deOtro = req.params.id !== undefined;
+  if (!deOtro && req.usuario.rol === 'PROFESOR') {
+    return res.status(403).json({ error: 'La foto de los docentes la gestiona el administrador' });
+  }
+
   try {
-    const id = Number(req.usuario.id);
+    const id = Number(deOtro ? req.params.id : req.usuario.id);
+    if (!Number.isInteger(id)) return res.status(400).json({ error: 'Identificador de usuario inválido' });
+    if (deOtro) {
+      const destino = await prisma.usuario.findUnique({ where: { id }, select: { rol: true } });
+      if (!destino) return res.status(404).json({ error: 'Usuario no encontrado' });
+      if (destino.rol !== 'PROFESOR') {
+        return res.status(400).json({ error: 'Desde aquí solo se cambia la foto de un docente' });
+      }
+    }
     const anterior = await prisma.usuario.findUnique({ where: { id }, select: { fotoPublicId: true } });
     if (!anterior) return res.status(404).json({ error: 'Usuario no encontrado' });
 

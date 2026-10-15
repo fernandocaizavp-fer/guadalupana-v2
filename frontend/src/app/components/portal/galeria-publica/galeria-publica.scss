@@ -43,6 +43,59 @@ $navy: #1a2a5e;
 
 .total { font-size: 13px; color: #888; }
 
+/* Selector visual del formato: cada opción dibuja su silueta en una cuadrícula 2x2. */
+.formatos {
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  legend { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; }
+}
+
+.formatos-opciones {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.formato {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 1.5px solid #d9dde8;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+
+  input { position: absolute; opacity: 0; pointer-events: none; }
+  &:focus-within { outline: 3px solid rgba(26, 42, 94, 0.25); }
+  &.activo { border-color: $navy; background: #f4f6fb; }
+}
+
+.formato-nombre { font-size: 11px; font-weight: 700; color: $navy; line-height: 1.2; }
+
+.silueta {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 6px;
+  background: #eef0f5;
+
+  i { display: block; border-radius: 3px; background: $navy; }
+
+  &.grande i { grid-column: 1 / 3; grid-row: 1 / 3; }
+  &.vertical i { grid-column: 1; grid-row: 1 / 3; }
+  &.horizontal i { grid-column: 1 / 3; grid-row: 1; }
+  &.pequena_1 i { grid-column: 1; grid-row: 1; }
+  &.pequena_2 i { grid-column: 2; grid-row: 2; }
+}
+
 .fotos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -81,8 +134,18 @@ $navy: #1a2a5e;
   flex: 1;
   min-width: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+
+  select {
+    flex: 1 1 100%;
+    font-family: inherit;
+    font-size: 13px;
+    border: 1px solid #d9dde8;
+    border-radius: 8px;
+    padding: 6px 8px;
+  }
 
   input {
     flex: 1;
@@ -99,4 +162,5 @@ $navy: #1a2a5e;
 
 @media (max-width: 768px) {
   .subida { grid-template-columns: 1fr; }
+  .formatos-opciones { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

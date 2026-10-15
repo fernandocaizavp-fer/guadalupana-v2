@@ -12,6 +12,12 @@ import { subirArchivo, eliminarArchivo } from '../lib/r2';
 const CARPETA_ANUNCIOS = 'cf_guadalupana/portal/anuncios';
 const CARPETA_GALERIA = 'cf_guadalupana/portal/galeria';
 const ESTADOS_PROSPECTO = ['PENDIENTE', 'CONTACTADO'];
+const FORMATOS_GRID = ['GRANDE', 'VERTICAL', 'HORIZONTAL', 'PEQUENA_1', 'PEQUENA_2'] as const;
+type Formato = (typeof FORMATOS_GRID)[number];
+
+function formatoDe(valor: unknown): Formato | null {
+  return FORMATOS_GRID.includes(valor as Formato) ? (valor as Formato) : null;
+}
 
 function fallo(res: Response, error: unknown, contexto: string, mensaje: string) {
   console.error(`[portal] ${contexto}:`, error);
@@ -32,10 +38,13 @@ function parrafo(valor: unknown, maximo: number): string | null {
   return limpio.length >= 1 && limpio.length <= maximo ? limpio : null;
 }
 
+// Fecha válida y con un año razonable (evita, p. ej., el año 0111 por error al teclear).
 function fecha(valor: unknown): Date | null {
   if (typeof valor !== 'string' || !valor) return null;
   const f = new Date(valor);
-  return isNaN(f.getTime()) ? null : f;
+  if (isNaN(f.getTime())) return null;
+  const anio = f.getUTCFullYear();
+  return anio >= 2000 && anio <= 2100 ? f : null;
 }
 
 function idDe(req: Request): number | null {
@@ -71,7 +80,7 @@ export const anunciosPublicados = async (req: Request, res: Response) => {
 
 export const galeriaPublicada = async (req: Request, res: Response) => {
   try {
-    const fotos = await prisma.galeriaPublica.findMany({ orderBy: { fechaSubida: 'desc' }, take: 24 });
+    const fotos = await prisma.galeriaPublica.findMany({ orderBy: { fechaSubida: 'asc' }, take: 60 });
     res.json(fotos);
   } catch (error) {
     fallo(res, error, 'galeriaPublicada', 'Error al cargar la galería');
@@ -293,13 +302,15 @@ export const listarGaleria = async (req: Request, res: Response) => {
 
 export const subirFotoGaleria = async (req: Request, res: Response) => {
   const titulo = texto(req.body?.titulo, 150);
+  const formatoGrid = req.body?.formatoGrid ? formatoDe(req.body.formatoGrid) : 'PEQUENA_1';
   if (!titulo) return res.status(400).json({ error: 'Escribe un título para la foto' });
+  if (!formatoGrid) return res.status(400).json({ error: 'Formato de la foto no válido' });
   if (!req.file) return res.status(400).json({ error: 'Selecciona una imagen' });
 
   let imagenUrl: string | null = null;
   try {
     imagenUrl = (await subirArchivo(req.file.buffer, req.file.originalname, CARPETA_GALERIA, req.file.mimetype)).url;
-    const foto = await prisma.galeriaPublica.create({ data: { titulo, imagenUrl } });
+    const foto = await prisma.galeriaPublica.create({ data: { titulo, imagenUrl, formatoGrid } });
     res.status(201).json(foto);
   } catch (error) {
     if (imagenUrl) await eliminarArchivo(imagenUrl);
@@ -307,15 +318,21 @@ export const subirFotoGaleria = async (req: Request, res: Response) => {
   }
 };
 
+// Cambia el título y/o el formato de una foto ya publicada.
 export const renombrarFotoGaleria = async (req: Request, res: Response) => {
   const id = idDe(req);
   const titulo = texto(req.body?.titulo, 150);
+  const formatoGrid = req.body?.formatoGrid !== undefined ? formatoDe(req.body.formatoGrid) : undefined;
   if (!id) return res.status(400).json({ error: 'Identificador no válido' });
   if (!titulo) return res.status(400).json({ error: 'Escribe un título para la foto' });
+  if (formatoGrid === null) return res.status(400).json({ error: 'Formato de la foto no válido' });
   try {
-    const cambiada = await prisma.galeriaPublica.updateMany({ where: { id }, data: { titulo } });
+    const cambiada = await prisma.galeriaPublica.updateMany({
+      where: { id },
+      data: { titulo, ...(formatoGrid ? { formatoGrid } : {}) }
+    });
     if (cambiada.count === 0) return res.status(404).json({ error: 'Foto no encontrada' });
-    res.json({ message: 'Título actualizado' });
+    res.json({ message: 'Foto actualizada' });
   } catch (error) {
     fallo(res, error, 'renombrarFotoGaleria', 'Error al actualizar la foto');
   }
@@ -350,7 +367,7 @@ function eventoDe(req: Request, res: Response) {
     return null;
   }
   if (!fechaInicio || !fechaFin) {
-    res.status(400).json({ error: 'Las fechas no son válidas' });
+    res.status(400).json({ error: 'Las fechas no son válidas (revisa el año)' });
     return null;
   }
   if (fechaFin < fechaInicio) {

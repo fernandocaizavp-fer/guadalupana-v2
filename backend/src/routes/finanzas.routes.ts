@@ -10,7 +10,9 @@ import {
   listarEstudiantesCurso,
   aprobarComprobante,
   rechazarComprobante,
-  registrarPagoEfectivo
+  registrarPagoManual,
+  cambiarMetodoPago,
+  anularPago
 } from '../controllers/finanzas.controller';
 import { verificarToken, soloAdmin, soloRoles } from '../middlewares/auth.middleware';
 import { subirComprobante } from '../middlewares/upload.middleware';
@@ -30,6 +32,10 @@ router.get('/admin/comprobantes', verificarToken, soloAdmin, listarComprobantes)
 router.get('/admin/cursos/:cursoId/estudiantes', verificarToken, soloAdmin, listarEstudiantesCurso);
 router.put('/admin/comprobante/:id/aprobar', verificarToken, soloAdmin, aprobarComprobante);
 router.put('/admin/comprobante/:id/rechazar', verificarToken, soloAdmin, rechazarComprobante);
-router.put('/admin/deuda/:id/pago-efectivo', verificarToken, soloAdmin, registrarPagoEfectivo);
+router.put('/admin/deuda/:id/pago-manual', verificarToken, soloAdmin, registrarPagoManual);
+// Ruta anterior (solo efectivo): se conserva para clientes que aún no se actualizaron.
+router.put('/admin/deuda/:id/pago-efectivo', verificarToken, soloAdmin, registrarPagoManual);
+router.put('/admin/comprobante/:id/metodo', verificarToken, soloAdmin, cambiarMetodoPago);
+router.put('/admin/comprobante/:id/anular', verificarToken, soloAdmin, anularPago);
 
 export default router;

@@ -37,6 +37,18 @@
                  placeholder="Ej: Graduación de Belleza 2026">
           <small>Se muestra sobre la foto y describe la imagen a quienes usan lector de pantalla.</small>
         </div>
+        <fieldset class="formatos">
+          <legend>Formato en la galería</legend>
+          <div class="formatos-opciones">
+            @for (f of formatos; track f.valor) {
+              <label class="formato" [class.activo]="formato === f.valor">
+                <input type="radio" name="formato" [value]="f.valor" [(ngModel)]="formato">
+                <span class="silueta" [class]="'silueta ' + f.valor.toLowerCase()" aria-hidden="true"><i></i></span>
+                <span class="formato-nombre">{{ f.etiqueta }}</span>
+              </label>
+            }
+          </div>
+        </fieldset>
         <div class="acciones">
           @if (vistaPrevia) {
             <button type="button" class="btn secundario" (click)="descartarImagen()">Quitar imagen</button>
@@ -72,6 +84,11 @@
                 <form class="renombrar" (ngSubmit)="guardarTitulo()">
                   <input name="tituloEditado" [(ngModel)]="tituloEditado" maxlength="150" autocomplete="off"
                          aria-label="Nuevo título">
+                  <select name="formatoEditado" [(ngModel)]="formatoEditado" aria-label="Formato en la galería">
+                    @for (opcion of formatos; track opcion.valor) {
+                      <option [value]="opcion.valor">{{ opcion.etiqueta }}</option>
+                    }
+                  </select>
                   <button type="submit" class="btn-icono" title="Guardar" [disabled]="!tituloEditado.trim()">
                     <mat-icon>check</mat-icon>
                   </button>
@@ -82,9 +99,9 @@
               } @else {
                 <div class="foto-texto">
                   <strong>{{ f.titulo }}</strong>
-                  <span>{{ f.fechaSubida | date:'dd/MM/yyyy' }}</span>
+                  <span>{{ etiquetaFormato(f.formatoGrid) }} · {{ f.fechaSubida | date:'dd/MM/yyyy' }}</span>
                 </div>
-                <button type="button" class="btn-icono" (click)="empezarRenombrar(f)" title="Cambiar título">
+                <button type="button" class="btn-icono" (click)="empezarRenombrar(f)" title="Cambiar título o formato">
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button type="button" class="btn-icono peligro" (click)="eliminar(f)" title="Eliminar">

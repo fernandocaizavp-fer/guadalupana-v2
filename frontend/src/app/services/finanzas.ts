@@ -5,11 +5,19 @@ import { AuthService } from './auth';
 import { environment } from '../../environments/environment';
 
 export type EstadoDeuda = 'PENDIENTE' | 'PAGADA' | 'MORA';
-export type EstadoComprobante = 'EN_REVISION' | 'APROBADO' | 'RECHAZADO';
+export type EstadoComprobante = 'EN_REVISION' | 'APROBADO' | 'RECHAZADO' | 'ANULADO';
+export type MetodoPago = 'COMPROBANTE' | 'EFECTIVO' | 'TRANSFERENCIA';
+export type MetodoManual = 'EFECTIVO' | 'TRANSFERENCIA';
+
+export const NOMBRE_METODO: Record<MetodoPago, string> = {
+  COMPROBANTE: 'comprobante',
+  EFECTIVO: 'efectivo',
+  TRANSFERENCIA: 'transferencia'
+};
 
 export interface Comprobante {
   id: number;
-  metodo: 'COMPROBANTE' | 'EFECTIVO';
+  metodo: MetodoPago;
   urlImagen: string | null;
   montoAbonado: number;
   estado: EstadoComprobante;
@@ -171,8 +179,23 @@ export class FinanzasService {
     });
   }
 
-  registrarPagoEfectivo(deudaId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/admin/deuda/${deudaId}/pago-efectivo`, {}, {
+  // Pago recibido fuera del sistema (efectivo o transferencia).
+  registrarPago(deudaId: number, metodo: MetodoManual): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/deuda/${deudaId}/pago-manual`, { metodo }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Corrige el método de un pago manual ya registrado.
+  cambiarMetodo(comprobanteId: number, metodo: MetodoManual): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/comprobante/${comprobanteId}/metodo`, { metodo }, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Restablece un pago aprobado: el concepto vuelve a quedar pendiente.
+  anularPago(comprobanteId: number, motivo: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin/comprobante/${comprobanteId}/anular`, { motivo }, {
       headers: this.getHeaders()
     });
   }

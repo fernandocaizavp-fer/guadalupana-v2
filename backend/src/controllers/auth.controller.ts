@@ -3,14 +3,51 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
 
+// Perfil que el usuario eligió en la pantalla de login → rol que le corresponde.
+const ROL_DEL_PERFIL: Record<string, { rol: string; nombre: string }> = {
+  ESTUDIANTE: { rol: 'ESTUDIANTE', nombre: 'Estudiante' },
+  DOCENTE: { rol: 'PROFESOR', nombre: 'Docente' },
+  ADMINISTRATIVO: { rol: 'ADMIN', nombre: 'Administrativo' }
+};
+
 export const login = async (req: Request, res: Response) => {
-  const { correo, password } = req.body;
+  const { correo, password, perfil } = req.body;
   try {
     const usuario = await prisma.usuario.findUnique({ where: { correo } });
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     const valido = await bcrypt.compare(password, usuario.password);
     if (!valido) return res.status(401).json({ error: 'Contraseña incorrecta' });
+
+    // El usuario debe entrar por el perfil que le corresponde (p. ej. un
+    // estudiante no puede usar la entrada de docentes). Se valida después de la
+    // contraseña para no revelar a un tercero el rol de una cuenta ajena. Lo que
+    // cada rol puede hacer lo siguen decidiendo los middlewares de cada ruta.
+    if (perfil !== undefined) {
+      const esperado = ROL_DEL_PERFIL[String(perfil)];
+      if (!esperado) return res.status(400).json({ error: 'Perfil de acceso no válido' });
+      if (usuario.rol !== esperado.rol) {
+        return res.status(403).json({
+          error: `Por favor, elija el perfil correcto. Usted no es ${esperado.nombre}`
+        });
+      }
+    }
+
+    // Un estudiante eliminado no se borra (borrado lógico: su matrícula queda
+    // archivada para conservar notas y certificados), pero ya no puede entrar.
+    // Se comprueba después de la contraseña para no revelar a un tercero el
+    // estado de una cuenta ajena.
+    if (usuario.rol === 'ESTUDIANTE') {
+      const matricula = await prisma.matricula.findUnique({
+        where: { usuarioId: usuario.id },
+        select: { activo: true }
+      });
+      if (!usuario.activo || !matricula?.activo) {
+        return res.status(403).json({
+          error: 'Tu matrícula no está activa. Comunícate con la secretaría del centro.'
+        });
+      }
+    }
 
     const token = jwt.sign(
       { id: usuario.id, rol: usuario.rol },

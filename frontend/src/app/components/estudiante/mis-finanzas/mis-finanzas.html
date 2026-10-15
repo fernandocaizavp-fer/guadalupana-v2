@@ -76,7 +76,9 @@
                   <td>
                     <span [class]="'badge ' + estado(deuda).toLowerCase()">{{ etiquetas[estado(deuda)] }}</span>
                     @if (estado(deuda) === 'RECHAZADO' && ultimo(deuda)?.motivoRechazo) {
-                      <span class="motivo">Motivo: {{ ultimo(deuda)?.motivoRechazo }}</span>
+                      <span class="motivo">Mensaje del administrador: {{ ultimo(deuda)?.motivoRechazo }}</span>
+                    } @else if (ultimo(deuda)?.estado === 'ANULADO' && deuda.estado !== 'PAGADA') {
+                      <span class="motivo">Pago anulado: {{ ultimo(deuda)?.motivoRechazo }}</span>
                     }
                   </td>
                   <td>
@@ -87,6 +89,8 @@
                       </button>
                     } @else if (ultimo(deuda)?.metodo === 'EFECTIVO') {
                       <span class="texto-suave">Pago en efectivo</span>
+                    } @else if (ultimo(deuda)?.metodo === 'TRANSFERENCIA') {
+                      <span class="texto-suave">Pago por transferencia</span>
                     } @else if (ultimo(deuda)?.urlImagen) {
                       <a class="enlace" [href]="ultimo(deuda)?.urlImagen" target="_blank" rel="noopener">
                         <mat-icon>visibility</mat-icon>

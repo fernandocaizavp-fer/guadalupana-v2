@@ -1,17 +1,21 @@
 import { VoiceflowChat } from './voiceflow-chat';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import {
-  PortalService, AnuncioPublico, EventoPublico, DatosProspecto, ESPECIALIDADES
+  PortalService, AnuncioPublico, EventoPublico, DatosProspecto, ESPECIALIDADES, FormatoGrid
 } from '../../services/portal';
 
 interface FotoLanding {
   titulo: string;
   imagenUrl: string;
+  formatoGrid: FormatoGrid;
 }
+
+// Fotos visibles antes de pulsar "Ver más imágenes".
+const FOTOS_INICIALES = 8;
 
 interface Especialidad {
   nombre: string;
@@ -33,7 +37,7 @@ const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'o
   templateUrl: './landing.html',
   styleUrl: './landing.scss'
 })
-export class Landing implements OnInit {
+export class Landing implements OnInit, OnDestroy {
   // Catálogo de especialidades. La sección se dibuja recorriendo esta lista, así
   // que apagar una (activa: false) la quita de la página sin tocar la plantilla.
   // El día que el administrador las gestione desde el panel, bastará con llenar
@@ -78,16 +82,20 @@ export class Landing implements OnInit {
   opcionesEspecialidad = ESPECIALIDADES;
 
 
-  // Collage por defecto: se muestra mientras responde el servidor y también si
-  // el administrador todavía no ha subido fotos a la galería.
-  fotos: FotoLanding[] = [
-    { titulo: 'Graduados del CFA Guadalupana', imagenUrl: 'graduados.jpg' },
-    { titulo: 'Ceremonia de graduación', imagenUrl: 'graduados2.jpg' },
-    { titulo: 'Nuestros graduados', imagenUrl: 'graduados3.jpg' },
-    { titulo: 'Entrega de títulos artesanales', imagenUrl: 'graduados5.jpg' },
-    // Panorámica: va en quinto lugar, que en el collage ocupa todo el ancho.
-    { titulo: 'Promoción de artesanos titulados', imagenUrl: 'graduados4.jfif' }
+  // Fotos fijas de la galería: siempre se muestran. Las que sube el
+  // administrador (GaleriaPublica) se agregan a continuación, sin reemplazarlas.
+  private readonly fotosFijas: FotoLanding[] = [
+    { titulo: 'Graduados del CFA Guadalupana', imagenUrl: 'graduados.jpg', formatoGrid: 'GRANDE' },
+    { titulo: 'Ceremonia de graduación', imagenUrl: 'graduados2.jpg', formatoGrid: 'PEQUENA_1' },
+    { titulo: 'Nuestros graduados', imagenUrl: 'graduados3.jpg', formatoGrid: 'PEQUENA_2' },
+    { titulo: 'Promoción de artesanos titulados', imagenUrl: 'graduados4.jfif', formatoGrid: 'HORIZONTAL' },
+    { titulo: 'Entrega de títulos artesanales', imagenUrl: 'graduados5.jpg', formatoGrid: 'HORIZONTAL' }
   ];
+  fotos: FotoLanding[] = [...this.fotosFijas];
+  galeriaCompleta = false;
+  // Índice de la foto abierta en grande (lightbox), o null si está cerrado.
+  fotoAbierta: number | null = null;
+  @ViewChild('cerrarLightbox') private botonCerrar?: ElementRef<HTMLButtonElement>;
 
   anuncios: AnuncioPublico[] = [];
   eventos: EventoPublico[] = [];
@@ -119,11 +127,11 @@ export class Landing implements OnInit {
     this.portalService.galeriaPublicada().subscribe({
       next: (fotos) => {
         if (fotos.length > 0) {
-          this.fotos = fotos;
+          this.fotos = [...this.fotosFijas, ...fotos];
           this.cdr.detectChanges();
         }
       },
-      error: () => { /* se queda el collage por defecto */ }
+      error: () => { /* se quedan las fotos fijas */ }
     });
 
     let pendientes = 2;
@@ -139,6 +147,49 @@ export class Landing implements OnInit {
       next: (eventos) => { this.eventos = eventos; terminar(); },
       error: () => terminar()
     });
+  }
+
+  ngOnDestroy() {
+    document.body.style.overflow = '';
+  }
+
+  // ── Galería ──
+
+  get fotosVisibles(): FotoLanding[] {
+    return this.galeriaCompleta ? this.fotos : this.fotos.slice(0, FOTOS_INICIALES);
+  }
+
+  get fotosOcultas(): number {
+    return Math.max(0, this.fotos.length - FOTOS_INICIALES);
+  }
+
+  alternarGaleria() {
+    this.galeriaCompleta = !this.galeriaCompleta;
+    if (!this.galeriaCompleta) this.irA('galeria');
+  }
+
+  abrirFoto(indice: number) {
+    this.fotoAbierta = indice;
+    document.body.style.overflow = 'hidden'; // la página no se desplaza detrás
+    setTimeout(() => this.botonCerrar?.nativeElement.focus());
+  }
+
+  cerrarFoto() {
+    this.fotoAbierta = null;
+    document.body.style.overflow = '';
+  }
+
+  moverFoto(paso: number) {
+    if (this.fotoAbierta === null) return;
+    this.fotoAbierta = (this.fotoAbierta + paso + this.fotos.length) % this.fotos.length;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  teclaLightbox(evento: KeyboardEvent) {
+    if (this.fotoAbierta === null) return;
+    if (evento.key === 'Escape') this.cerrarFoto();
+    else if (evento.key === 'ArrowRight') this.moverFoto(1);
+    else if (evento.key === 'ArrowLeft') this.moverFoto(-1);
   }
 
   // ── Fechas (días completos guardados en UTC; sin depender del idioma del navegador) ──

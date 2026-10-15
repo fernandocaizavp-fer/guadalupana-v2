@@ -46,6 +46,66 @@ function inicioDeHoy(): Date {
   return hoy;
 }
 
+// Rechaza fechas absurdas (p. ej. año 0122 por un error al teclear).
+function fechaRazonable(fecha: Date): boolean {
+  const anio = fecha.getUTCFullYear();
+  return anio >= 2000 && anio <= 2100;
+}
+
+// Inicio (UTC) del día de una fecha.
+function inicioDelDia(fecha: Date): Date {
+  const dia = new Date(fecha);
+  dia.setUTCHours(0, 0, 0, 0);
+  return dia;
+}
+
+/**
+ * Crea las deudas que le faltan a uno o varios estudiantes con matrícula activa.
+ *
+ * Un concepto de pago le corresponde a un estudiante aunque se haya matriculado
+ * después de crearse el concepto (p. ej. pensión de octubre y matrícula en
+ * diciembre). El límite es el curso: solo cuentan los conceptos cuya fecha
+ * máxima no es anterior a la creación del curso del estudiante, para que un
+ * curso del año siguiente no herede las pensiones del año anterior.
+ * Es idempotente: `skipDuplicates` se apoya en @@unique([estudianteId, conceptoId]).
+ */
+export async function asignarConceptosFaltantes(
+  db: Prisma.TransactionClient,
+  where: Prisma.UsuarioWhereInput
+): Promise<number> {
+  const conceptos = await db.conceptoPago.findMany();
+  if (conceptos.length === 0) return 0;
+
+  const estudiantes = await db.usuario.findMany({
+    where: { ...where, rol: 'ESTUDIANTE', matricula: { activo: true } },
+    select: {
+      id: true,
+      matricula: { select: { curso: { select: { createdAt: true } } } },
+      deudas: { select: { conceptoId: true } }
+    }
+  });
+
+  const data: Prisma.DeudaCreateManyInput[] = [];
+  for (const estudiante of estudiantes) {
+    const inicioCurso = inicioDelDia(estudiante.matricula!.curso.createdAt);
+    const tiene = new Set(estudiante.deudas.map((d) => d.conceptoId));
+    for (const c of conceptos) {
+      if (tiene.has(c.id) || c.fechaMaxima < inicioCurso) continue;
+      data.push({
+        estudianteId: estudiante.id,
+        conceptoId: c.id,
+        concepto: c.nombre,
+        montoTotal: c.monto,
+        saldo: c.monto,
+        fechaMaxima: c.fechaMaxima
+      });
+    }
+  }
+  if (data.length === 0) return 0;
+  const creadas = await db.deuda.createMany({ data, skipDuplicates: true });
+  return creadas.count;
+}
+
 // La mora se registra al consultar: toda deuda pendiente cuya fecha máxima es
 // anterior a hoy pasa a MORA. Evita depender de una tarea programada.
 function marcarMora(where: Prisma.DeudaWhereInput = {}) {
@@ -92,6 +152,7 @@ export const getDeudasEstudiante = async (req: any, res: Response) => {
   }
 
   try {
+    await asignarConceptosFaltantes(prisma, { id: estudianteId });
     await marcarMora({ estudianteId });
     const deudas = await prisma.deuda.findMany({
       where: { estudianteId },
@@ -200,6 +261,9 @@ export const crearConcepto = async (req: any, res: Response) => {
   if (!fechaMaxima || isNaN(fecha.getTime())) {
     return res.status(400).json({ error: 'La fecha máxima de pago es obligatoria' });
   }
+  if (!fechaRazonable(fecha)) {
+    return res.status(400).json({ error: 'La fecha máxima de pago no es válida (revisa el año)' });
+  }
   const montoDecimal = new Prisma.Decimal(montoNum).toDecimalPlaces(2);
 
   try {
@@ -283,13 +347,13 @@ export const contarComprobantesPendientes = async (req: any, res: Response) => {
 // Bandeja de revisión: comprobantes con su deuda y el estudiante.
 export const listarComprobantes = async (req: any, res: Response) => {
   const estado = String(req.query.estado || 'EN_REVISION');
-  if (!['EN_REVISION', 'APROBADO', 'RECHAZADO'].includes(estado)) {
+  if (!['EN_REVISION', 'APROBADO', 'RECHAZADO', 'ANULADO'].includes(estado)) {
     return res.status(400).json({ error: 'Estado de comprobante inválido' });
   }
 
   try {
     const comprobantes = await prisma.comprobante.findMany({
-      where: { estado: estado as 'EN_REVISION' | 'APROBADO' | 'RECHAZADO' },
+      where: { estado: estado as 'EN_REVISION' | 'APROBADO' | 'RECHAZADO' | 'ANULADO' },
       orderBy: { fechaSubida: 'asc' },
       include: {
         deuda: {
@@ -329,6 +393,7 @@ export const listarEstudiantesCurso = async (req: any, res: Response) => {
   }
 
   try {
+    await asignarConceptosFaltantes(prisma, { matricula: { cursoId } });
     await marcarMora({ estudiante: { matricula: { cursoId } } });
     const matriculas = await prisma.matricula.findMany({
       where: { cursoId, activo: true },
@@ -451,13 +516,26 @@ export const rechazarComprobante = async (req: any, res: Response) => {
   }
 };
 
-// PUT /api/finanzas/admin/deuda/:id/pago-efectivo
-// El estudiante pagó en físico: el administrador lo registra y el concepto queda
-// pagado sin comprobante. Queda un registro con método EFECTIVO como constancia.
-export const registrarPagoEfectivo = async (req: any, res: Response) => {
+const METODOS_MANUALES = ['EFECTIVO', 'TRANSFERENCIA'] as const;
+type MetodoManual = (typeof METODOS_MANUALES)[number];
+const NOMBRE_METODO: Record<MetodoManual, string> = { EFECTIVO: 'efectivo', TRANSFERENCIA: 'transferencia' };
+
+function metodoManual(valor: unknown): MetodoManual | null {
+  return METODOS_MANUALES.includes(valor as MetodoManual) ? (valor as MetodoManual) : null;
+}
+
+// PUT /api/finanzas/admin/deuda/:id/pago-manual  { metodo: 'EFECTIVO' | 'TRANSFERENCIA' }
+// (también /pago-efectivo, que equivale a metodo EFECTIVO)
+// El administrador registra un pago recibido fuera del sistema y el concepto
+// queda pagado. Queda un registro aprobado con el método como constancia.
+export const registrarPagoManual = async (req: any, res: Response) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ error: 'Identificador de concepto inválido' });
+  }
+  const metodo = req.path.endsWith('/pago-efectivo') ? 'EFECTIVO' : metodoManual(req.body?.metodo);
+  if (!metodo) {
+    return res.status(400).json({ error: 'El método de pago debe ser EFECTIVO o TRANSFERENCIA' });
   }
 
   try {
@@ -475,12 +553,12 @@ export const registrarPagoEfectivo = async (req: any, res: Response) => {
       if (pagada.count !== 1) throw new ErrorNegocio(409, 'El concepto cambió mientras se registraba el pago; vuelve a intentarlo');
 
       await tx.comprobante.create({
-        data: { deudaId: id, metodo: 'EFECTIVO', estado: 'APROBADO', montoAbonado: actual.saldo }
+        data: { deudaId: id, metodo, estado: 'APROBADO', montoAbonado: actual.saldo }
       });
       // Un comprobante que seguía en revisión para este concepto ya no aplica.
       await tx.comprobante.updateMany({
         where: { deudaId: id, estado: 'EN_REVISION' },
-        data: { estado: 'RECHAZADO', motivoRechazo: 'El pago se registró en efectivo' }
+        data: { estado: 'RECHAZADO', motivoRechazo: `El pago se registró por ${NOMBRE_METODO[metodo]}` }
       });
 
       return tx.deuda.findUniqueOrThrow({
@@ -489,8 +567,82 @@ export const registrarPagoEfectivo = async (req: any, res: Response) => {
       });
     });
 
-    res.json({ message: 'Pago en efectivo registrado', deuda: deudaAJson(deuda) });
+    res.json({ message: `Pago por ${NOMBRE_METODO[metodo]} registrado`, deuda: deudaAJson(deuda) });
   } catch (error) {
-    responderError(res, error, 'Error al registrar pago en efectivo', 'Error al registrar el pago en efectivo');
+    responderError(res, error, 'Error al registrar pago manual', 'Error al registrar el pago');
+  }
+};
+
+// PUT /api/finanzas/admin/comprobante/:id/metodo  { metodo: 'EFECTIVO' | 'TRANSFERENCIA' }
+// Corrige el método de un pago manual ya registrado (p. ej. se marcó efectivo y
+// era transferencia). No toca montos ni saldos.
+export const cambiarMetodoPago = async (req: any, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ error: 'Identificador de pago inválido' });
+  }
+  const metodo = metodoManual(req.body?.metodo);
+  if (!metodo) {
+    return res.status(400).json({ error: 'El método de pago debe ser EFECTIVO o TRANSFERENCIA' });
+  }
+
+  try {
+    // Solo pagos manuales aprobados: un voucher subido por el estudiante es
+    // siempre un COMPROBANTE y conserva su imagen.
+    const cambiado = await prisma.comprobante.updateMany({
+      where: { id, estado: 'APROBADO', metodo: { in: [...METODOS_MANUALES] } },
+      data: { metodo }
+    });
+    if (cambiado.count !== 1) {
+      const existe = await prisma.comprobante.count({ where: { id } });
+      return existe
+        ? res.status(409).json({ error: 'Solo se puede cambiar el método de un pago manual aprobado' })
+        : res.status(404).json({ error: 'Pago no encontrado' });
+    }
+    res.json({ message: `Método cambiado a ${NOMBRE_METODO[metodo]}` });
+  } catch (error) {
+    responderError(res, error, 'Error al cambiar método de pago', 'Error al cambiar el método de pago');
+  }
+};
+
+// PUT /api/finanzas/admin/comprobante/:id/anular  { motivo? }
+// Restablece un pago ya aprobado (registrado por error): el monto vuelve al
+// saldo de la deuda y el pago queda ANULADO, sin borrarse, como historial. La
+// deuda vuelve a PENDIENTE, o a MORA si su fecha máxima ya pasó.
+export const anularPago = async (req: any, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ error: 'Identificador de pago inválido' });
+  }
+  const motivo = typeof req.body?.motivo === 'string' ? req.body.motivo.trim().slice(0, 300) : '';
+
+  try {
+    const deuda = await prisma.$transaction(async (tx) => {
+      const pago = await tx.comprobante.findUnique({ where: { id } });
+      if (!pago) throw new ErrorNegocio(404, 'Pago no encontrado');
+
+      // Condicional sobre el estado: dos anulaciones simultáneas no devuelven
+      // el monto dos veces.
+      const anulado = await tx.comprobante.updateMany({
+        where: { id, estado: 'APROBADO' },
+        data: { estado: 'ANULADO', motivoRechazo: motivo || 'Pago anulado por el administrador' }
+      });
+      if (anulado.count !== 1) throw new ErrorNegocio(409, 'Solo se puede anular un pago aprobado');
+
+      const actual = await tx.deuda.findUniqueOrThrow({ where: { id: pago.deudaId } });
+      const saldo = actual.saldo.plus(pago.montoAbonado);
+      if (saldo.greaterThan(actual.montoTotal)) {
+        throw new ErrorNegocio(409, 'El saldo resultante superaría el valor del concepto');
+      }
+      return tx.deuda.update({
+        where: { id: actual.id },
+        data: { saldo, estado: actual.fechaMaxima < inicioDeHoy() ? 'MORA' : 'PENDIENTE' },
+        include: { comprobantes: { orderBy: { fechaSubida: 'desc' } } }
+      });
+    });
+
+    res.json({ message: 'Pago anulado: el concepto vuelve a estar pendiente', deuda: deudaAJson(deuda) });
+  } catch (error) {
+    responderError(res, error, 'Error al anular pago', 'Error al anular el pago');
   }
 };

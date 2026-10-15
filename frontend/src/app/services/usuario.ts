@@ -87,6 +87,15 @@ getCursosConSubmaterias(profesorId: number): Observable<any[]> {
     });
   }
 
+  // El administrador cambia la foto de un docente.
+  subirFotoDe(usuarioId: number, archivo: File): Observable<{ fotoUrl: string }> {
+    const datos = new FormData();
+    datos.append('foto', archivo);
+    return this.http.post<{ fotoUrl: string }>(`${this.apiUrl}/usuarios/${usuarioId}/foto`, datos, {
+      headers: this.getHeaders()
+    });
+  }
+
   getMateriasCurso(cursoId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/cursos/${cursoId}`, {
       headers: this.getHeaders()

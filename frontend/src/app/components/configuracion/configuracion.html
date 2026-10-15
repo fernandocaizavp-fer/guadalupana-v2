@@ -474,7 +474,7 @@
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Fecha máxima de pago</mat-label>
-              <input matInput type="date" [(ngModel)]="conceptoFecha">
+              <input matInput type="date" [(ngModel)]="conceptoFecha" min="2000-01-01" max="2100-12-31">
             </mat-form-field>
           </div>
           <div class="acciones">

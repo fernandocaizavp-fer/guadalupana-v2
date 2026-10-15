@@ -14,12 +14,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
 import { UsuarioService } from '../../../services/usuario';
 import { CursoService } from '../../../services/curso';
+import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 
 @Component({
   selector: 'app-gestion-docentes',
   imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatFormFieldModule, MatInputModule, MatTableModule, MatProgressSpinnerModule,
-    MatSnackBarModule, MatSelectModule, MatDividerModule],
+    MatSnackBarModule, MatSelectModule, MatDividerModule, FotoPerfil],
   templateUrl: './gestion-docentes.html',
   styleUrl: './gestion-docentes.scss'
 })

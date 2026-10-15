@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoadingService } from '../../../services/loading';
-import { PortalService, FotoGaleria } from '../../../services/portal';
+import { PortalService, FotoGaleria, FormatoGrid, FORMATOS_GRID } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
@@ -29,12 +29,15 @@ export class GaleriaPublica implements OnInit {
 
   // Subida de una foto nueva.
   titulo = '';
+  formatos = FORMATOS_GRID;
+  formato: FormatoGrid = 'PEQUENA_1';
   imagen: File | null = null;
   vistaPrevia: string | null = null;
 
   // Foto cuyo título se está corrigiendo.
   renombrando: FotoGaleria | null = null;
   tituloEditado = '';
+  formatoEditado: FormatoGrid = 'PEQUENA_1';
 
   constructor(
     private portalService: PortalService,
@@ -104,10 +107,11 @@ export class GaleriaPublica implements OnInit {
 
   subir() {
     if (!this.puedeSubir || !this.imagen) return;
-    this.conCarga(this.portalService.subirFoto(this.titulo.trim(), this.imagen)).subscribe({
+    this.conCarga(this.portalService.subirFoto(this.titulo.trim(), this.imagen, this.formato)).subscribe({
       next: (foto) => {
         this.fotos = [foto, ...this.fotos];
         this.titulo = '';
+        this.formato = 'PEQUENA_1';
         this.descartarImagen();
         this.cdr.detectChanges();
         this.snackBar.open('Foto publicada en la galería', 'OK', { duration: 3000 });
@@ -119,6 +123,7 @@ export class GaleriaPublica implements OnInit {
   empezarRenombrar(foto: FotoGaleria) {
     this.renombrando = foto;
     this.tituloEditado = foto.titulo;
+    this.formatoEditado = foto.formatoGrid;
   }
 
   cancelarRenombrar() {
@@ -129,9 +134,10 @@ export class GaleriaPublica implements OnInit {
     const foto = this.renombrando;
     const titulo = this.tituloEditado.trim();
     if (!foto || !titulo) return;
-    this.conCarga(this.portalService.renombrarFoto(foto.id, titulo)).subscribe({
+    this.conCarga(this.portalService.renombrarFoto(foto.id, titulo, this.formatoEditado)).subscribe({
       next: () => {
         foto.titulo = titulo;
+        foto.formatoGrid = this.formatoEditado;
         this.renombrando = null;
         this.cdr.detectChanges();
         this.snackBar.open('Título actualizado', 'OK', { duration: 3000 });
@@ -162,6 +168,10 @@ export class GaleriaPublica implements OnInit {
         error: (e) => this.avisarError(e, 'Error al eliminar la foto')
       });
     });
+  }
+
+  etiquetaFormato(valor: FormatoGrid): string {
+    return this.formatos.find((f) => f.valor === valor)?.etiqueta ?? valor;
   }
 
   volver() {

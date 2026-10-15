@@ -150,17 +150,22 @@
                                     </button>
                                   }
                                   @if (deuda.estado !== 'PAGADA') {
-                                    <button type="button" class="btn-linea" (click)="pagoEfectivo(deuda)">
-                                      <mat-icon>payments</mat-icon> Pago en efectivo
+                                    <button type="button" class="btn-linea" (click)="registrarPago(deuda)">
+                                      <mat-icon>payments</mat-icon> Registrar pago
                                     </button>
                                   } @else if (aprobado(deuda); as pago) {
-                                    @if (pago.metodo === 'EFECTIVO') {
-                                      <span class="texto-suave">Pagado en efectivo</span>
-                                    } @else if (pago.urlImagen) {
-                                      <a class="btn-linea" [href]="pago.urlImagen" target="_blank" rel="noopener">
-                                        <mat-icon>visibility</mat-icon> Ver comprobante
-                                      </a>
+                                    @if (pago.metodo === 'COMPROBANTE') {
+                                      @if (pago.urlImagen) {
+                                        <a class="btn-linea" [href]="pago.urlImagen" target="_blank" rel="noopener">
+                                          <mat-icon>visibility</mat-icon> Ver comprobante
+                                        </a>
+                                      }
+                                    } @else {
+                                      <span class="texto-suave">Pagado por {{ nombreMetodo[pago.metodo] }}</span>
                                     }
+                                    <button type="button" class="btn-linea" (click)="editarPago(deuda, pago)">
+                                      <mat-icon>edit</mat-icon> Editar pago
+                                    </button>
                                   }
                                 </div>
                               </td>
@@ -180,6 +185,88 @@
   </section>
 </div>
 
+<!-- MODAL: REGISTRAR PAGO MANUAL -->
+<ng-template #modalPago>
+  <div class="modal">
+    <div class="modal-cabecera">
+      <mat-icon>payments</mat-icon>
+      <h2>Registrar pago</h2>
+    </div>
+    <p class="modal-texto">
+      "{{ pagoEnCurso?.concepto }}" por {{ dinero(pagoEnCurso?.monto ?? 0) }}. El concepto quedará pagado.
+    </p>
+    <fieldset class="opciones-metodo">
+      <legend>Método de pago</legend>
+      <label [class.activa]="metodoPago === 'EFECTIVO'">
+        <input type="radio" name="metodo-nuevo" value="EFECTIVO" [(ngModel)]="metodoPago">
+        <mat-icon>payments</mat-icon> Efectivo
+      </label>
+      <label [class.activa]="metodoPago === 'TRANSFERENCIA'">
+        <input type="radio" name="metodo-nuevo" value="TRANSFERENCIA" [(ngModel)]="metodoPago">
+        <mat-icon>account_balance</mat-icon> Transferencia
+      </label>
+    </fieldset>
+    <div class="modal-acciones">
+      <button type="button" class="btn-linea" [mat-dialog-close]="false">Cancelar</button>
+      <button type="button" class="btn-aprobar" [mat-dialog-close]="true">
+        <mat-icon>check</mat-icon> Registrar pago
+      </button>
+    </div>
+  </div>
+</ng-template>
+
+<!-- MODAL: EDITAR / RESTABLECER UN PAGO YA PROCESADO -->
+<ng-template #modalEditarPago>
+  <div class="modal modal-editar">
+    <header class="editar-cabecera">
+      <h2>Editar pago</h2>
+      <p>{{ pagoEnCurso?.concepto }} — {{ dinero(pagoEnCurso?.monto ?? 0) }}</p>
+      @if (pagoEnCurso?.fecha) {
+        <small>Registrado el {{ pagoEnCurso?.fecha | date:'dd/MM/yyyy' }}</small>
+      }
+    </header>
+
+    @if (!anulando) {
+      @if (pagoEnCurso?.esManual) {
+        <div class="metodo-simple" role="radiogroup" aria-label="Método de pago">
+          <label [class.activa]="metodoPago === 'EFECTIVO'">
+            <input type="radio" name="metodo-editar" value="EFECTIVO" [(ngModel)]="metodoPago">
+            <mat-icon>payments</mat-icon> Efectivo
+          </label>
+          <label [class.activa]="metodoPago === 'TRANSFERENCIA'">
+            <input type="radio" name="metodo-editar" value="TRANSFERENCIA" [(ngModel)]="metodoPago">
+            <mat-icon>account_balance</mat-icon> Transferencia
+          </label>
+        </div>
+      } @else {
+        <p class="editar-nota">Pagado con un comprobante del estudiante; el método no se puede cambiar.</p>
+      }
+    } @else {
+      <label class="campo campo-anular">
+        <span>Motivo de la anulación (opcional)</span>
+        <input type="text" maxlength="300" [(ngModel)]="motivoAnulacion" cdkFocusInitial
+               placeholder="Ej: se registró en el estudiante equivocado">
+        <small>El concepto vuelve a quedar pendiente y el pago se conserva en el historial como anulado.</small>
+      </label>
+    }
+
+    <footer class="editar-pie">
+      @if (!anulando) {
+        <button type="button" class="btn-ghost-peligro" (click)="anulando = true">Anular pago</button>
+        <span class="separador"></span>
+        <button type="button" class="btn-neutro" [mat-dialog-close]="undefined">Cancelar</button>
+        @if (pagoEnCurso?.esManual) {
+          <button type="button" class="btn-aprobar" [mat-dialog-close]="'guardar'">Guardar método</button>
+        }
+      } @else {
+        <span class="separador"></span>
+        <button type="button" class="btn-neutro" (click)="anulando = false">Volver</button>
+        <button type="button" class="btn-rechazar solido" [mat-dialog-close]="'anular'">Confirmar anulación</button>
+      }
+    </footer>
+  </div>
+</ng-template>
+
 <!-- MODAL: MOTIVO DEL RECHAZO -->
 <ng-template #modalRechazo>
   <div class="modal">
@@ -188,12 +275,12 @@
       <h2>Rechazar comprobante</h2>
     </div>
     <p class="modal-texto">
-      El estudiante verá este motivo y podrá subir un comprobante nuevo.
+      El estudiante verá este mensaje en su portal y podrá subir un comprobante nuevo.
     </p>
     <label class="campo">
-      <span>Motivo (opcional)</span>
+      <span>Mensaje para el estudiante</span>
       <textarea rows="3" maxlength="300" [(ngModel)]="motivoRechazo"
-        placeholder="Ej: la imagen no es legible, el valor no coincide…"></textarea>
+        placeholder="Ej: Por favor, toma mejor la foto, está borrosa."></textarea>
     </label>
     <div class="modal-acciones">
       <button type="button" class="btn-linea" [mat-dialog-close]="false">Cancelar</button>

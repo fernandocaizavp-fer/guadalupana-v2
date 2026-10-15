@@ -12,8 +12,10 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(correo: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/login`, { correo, password }).pipe(
+  // `perfil` es la entrada elegida en la pantalla de login (Estudiante, Docente
+  // o Administrativo); el backend rechaza el ingreso si no coincide con el rol.
+  login(correo: string, password: string, perfil?: string | null): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/login`, { correo, password, perfil: perfil || undefined }).pipe(
       tap((res: any) => {
         localStorage.setItem('token', res.token);
         localStorage.setItem('usuario', JSON.stringify(res.usuario));

@@ -1,46 +1,45 @@
-Por favor, realiza un cambio crítico y de alto impacto en la sección Hero (LandingComponent). Vamos a sustituir por completo el antiguo cartel rectangular de matriculasgratis.jpg (o .png) por nuestra nueva imagen de las estudiantes recortadas y transparentes: chicassuperpuestas.jfif (o chicassuperpuestas.png si aplicaste la transparencia, guardada en frontend/public/chicassuperpuestas).
+Actúa como Desarrollador Full-Stack Senior. Necesito que apliquemos una serie de correcciones críticas y mejoras de lógica de negocio en nuestro sistema (Angular, Node.js, Prisma). Ignora la creación de nuevos módulos y concéntrate estrictamente en resolver los siguientes puntos, entregando el código actualizado del Backend y Frontend para cada uno:
 
-Sigue estas instrucciones exactas para el HTML, SCSS y la animación:
+1. Seguridad en el Login (Validación de Perfil):
 
-1. Sustitución y Visualización de Impacto:
+Problema: Un estudiante puede iniciar sesión desde la ruta de login de docentes.
 
-Elimina definitivamente el archivo matriculasgratis de esta sección.
+Solución: En el controlador de Login del backend, valida que el rol del usuario coincida con el portal desde el que intenta acceder. Si el rol es 'ESTUDIANTE' pero el endpoint o payload indica que el login es para 'DOCENTE', rechaza la petición con un error 403 y el mensaje: 'Por favor, elija el perfil correcto. Usted no es Docente'.
 
-Carga en su lugar la imagen chicassuperpuestas desde la ruta public/.
+2. Módulo de Finanzas (Urgente y Crítico):
 
-Enfoque desde la mitad (Plano Medio / Torso): Ajusta los estilos para que las chicas no se muestren de cuerpo entero, sino desde la mitad (aproximadamente desde el torso o la cadera hacia arriba). Esto se logra dándole mayor escala a la imagen (transform: scale(1.3) o similar) y usando un contenedor con desbordamiento oculto (overflow: hidden) en la base de la sección o del medio círculo dorado, para que parezca que ellas "brotan" o emergen de forma natural y con mucha fuerza desde la base del diseño, sin verse pequeñas ni distantes.
+Visibilidad Retroactiva de Pensiones: Actualmente, si el admin crea una pensión en Octubre y el estudiante se matricula en Diciembre, al estudiante no le aparece la pensión de Octubre. Corrección: Modifica la lógica (ya sea en el endpoint de consulta o mediante un script en el registro del estudiante) para que las pensiones/conceptos de pago globales del periodo apliquen a todos los estudiantes, sin importar su fecha de matrícula.
 
-2. Efecto de Entrada Dinámico (Rebote):
+Métodos de Pago (Efectivo/Transferencia): Al registrar un pago manual, añade un selector para elegir el metodoPago ('Efectivo' o 'Transferencia'). Esto debe estar disponible para el Administrador.
 
-Queremos que la imagen de las chicas no aparezca de golpe, sino que tenga un efecto de rebote interactivo y orgánico al cargar la página (Entrance Bounce Effect).
+Edición de Pagos: Si el admin registró un pago como 'Efectivo' pero era 'Transferencia', actualmente no puede editarlo. Añade la funcionalidad en el frontend y backend para Restablecer/Editar un pago ya procesado, permitiendo cambiar el método de pago sin tener que eliminar la pensión completa.
 
-En el SCSS, crea una animación personalizada @keyframes bounceInUp o bounceIn:
+Retroalimentación en Comprobantes: Cuando un estudiante sube un comprobante (transferencia) y el admin lo rechaza, añade un campo de texto en el modal de rechazo para enviar un mensaje de retroalimentación (ej. 'Por favor, tomar mejor la foto, está borrosa'). Este mensaje debe guardarse en la BD y mostrarse en el portal del estudiante.
 
-SCSS
-@keyframes bounceInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(120px) scale(0.9);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(-10px) scale(1.02);
-  }
-  80% {
-    transform: translateY(5px) scale(0.98);
-  }
-  100% {
-    transform: translateY(0) scale(1);
-  }
-}
-Aplica esta animación a la clase de las chicas (.hero-students) para que al ingresar a la landing page, ellas suban sutilmente con un rebote elástico y amortiguado de forma muy natural y fluida (duración aproximada: 1.2s con cubic-bezier).
+3. Portal Público (Landing Page):
 
-3. Integración con el Entorno (Sin Bloques ni Textos Superpuestos):
+Eventos del Calendario: Los eventos públicos (terceros) no se están renderizando en la Landing Page. Revisa el endpoint GET del CalendarioPublico y asegúrate de que el componente de Angular los esté consumiendo y mostrando correctamente junto a las 'Últimas Noticias'.
 
-Asegura que la imagen de las chicas se posicione por delante del medio círculo dorado y las formas geométricas ligeras (círculos y cruces sutiles de la referencia guia), pero por detrás de cualquier menú o tooltip si fuese necesario.
+Comportamiento de la Galería Web:
 
-Al no tener fondo, deben integrarse de forma perfecta con el fondo claro/crema de la web, flotando con total naturalidad y gran tamaño en la mitad derecha de la pantalla.
+Las imágenes estáticas/precargadas NO deben desaparecer al subir una nueva foto desde el admin. Las fotos de la BD (GaleriaPublica) deben concatenarse a las preexistentes, o el sistema debe conservarlas por defecto.
 
-Elimina cualquier residuo de los iconos flotantes oscuros anteriores (como la medalla o el globo de diálogo) que saturaban la visual.
+Añade un botón de 'Ver más imágenes' que despliegue el resto de la galería en lugar de mostrar todas de golpe.
 
-Devuélveme el HTML actualizado, el SCSS con la animación del rebote, y el TS del componente si es necesario activar la animación al cargar.
+Modal/Lightbox: Al hacer clic en cualquier imagen de la galería en la Landing Page, esta debe abrirse en grande (modal/pantalla completa con fondo oscurecido).
+
+4. Gestión de Galería en el Panel de Administración:
+
+Selector de Posición (Grid de 5): Al subir una nueva foto para la galería web, añade un selector visual (un <select> o radio buttons con siluetas) para que el administrador elija el formato/posición de la imagen: 'Grande', 'Alargada vertical', 'Alargada horizontal', 'Pequeña 1', 'Pequeña 2'. Guarda este valor en la base de datos (añade el campo formatoGrid al modelo GaleriaPublica) y aplícalo en el CSS Grid de la Landing Page.
+
+5. Perfiles (Docentes y Administrador):
+
+Fotos de Perfil: Solo el Administrador debe tener el botón y permiso para subir/editar la foto de perfil de los Docentes. Oculta o elimina la opción de subir foto en el panel propio del Docente.
+
+6. UI de Carga en 'Prospectos':
+
+Problema visual: Al cargar la vista de 'Prospectos' en el admin, sale el texto 'Cargando, espere por favor' pero falta la imagen/animación corporativa circular que sí aparece en el login del administrador.
+
+Solución: Importa y renderiza correctamente ese componente o imagen de loading en el HTML de Prospectos.
+
+Por favor, entrégame los cambios necesarios en el schema.prisma, los controladores de Node.js, y los componentes de Angular (HTML/TS) ordenados por módulo."

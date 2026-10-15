@@ -400,11 +400,17 @@ enum EstadoComprobante {
   EN_REVISION
   APROBADO
   RECHAZADO
+  // Pago aprobado que el administrador revirtió: el saldo vuelve a la deuda,
+  // pero el registro se conserva como historial.
+  ANULADO
 }
 
+// COMPROBANTE: voucher que sube el estudiante. EFECTIVO y TRANSFERENCIA: pagos
+// que registra el administrador a mano.
 enum MetodoPago {
   COMPROBANTE
   EFECTIVO
+  TRANSFERENCIA
 }
 
 // Concepto de cobro que crea el administrador (p. ej. "Pensión Septiembre").
@@ -502,11 +508,21 @@ model AnuncioPublico {
 }
 
 // Foto de la galería de la landing (la imagen vive en Cloudflare R2).
+// Forma que ocupa una foto en la cuadrícula de la galería de la landing.
+enum FormatoGrid {
+  GRANDE
+  VERTICAL
+  HORIZONTAL
+  PEQUENA_1
+  PEQUENA_2
+}
+
 model GaleriaPublica {
-  id          Int      @id @default(autoincrement())
-  titulo      String   @db.VarChar(150)
-  imagenUrl   String   @db.VarChar(500)
-  fechaSubida DateTime @default(now())
+  id          Int         @id @default(autoincrement())
+  titulo      String      @db.VarChar(150)
+  imagenUrl   String      @db.VarChar(500)
+  formatoGrid FormatoGrid @default(PEQUENA_1)
+  fechaSubida DateTime    @default(now())
 }
 
 // Evento visible en la página principal (p. ej. inicio de matrículas).

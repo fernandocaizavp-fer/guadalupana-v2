@@ -199,9 +199,10 @@
         <div class="docente-container" [class.is-expanded]="d.showMaterias">
 
           <div class="docente-item" (click)="d.showMaterias = !d.showMaterias">
-            <div class="docente-avatar">
-              {{ d.nombre.charAt(0) }}{{ d.apellido.charAt(0) }}
-            </div>
+            <!-- Solo el administrador cambia la foto del docente: clic en el avatar. -->
+            <app-foto-perfil class="docente-foto" [editable]="true" [usuarioId]="d.id" [fotoUrl]="d.fotoUrl"
+              [nombre]="d.nombre" [tamano]="42" (fotoCambiada)="d.fotoUrl = $event"
+              (click)="$event.stopPropagation()" />
             <div class="docente-info">
               <span class="docente-nombre">{{ d.nombre }} {{ d.apellido }}</span>
               <span class="docente-correo">{{ d.correo }}</span>

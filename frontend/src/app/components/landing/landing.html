@@ -164,13 +164,27 @@
       <p>Graduaciones, prácticas y actividades de nuestra comunidad.</p>
     </div>
     <div class="galeria-grid">
-      @for (foto of fotos; track foto.imagenUrl) {
-        <figure class="galeria-item">
-          <img [src]="foto.imagenUrl" [alt]="foto.titulo" loading="lazy">
+      @for (foto of fotosVisibles; track foto.imagenUrl; let i = $index) {
+        <figure class="galeria-item" [class]="'galeria-item formato-' + foto.formatoGrid.toLowerCase()">
+          <button type="button" class="galeria-abrir" (click)="abrirFoto(i)"
+                  [attr.aria-label]="'Ver en grande: ' + foto.titulo">
+            <img [src]="foto.imagenUrl" [alt]="foto.titulo" loading="lazy">
+          </button>
           <figcaption>{{ foto.titulo }}</figcaption>
         </figure>
       }
     </div>
+    @if (fotosOcultas > 0) {
+      <div class="galeria-mas">
+        <button type="button" class="boton secundario" (click)="alternarGaleria()">
+          @if (galeriaCompleta) {
+            Ver menos <mat-icon>expand_less</mat-icon>
+          } @else {
+            Ver más imágenes ({{ fotosOcultas }}) <mat-icon>expand_more</mat-icon>
+          }
+        </button>
+      </div>
+    }
   </section>
 
   <!-- NOTICIAS Y CALENDARIO -->
@@ -393,6 +407,30 @@
   </div>
   <p class="footer-copy">© 2026 Centro de Formación Artesanal Guadalupana. Todos los derechos reservados.</p>
 </footer>
+
+<!-- LIGHTBOX: foto de la galería en grande -->
+@if (fotoAbierta !== null) {
+  <div class="lightbox" role="dialog" aria-modal="true" [attr.aria-label]="fotos[fotoAbierta].titulo"
+       (click)="cerrarFoto()">
+    <button #cerrarLightbox type="button" class="lightbox-cerrar" (click)="cerrarFoto()" aria-label="Cerrar">
+      <mat-icon>close</mat-icon>
+    </button>
+    @if (fotos.length > 1) {
+      <button type="button" class="lightbox-nav anterior" (click)="$event.stopPropagation(); moverFoto(-1)"
+              aria-label="Foto anterior">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button type="button" class="lightbox-nav siguiente" (click)="$event.stopPropagation(); moverFoto(1)"
+              aria-label="Foto siguiente">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    }
+    <figure class="lightbox-figura" (click)="$event.stopPropagation()">
+      <img [src]="fotos[fotoAbierta].imagenUrl" [alt]="fotos[fotoAbierta].titulo">
+      <figcaption>{{ fotos[fotoAbierta].titulo }} · {{ fotoAbierta + 1 }} / {{ fotos.length }}</figcaption>
+    </figure>
+  </div>
+}
 
 <!-- BOTÓN FLOTANTE DE WHATSAPP -->
 <a class="whatsapp-float" [href]="whatsappUrl" target="_blank" rel="noopener"

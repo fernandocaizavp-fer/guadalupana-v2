@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma';
+import { asignarConceptosFaltantes } from './finanzas.controller';
 
 // Fuente única de verdad para la numeración de una matrícula dentro de un curso:
 // el correlativo es max(matriculaNo)+1 (no un count, para no reutilizar números
@@ -147,23 +148,10 @@ export const crearMatricula = async (req: Request, res: Response) => {
         }
       });
 
-      // Finanzas: el estudiante nuevo recibe los conceptos de pago cuya fecha
-      // máxima aún no pasa (los ya vencidos no se le cobran).
-      const conceptos = await tx.conceptoPago.findMany({
-        where: { fechaMaxima: { gte: new Date() } }
-      });
-      if (conceptos.length > 0) {
-        await tx.deuda.createMany({
-          data: conceptos.map((c) => ({
-            estudianteId: usuario.id,
-            conceptoId: c.id,
-            concepto: c.nombre,
-            montoTotal: c.monto,
-            saldo: c.monto,
-            fechaMaxima: c.fechaMaxima
-          }))
-        });
-      }
+      // Finanzas: el estudiante nuevo recibe todos los conceptos de pago de su
+      // curso, aunque se hayan creado antes de su matrícula (ver
+      // asignarConceptosFaltantes).
+      await asignarConceptosFaltantes(tx, { id: usuario.id });
 
       return { usuario, matricula };
     });
@@ -327,9 +315,19 @@ export const actualizarMatricula = async (req: Request, res: Response) => {
 export const eliminarMatricula = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    await prisma.matricula.update({
-      where: { id: Number(id) },
-      data: { activo: false }
+    // Borrado lógico: la matrícula se archiva (no se pierden notas ni
+    // certificados) y, en la misma transacción, la cuenta del estudiante queda
+    // inactiva para que no pueda volver a iniciar sesión.
+    await prisma.$transaction(async (tx) => {
+      const matricula = await tx.matricula.update({
+        where: { id: Number(id) },
+        data: { activo: false },
+        select: { usuarioId: true }
+      });
+      await tx.usuario.update({
+        where: { id: matricula.usuarioId },
+        data: { activo: false }
+      });
     });
     res.json({ message: 'Matrícula eliminada' });
   } catch (error) {

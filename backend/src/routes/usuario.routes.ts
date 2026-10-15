@@ -22,6 +22,7 @@ router.post('/desasignar-materia', verificarToken, soloAdmin, desasignarProfesor
 router.post('/desasignar-profesor-principal', verificarToken, soloAdmin, desasignarProfesorPrincipal);
 router.get('/mis-materias/:profesorId', verificarToken, getMisMateria);
 router.post('/foto', verificarToken, subirFoto, subirFotoPerfil);
+router.post('/:id/foto', verificarToken, soloAdmin, subirFoto, subirFotoPerfil);
 router.get('/perfil-estudiante/:usuarioId', verificarToken, getPerfilEstudiante);
 router.get('/cursos-con-submaterias/:profesorId', verificarToken, getCursosConSubmaterias);
 

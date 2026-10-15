@@ -35,11 +35,11 @@
         </div>
         <div class="campo">
           <label for="c-inicio">Fecha de inicio</label>
-          <input id="c-inicio" name="fechaInicio" type="date" [(ngModel)]="datos.fechaInicio">
+          <input id="c-inicio" name="fechaInicio" type="date" [(ngModel)]="datos.fechaInicio" min="2000-01-01" max="2100-12-31">
         </div>
         <div class="campo">
           <label for="c-fin">Fecha de fin</label>
-          <input id="c-fin" name="fechaFin" type="date" [(ngModel)]="datos.fechaFin" [min]="datos.fechaInicio">
+          <input id="c-fin" name="fechaFin" type="date" [(ngModel)]="datos.fechaFin" [min]="datos.fechaInicio || '2000-01-01'" max="2100-12-31">
           @if (fechasInvertidas) {
             <small class="error">La fecha de fin no puede ser anterior a la de inicio.</small>
           } @else {

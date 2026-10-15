@@ -73,6 +73,132 @@ $naranja: #b25f00;
   gap: 22px;
 }
 
+/* ===== MODALES DE PAGO ===== */
+.opciones-metodo {
+  border: none;
+  margin: 4px 0 16px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  legend { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid #d9dde8;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: $navy;
+    cursor: pointer;
+
+    input { accent-color: $navy; }
+    mat-icon { color: $gold; }
+    &.activa { border-color: $navy; background: #f4f6fb; }
+  }
+}
+
+/* Modal "Editar pago": una sola acción principal; anular queda como acción secundaria en el pie. */
+.modal-editar { padding: 28px 28px 20px; }
+
+.editar-cabecera {
+  margin-bottom: 24px;
+
+  h2 { margin: 0 0 4px; font-size: 18px; font-weight: 800; color: $navy; }
+  p { margin: 0; font-size: 15px; font-weight: 600; color: #374151; }
+  small { display: block; margin-top: 2px; font-size: 12px; color: #9aa0b0; }
+}
+
+.metodo-simple {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+
+  label {
+    position: relative;
+    flex: 1;
+    max-width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 12px;
+    border: 1.5px solid #e2e5ee;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #5f6675;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+    input { position: absolute; opacity: 0; pointer-events: none; }
+    mat-icon { color: #b6bccb; transition: color 0.15s; }
+
+    &:hover { border-color: #c5cad8; }
+    &:focus-within { outline: 3px solid rgba(26, 42, 94, 0.18); outline-offset: 1px; }
+    &.activa {
+      border-color: $navy;
+      background: #f4f6fb;
+      color: $navy;
+      mat-icon { color: $gold; }
+    }
+  }
+}
+
+.editar-nota { margin: 0; font-size: 13px; line-height: 1.5; color: #6b7280; text-align: center; }
+
+.campo-anular {
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 10px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1a2238;
+    border: 1px solid #d5d9e4;
+    border-radius: 8px;
+
+    &:focus { outline: none; border-color: $rojo; box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12); }
+  }
+
+  small { font-size: 12px; line-height: 1.45; color: #8a90a2; }
+}
+
+.editar-pie {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f2f8;
+
+  .separador { flex: 1; }
+}
+
+.btn-ghost-peligro {
+  @extend %boton;
+  color: $rojo;
+  background: transparent;
+  border: 1px solid transparent;
+  padding-left: 4px;
+  padding-right: 8px;
+
+  &:hover { background: #fdf3f3; }
+}
+
+.btn-neutro {
+  @extend %boton;
+  color: #4b5563;
+  background: #f3f4f7;
+  border: 1px solid #f3f4f7;
+
+  &:hover { background: #e8eaf0; }
+}
+
 /* ===== PANELES ===== */
 .panel {
   background: white;
