@@ -58,6 +58,12 @@
       </div>
 
       <div class="estudiantes-lista">
+        @if (matriculas.length === 0) {
+          <div class="center">
+            <mat-icon class="empty-icon">person_off</mat-icon>
+            <p>Este curso no tiene estudiantes con matrícula activa.</p>
+          </div>
+        }
         @for (matricula of matriculas; track matricula.id; let i = $index) {
           <div class="estudiante-row"
             [class.presente]="presentes[matricula.id]"
@@ -84,7 +90,7 @@
             Cancelar edición
           </button>
         }
-        <button mat-flat-button class="guardar-btn" (click)="guardar()" [disabled]="guardando">
+        <button mat-flat-button class="guardar-btn" (click)="guardar()" [disabled]="guardando || matriculas.length === 0">
           <mat-icon>save</mat-icon>
           {{ guardando ? 'Guardando...' : (editandoId ? 'Guardar Cambios' : 'Guardar Asistencia') }}
         </button>

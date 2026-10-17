@@ -103,6 +103,9 @@ $borde: #e2e5ee;
   margin-bottom: 16px;
 }
 
+// Empujado a la derecha de la fila de controles.
+.ir-agregar { margin-left: auto; }
+
 .ir-campo {
   display: flex;
   flex-direction: column;

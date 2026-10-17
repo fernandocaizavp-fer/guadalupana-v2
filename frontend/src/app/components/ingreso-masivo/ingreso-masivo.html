@@ -52,6 +52,14 @@
           </div>
         </div>
       }
+
+      @if (cursoId !== null && !cargando) {
+        <button type="button" class="ir-btn secundario ir-agregar" (click)="agregarEstudiante()"
+                title="Matricular en este curso a un estudiante que no aparece en la tabla">
+          <mat-icon>person_add</mat-icon>
+          Agregar estudiante
+        </button>
+      }
     </div>
 
     @if (cursoId !== null && !cargando && estudiantes.length > 0) {
@@ -91,7 +99,7 @@
     } @else if (cursoId === null) {
       <p class="ir-estado">Elige un curso para ver la tabla.</p>
     } @else if (estudiantes.length === 0) {
-      <p class="ir-estado">Este curso no tiene estudiantes con matrícula activa.</p>
+      <p class="ir-estado">Este curso no tiene estudiantes con matrícula activa. Usa «Agregar estudiante» para matricular uno.</p>
     } @else {
       <div class="ir-tabla-scroll">
         <table class="ir-tabla">

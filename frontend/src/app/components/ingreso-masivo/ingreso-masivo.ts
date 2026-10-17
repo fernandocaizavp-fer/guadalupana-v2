@@ -14,6 +14,7 @@ import {
 import { CursoService } from '../../services/curso';
 import { ConfiguracionService } from '../../services/configuracion';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
+import { AgregarEstudianteDialog, AgregarEstudianteData } from './agregar-estudiante-dialog';
 
 type Pestana = 'notas' | 'examenes' | 'asistencias';
 type Valor = number | null;
@@ -292,6 +293,30 @@ export class IngresoMasivo implements OnInit {
     );
     siguiente?.focus();
     siguiente?.select();
+  }
+
+  // ── Agregar estudiante ──
+
+  // Matricula a un estudiante que faltaba sin salir de la tabla. Se inserta en su
+  // lugar alfabético sin recargar, así no se pierden las notas aún no guardadas;
+  // como las tres pestañas listan las mismas matrículas, aparece en todas.
+  agregarEstudiante() {
+    if (this.cursoId === null) return;
+    const curso = this.cursos.find((c) => c.id === this.cursoId);
+    this.dialog.open<AgregarEstudianteDialog, AgregarEstudianteData, EstudianteRapido>(AgregarEstudianteDialog, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: {
+        cursoId: this.cursoId,
+        nombreCurso: curso ? `${curso.ramaArtesanal} — ${curso.anioFormativo}` : 'el curso elegido'
+      }
+    }).afterClosed().subscribe((nuevo) => {
+      if (!nuevo) return;
+      this.estudiantes = [...this.estudiantes, nuevo].sort((a, b) =>
+        a.apellidos.localeCompare(b.apellidos, 'es') || a.nombres.localeCompare(b.nombres, 'es')
+      );
+      this.cdr.detectChanges();
+    });
   }
 
   // ── Limpiar ──

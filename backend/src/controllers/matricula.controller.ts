@@ -56,7 +56,27 @@ export const crearMatricula = async (req: Request, res: Response) => {
     especialidad, lugarfechacertificado, cursoId
   } = req.body;
 
+  // Campos mínimos para crear el usuario y la matrícula. Sin esta validación un
+  // dato faltante terminaba en un 500 opaco (p. ej. toLowerCase sobre el correo).
+  const texto = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+  const correoFinal = texto(correoestudiante) || texto(correo);
+  if (!texto(apellidos) || !texto(nombres)) {
+    return res.status(400).json({ error: 'Los apellidos y los nombres son obligatorios' });
+  }
+  if (!texto(cedula) || texto(cedula).length > 10) {
+    return res.status(400).json({ error: 'La cédula o pasaporte es obligatoria (máximo 10 caracteres)' });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoFinal)) {
+    return res.status(400).json({ error: 'El correo del estudiante es obligatorio y debe ser válido' });
+  }
+  if (!Number.isInteger(Number(cursoId)) || Number(cursoId) <= 0) {
+    return res.status(400).json({ error: 'Selecciona un curso válido' });
+  }
+
   try {
+    const curso = await prisma.curso.findUnique({ where: { id: Number(cursoId) }, select: { id: true } });
+    if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
+
     const hash = await bcrypt.hash(cedula, 10);
 
     // Numeración (correlativo, tomo, página) desde la fuente única de verdad.

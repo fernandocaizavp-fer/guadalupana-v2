@@ -8,7 +8,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { DatePipe } from '@angular/common';
 import { AsistenciaService } from '../../../services/asistencia';
-import { TareaService } from '../../../services/tarea';
 import { CursoService } from '../../../services/curso';
 import { Title } from '@angular/platform-browser';
 
@@ -36,7 +35,6 @@ export class RegistrarAsistencia implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private asistenciaService: AsistenciaService,
-    private tareaService: TareaService,
     private cursoService: CursoService,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef,
@@ -49,34 +47,22 @@ export class RegistrarAsistencia implements OnInit {
     this.cargarDatos();
   }
 
+  // Los estudiantes se piden por la materia, no a través de sus tareas: antes, una
+  // materia sin tareas mostraba la lista vacía y no se podía pasar lista.
   cargarDatos() {
-    this.tareaService.getTareasPorMateria(this.materiaId).subscribe({
-      next: (tareas) => {
-        if (tareas.length > 0) {
-          this.materia = tareas[0].materia;
-          const cursoId = tareas[0].materia?.curso?.id;
-          if (cursoId) {
-            this.cursoService.obtenerCurso(cursoId).subscribe({
-              next: (curso) => {
-                this.matriculas = curso.matriculas || [];
-                this.marcarTodos();
-                this.cargarAsistencias();
-              }
-            });
-          }
-        } else {
-          // Si no hay tareas buscar la materia directamente
-          this.cargarPorCursoService();
-        }
+    this.cursoService.obtenerEstudiantesMateria(this.materiaId).subscribe({
+      next: ({ materia, matriculas }) => {
+        this.materia = materia;
+        this.matriculas = matriculas || [];
+        this.marcarTodos();
+        this.cargarAsistencias();
       },
-      error: () => this.cargarPorCursoService()
+      error: () => {
+        this.loading = false;
+        this.snackBar.open('Error al cargar los estudiantes de la materia', 'OK', { duration: 3000 });
+        this.cdr.detectChanges();
+      }
     });
-  }
-
-  cargarPorCursoService() {
-    // Fallback — obtener curso desde el materiaId
-    this.loading = false;
-    this.cdr.detectChanges();
   }
 
   cargarAsistencias() {
@@ -123,6 +109,10 @@ export class RegistrarAsistencia implements OnInit {
       this.snackBar.open('Selecciona una fecha', 'OK', { duration: 3000 });
       return;
     }
+    if (this.matriculas.length === 0) {
+      this.snackBar.open('Este curso no tiene estudiantes con matrícula activa', 'OK', { duration: 3000 });
+      return;
+    }
     this.guardando = true;
     const detalles = this.matriculas.map(m => ({
       matriculaId: m.id,
@@ -164,9 +154,9 @@ export class RegistrarAsistencia implements OnInit {
         this.marcarTodos();
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (e) => {
         this.guardando = false;
-        this.snackBar.open('Error al registrar asistencia', 'OK', { duration: 3000 });
+        this.snackBar.open(e?.error?.error || 'Error al registrar asistencia', 'OK', { duration: 3000 });
         this.cdr.detectChanges();
       }
     });

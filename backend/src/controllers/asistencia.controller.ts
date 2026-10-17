@@ -14,6 +14,14 @@ const formatearNombre = (texto: string): string => {
 // Crear registro de asistencia con todos los estudiantes
 export const crearAsistencia = async (req: Request, res: Response) => {
   const { fecha, materiaId, detalles } = req.body;
+  if (!fecha || !materiaId) {
+    return res.status(400).json({ error: 'Faltan la fecha o la materia' });
+  }
+  // Un registro sin estudiantes no cuenta en ningún porcentaje: rechazarlo para
+  // que el docente no crea que pasó lista cuando no se guardó a nadie.
+  if (!Array.isArray(detalles) || detalles.length === 0) {
+    return res.status(400).json({ error: 'La lista no tiene estudiantes; no se registró la asistencia' });
+  }
   try {
     // Parsear como fecha local para evitar desfase UTC
     const [anio, mes, dia] = fecha.split('-').map(Number);

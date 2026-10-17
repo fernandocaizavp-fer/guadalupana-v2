@@ -138,7 +138,8 @@ export const getEstudiantesPorMateria = async (req: Request, res: Response) => {
       include: {
         curso: {
           include: {
-            matriculas: { orderBy: { apellidos: 'asc' } }
+            // Solo matrículas activas: los estudiantes dados de baja no se califican.
+            matriculas: { where: { activo: true }, orderBy: { apellidos: 'asc' } }
           }
         }
       }

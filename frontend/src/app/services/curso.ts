@@ -30,6 +30,15 @@ export class CursoService {
     });
   }
 
+  // Materia (con su curso) + matrículas activas del curso, ordenadas por apellido.
+  // No depende de que la materia tenga tareas.
+  obtenerEstudiantesMateria(materiaId: number): Observable<{ materia: any; matriculas: any[] }> {
+    return this.http.get<{ materia: any; matriculas: any[] }>(
+      `${this.apiUrl}/cursos/materia/${materiaId}/estudiantes`,
+      { headers: this.getHeaders() }
+    );
+  }
+
 agregarSubmateria(cursoId: number, nombre: string): Observable<any> {
   return this.http.post(`${this.apiUrl}/cursos/submaterias`, { cursoId, nombre }, {
     headers: this.getHeaders()

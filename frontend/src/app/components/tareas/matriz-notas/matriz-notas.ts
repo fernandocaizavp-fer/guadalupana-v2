@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DatePipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { TareaService } from '../../../services/tarea';
 import { CursoService } from '../../../services/curso';
 import { Title } from '@angular/platform-browser';
@@ -51,32 +52,27 @@ export class MatrizNotas implements OnInit {
 
   cargarDatos() {
     this.loading = true;
-    this.tareaService.getTareasPorMateria(this.materiaId, this.semestreSeleccionado).subscribe({
-      next: (tareas) => {
+    // Tareas y estudiantes se piden por separado: los estudiantes ya no dependen de
+    // que exista una tarea para averiguar el curso de la materia.
+    forkJoin({
+      tareas: this.tareaService.getTareasPorMateria(this.materiaId, this.semestreSeleccionado),
+      datos: this.cursoService.obtenerEstudiantesMateria(this.materiaId)
+    }).subscribe({
+      next: ({ tareas, datos }) => {
         this.tareas = tareas;
-        if (tareas.length > 0) this.materia = tareas[0].materia;
-
-        const cursoId = tareas[0]?.materia?.cursoId ?? this.materia?.cursoId;
-        if (!cursoId) { this.loading = false; this.cdr.detectChanges(); return; }
-
-        this.cursoService.obtenerCurso(cursoId).subscribe({
-          next: (curso) => {
-            this.materia = this.materia || (curso.materias || []).find((m: any) => m.id === this.materiaId);
-            this.matriculas = [...(curso.matriculas || [])].sort(
-              (a, b) => (a.matriculaNo || '').localeCompare(b.matriculaNo || '')
-            );
-            this.notaMap = {};
-            for (const t of this.tareas) {
-              for (const n of (t.notas || [])) {
-                this.notaMap[this.clave(n.matriculaId, t.id)] =
-                  n.valor !== null && n.valor !== undefined ? n.valor : null;
-              }
-            }
-            this.loading = false;
-            this.cdr.detectChanges();
-          },
-          error: () => { this.loading = false; this.cdr.detectChanges(); }
-        });
+        this.materia = datos.materia;
+        this.matriculas = [...(datos.matriculas || [])].sort(
+          (a, b) => (a.matriculaNo || '').localeCompare(b.matriculaNo || '')
+        );
+        this.notaMap = {};
+        for (const t of this.tareas) {
+          for (const n of (t.notas || [])) {
+            this.notaMap[this.clave(n.matriculaId, t.id)] =
+              n.valor !== null && n.valor !== undefined ? n.valor : null;
+          }
+        }
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;

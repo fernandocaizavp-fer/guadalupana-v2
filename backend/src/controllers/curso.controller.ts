@@ -69,6 +69,27 @@ export const obtenerCurso = async (req: Request, res: Response) => {
   }
 };
 
+// Estudiantes de una materia (las matrículas activas de su curso, por apellido).
+// Las pantallas del docente (asistencia, matriz de notas) lo usan para no depender
+// de que la materia ya tenga tareas para averiguar a qué curso pertenece.
+export const getEstudiantesMateria = async (req: Request, res: Response) => {
+  try {
+    const materia = await prisma.materia.findUnique({
+      where: { id: Number(req.params.materiaId) },
+      include: { curso: true }
+    });
+    if (!materia) return res.status(404).json({ error: 'Materia no encontrada' });
+
+    const matriculas = await prisma.matricula.findMany({
+      where: { cursoId: materia.cursoId, activo: true },
+      orderBy: [{ apellidos: 'asc' }, { nombres: 'asc' }]
+    });
+    res.json({ materia, matriculas });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los estudiantes de la materia' });
+  }
+};
+
 export const actualizarCurso = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { ramaArtesanal, anioFormativo, fechaInicio, fechaFin } = req.body;
