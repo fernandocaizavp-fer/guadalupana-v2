@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoadingService } from '../../../services/loading';
 import { PortalService, Prospecto, DatosProspecto, EstadoProspecto, ESPECIALIDADES } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 type Filtro = 'TODOS' | EstadoProspecto;
 
@@ -18,7 +19,7 @@ type Filtro = 'TODOS' | EstadoProspecto;
 // administrador las revisa y marca a quién ya contactó.
 @Component({
   selector: 'app-prospectos',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './prospectos.html',
   styleUrl: './prospectos.scss'

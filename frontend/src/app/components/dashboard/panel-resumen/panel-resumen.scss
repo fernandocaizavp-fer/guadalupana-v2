@@ -1,0 +1,148 @@
+:host { display: block; margin-bottom: 36px; }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.kpi {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease;
+
+  // Franja de color a la izquierda
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--tono);
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(26, 42, 94, 0.10);
+  }
+
+  &:focus-visible { outline: 3px solid #c8a84b; outline-offset: 2px; }
+}
+
+.tono-azul { --tono: #1a2a5e; --tono-suave: #e8ecf7; }
+.tono-dorado { --tono: #b08d2c; --tono-suave: #fbf4e2; }
+.tono-verde { --tono: #2e7d32; --tono-suave: #e8f5e9; }
+.tono-rojo { --tono: #d32f2f; --tono-suave: #fdecea; }
+
+.kpi-icono {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  background: var(--tono-suave);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon { color: var(--tono); font-size: 26px; width: 26px; height: 26px; }
+}
+
+.kpi-texto { display: flex; flex-direction: column; min-width: 0; }
+.kpi-titulo { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+.kpi-valor { font-size: 26px; font-weight: 800; color: #1a2a5e; line-height: 1.25; }
+.kpi-detalle { font-size: 12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.graficos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.panel {
+  background: white;
+  border: 1px solid #e8eaf0;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  min-width: 0;
+
+  &.ancho { grid-column: 1 / -1; }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+
+    h3 { margin: 0; font-size: 16px; font-weight: 700; color: #1a2a5e; }
+    span { font-size: 12px; color: #94a3b8; }
+  }
+}
+
+// Skeleton con brillo que recorre el bloque
+.esqueleto {
+  min-height: 92px;
+  cursor: default;
+  border-color: #eef0f5;
+  background: linear-gradient(90deg, #f1f3f8 25%, #fafbfd 50%, #f1f3f8 75%);
+  background-size: 200% 100%;
+  animation: brillo 1.3s linear infinite;
+
+  &::before { display: none; }
+  &.alto { min-height: 240px; }
+}
+
+@keyframes brillo {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.aviso-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: #fdecea;
+  color: #b42318;
+  font-size: 14px;
+
+  button {
+    margin-left: auto;
+    border: none;
+    background: #b42318;
+    color: white;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto { animation: none; }
+}
+
+@media (max-width: 1024px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .kpis { grid-template-columns: 1fr; gap: 12px; }
+  .graficos { grid-template-columns: 1fr; }
+  .kpi-valor { font-size: 22px; }
+  .panel { padding: 18px 16px; }
+}

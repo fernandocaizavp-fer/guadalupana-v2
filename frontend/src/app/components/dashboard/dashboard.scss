@@ -25,6 +25,7 @@
   margin-bottom: 36px;
   h1 { font-size: 26px; font-weight: 800; color: #1a2a5e; margin: 0 0 8px; }
   p { color: #666; font-size: 15px; margin: 0; strong { color: #1a2a5e; } }
+  .fecha-hoy { color: #b08d2c; font-weight: 600; &::first-letter { text-transform: uppercase; } }
 }
 
 .section-label {

@@ -67,10 +67,8 @@
     </div>
 
     @if (cargado && eventos.length === 0) {
-      <div class="vacio">
-        <mat-icon>event_busy</mat-icon>
-        Aún no hay eventos en el calendario público.
-      </div>
+      <app-estado-vacio icono="event_busy" titulo="Aún no hay eventos"
+                        mensaje="Los eventos que agregues se mostrarán en el calendario de la página principal." />
     }
 
     @for (e of eventos; track e.id) {

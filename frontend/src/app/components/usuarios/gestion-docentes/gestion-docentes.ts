@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -15,16 +15,22 @@ import { MatDividerModule } from '@angular/material/divider';
 import { UsuarioService } from '../../../services/usuario';
 import { CursoService } from '../../../services/curso';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
+import { DialogService } from '../../../services/dialog';
+import { NotificacionService } from '../../../services/notificacion';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-gestion-docentes',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
+  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatFormFieldModule, MatInputModule, MatTableModule, MatProgressSpinnerModule,
     MatSnackBarModule, MatSelectModule, MatDividerModule, FotoPerfil],
   templateUrl: './gestion-docentes.html',
   styleUrl: './gestion-docentes.scss'
 })
 export class GestionDocentes implements OnInit {
+  private dialogService = inject(DialogService);
+  private notificacion = inject(NotificacionService);
+
   docentes: any[] = [];
   cursos: any[] = [];
   loading = true;
@@ -196,19 +202,31 @@ getMateriasDocente(docente: any): any[] {
 
 // ── Quitar asignaciones (libera la materia para reasignarla) ──
 
-quitarMateria(item: any) {
-  if (!confirm(`¿Quitar "${item.nombre}" (${item.cursoNombre}) de este docente?`)) return;
+async quitarMateria(item: any) {
+  const ok = await this.dialogService.confirm({
+    titulo: 'Quitar materia',
+    mensaje: `¿Quitar "${item.nombre}" (${item.cursoNombre}) de este docente?`,
+    confirmText: 'Sí, quitar',
+    peligro: true
+  });
+  if (!ok) return;
   this.usuarioService.desasignarProfesor(item.id).subscribe({
     next: () => {
-      this.snackBar.open('Materia liberada', 'OK', { duration: 3000 });
+      this.notificacion.exito('Materia liberada');
       this.cargarDocentes();
     },
-    error: () => this.snackBar.open('Error al quitar la materia', 'OK', { duration: 3000 })
+    error: () => this.notificacion.error('Error al quitar la materia')
   });
 }
 
-quitarSubmateriaGrupo(item: any) {
-  if (!confirm(`¿Quitar las submaterias de "${item.cursoNombre}" de este docente?`)) return;
+async quitarSubmateriaGrupo(item: any) {
+  const ok = await this.dialogService.confirm({
+    titulo: 'Quitar submaterias',
+    mensaje: `¿Quitar las submaterias de "${item.cursoNombre}" de este docente?`,
+    confirmText: 'Sí, quitar',
+    peligro: true
+  });
+  if (!ok) return;
   const ids: number[] = item.ids || [];
   let completados = 0;
   let huboError = false;
@@ -216,40 +234,50 @@ quitarSubmateriaGrupo(item: any) {
     next: () => {
       completados++;
       if (completados === ids.length) {
-        this.snackBar.open('Submaterias liberadas', 'OK', { duration: 3000 });
+        this.notificacion.exito('Submaterias liberadas');
         this.cargarDocentes();
       }
     },
     error: () => {
       if (!huboError) {
         huboError = true;
-        this.snackBar.open('Error al quitar las submaterias', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al quitar las submaterias');
       }
     }
   }));
 }
 
-quitarPrincipal(item: any) {
-  if (!confirm(`¿Quitar el rol de docente principal de "${item.cursoNombre}"?`)) return;
+async quitarPrincipal(item: any) {
+  const ok = await this.dialogService.confirm({
+    titulo: 'Quitar docente principal',
+    mensaje: `¿Quitar el rol de docente principal de "${item.cursoNombre}"?`,
+    confirmText: 'Sí, quitar',
+    peligro: true
+  });
+  if (!ok) return;
   this.usuarioService.desasignarProfesorPrincipal(item.cursoId).subscribe({
     next: () => {
-      this.snackBar.open('Rol de docente principal quitado', 'OK', { duration: 3000 });
+      this.notificacion.exito('Rol de docente principal quitado');
       this.cargarDocentes();
     },
-    error: () => this.snackBar.open('Error al quitar el rol principal', 'OK', { duration: 3000 })
+    error: () => this.notificacion.error('Error al quitar el rol principal')
   });
 }
 
-  eliminarDocente(id: number) {
-    if (confirm('¿Eliminar este docente?')) {
-      this.usuarioService.eliminarDocente(id).subscribe({
-        next: () => {
-          this.snackBar.open('Docente eliminado', 'OK', { duration: 3000 });
-          this.cargarDocentes();
-        },
-        error: () => this.snackBar.open('Error al eliminar', 'OK', { duration: 3000 })
-      });
-    }
+  async eliminarDocente(id: number) {
+    const ok = await this.dialogService.confirm({
+      titulo: 'Eliminar docente',
+      mensaje: '¿Eliminar este docente?',
+      peligro: true
+    });
+    if (!ok) return;
+    this.usuarioService.eliminarDocente(id).subscribe({
+      next: () => {
+        this.notificacion.exito('Docente eliminado correctamente');
+        this.cargarDocentes();
+      },
+      error: () => this.notificacion.error('Error al eliminar el docente')
+    });
   }
 
   // MATERIAS NORMALES

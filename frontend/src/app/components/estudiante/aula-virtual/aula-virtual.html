@@ -31,10 +31,8 @@
   }
 
   @if (cargado && !error && materias.length === 0) {
-    <div class="vacio">
-      <mat-icon>menu_book</mat-icon>
-      <p>Tu curso todavía no tiene materias registradas</p>
-    </div>
+    <app-estado-vacio icono="menu_book" titulo="Aún no hay materias"
+                      mensaje="Tu curso todavía no tiene materias registradas. Vuelve a revisar pronto." />
   }
 
   @if (cargado && !error && materias.length > 0) {

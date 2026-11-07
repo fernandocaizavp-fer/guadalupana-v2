@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { randomInt } from 'crypto';
 import prisma from '../lib/prisma';
+import { jwtSecret } from '../lib/seguridad';
 
 // Perfil que el usuario eligió en la pantalla de login → rol que le corresponde.
 const ROL_DEL_PERFIL: Record<string, { rol: string; nombre: string }> = {
@@ -51,7 +53,7 @@ export const login = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
       { id: usuario.id, rol: usuario.rol },
-      process.env.JWT_SECRET || 'secreto',
+      jwtSecret(),
       { expiresIn: '8h' }
     );
 
@@ -114,7 +116,7 @@ export const solicitarRecuperacion = async (req: Request, res: Response) => {
     if (!usuario) return res.status(404).json({ error: 'No existe una cuenta con ese correo' });
 
     // Genera código de 6 dígitos
-    const codigo = String(Math.floor(100000 + Math.random() * 900000));
+    const codigo = String(randomInt(100000, 1000000));
     const expira = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
     await prisma.recuperacionPassword.create({

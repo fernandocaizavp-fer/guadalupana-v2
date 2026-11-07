@@ -125,10 +125,8 @@
   }
 
   @if (!loading && tareas.length === 0) {
-    <div class="center">
-      <mat-icon class="empty-icon">assignment</mat-icon>
-      <p>No hay tareas en el semestre {{ semestreSeleccionado }}</p>
-    </div>
+    <app-estado-vacio icono="assignment" [titulo]="'No hay tareas en el semestre ' + semestreSeleccionado"
+                      mensaje="Crea una tarea para empezar a registrar las notas de este semestre." />
   }
 
   @if (!loading && tareas.length > 0) {

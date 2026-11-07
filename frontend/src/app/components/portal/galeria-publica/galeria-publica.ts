@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoadingService } from '../../../services/loading';
 import { PortalService, FotoGaleria, FormatoGrid, FORMATOS_GRID } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const LIMITE_BYTES = 5 * 1024 * 1024;
@@ -18,7 +19,7 @@ const LIMITE_BYTES = 5 * 1024 * 1024;
 // Fotos públicas de la landing. Las imágenes se guardan en Cloudflare R2.
 @Component({
   selector: 'app-galeria-publica',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './galeria-publica.html',
   styleUrl: './galeria-publica.scss'

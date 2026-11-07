@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,6 +10,8 @@ import { DatePipe } from '@angular/common';
 import { AsistenciaService } from '../../../services/asistencia';
 import { CursoService } from '../../../services/curso';
 import { Title } from '@angular/platform-browser';
+import { DialogService } from '../../../services/dialog';
+import { NotificacionService } from '../../../services/notificacion';
 
 @Component({
   selector: 'app-registrar-asistencia',
@@ -19,6 +21,9 @@ import { Title } from '@angular/platform-browser';
   styleUrl: './registrar-asistencia.scss'
 })
 export class RegistrarAsistencia implements OnInit {
+  private dialogService = inject(DialogService);
+  private notificacion = inject(NotificacionService);
+
   materiaId = 0;
   materia: any = null;
   matriculas: any[] = [];
@@ -114,10 +119,14 @@ export class RegistrarAsistencia implements OnInit {
       return;
     }
     this.guardando = true;
-    const detalles = this.matriculas.map(m => ({
-      matriculaId: m.id,
-      presente: this.presentes[m.id] ?? true
-    }));
+    // Al editar, un estudiante sin registro de ese día (p. ej. matriculado después)
+    // queda fuera salvo que el docente lo marque; en un registro nuevo están todos.
+    const detalles = this.matriculas
+      .filter(m => !this.editandoId || this.presentes[m.id] !== undefined)
+      .map(m => ({
+        matriculaId: m.id,
+        presente: this.presentes[m.id] ?? true
+      }));
 
     // Modo edición: actualizar el registro existente
     if (this.editandoId) {
@@ -167,8 +176,9 @@ export class RegistrarAsistencia implements OnInit {
     this.editandoId = asistencia.id;
     const f = new Date(asistencia.fecha);
     this.fecha = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
-    // Parte de todos presentes y aplica el estado guardado de cada estudiante
-    this.marcarTodos();
+    // Solo el estado guardado: quien no tiene registro ese día (p. ej. matriculado
+    // después) aparece "Sin registro" en lugar de marcarse presente sin querer.
+    this.presentes = {};
     (asistencia.detalles || []).forEach((d: any) => {
       this.presentes[d.matriculaId] = d.presente;
     });
@@ -182,16 +192,20 @@ export class RegistrarAsistencia implements OnInit {
     this.marcarTodos();
   }
 
-  eliminarAsistencia(id: number) {
-    if (confirm('¿Eliminar este registro de asistencia?')) {
-      this.asistenciaService.eliminarAsistencia(id).subscribe({
-        next: () => {
-          this.snackBar.open('Registro eliminado', 'OK', { duration: 3000 });
-          this.cargarAsistencias();
-        },
-        error: () => this.snackBar.open('Error al eliminar', 'OK', { duration: 3000 })
-      });
-    }
+  async eliminarAsistencia(id: number) {
+    const ok = await this.dialogService.confirm({
+      titulo: 'Eliminar asistencia',
+      mensaje: '¿Eliminar este registro de asistencia?',
+      peligro: true
+    });
+    if (!ok) return;
+    this.asistenciaService.eliminarAsistencia(id).subscribe({
+      next: () => {
+        this.notificacion.exito('Registro de asistencia eliminado');
+        this.cargarAsistencias();
+      },
+      error: () => this.notificacion.error('Error al eliminar el registro')
+    });
   }
 
   contarPresentes(asistencia: any): number {

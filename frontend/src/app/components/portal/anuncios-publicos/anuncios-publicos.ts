@@ -11,6 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { LoadingService } from '../../../services/loading';
 import { PortalService, AnuncioPublico } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const LIMITE_BYTES = 5 * 1024 * 1024;
@@ -19,7 +20,7 @@ const LIMITE_BYTES = 5 * 1024 * 1024;
 // internos (`/anuncios`) de docentes y estudiantes.
 @Component({
   selector: 'app-anuncios-publicos',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './anuncios-publicos.html',
   styleUrl: './anuncios-publicos.scss'

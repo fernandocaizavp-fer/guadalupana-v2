@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -18,16 +18,22 @@ import { TareaService } from '../../../services/tarea';
 import { CursoService } from '../../../services/curso';
 import { NotaService } from '../../../services/nota';
 import { Title } from '@angular/platform-browser';
+import { DialogService } from '../../../services/dialog';
+import { NotificacionService } from '../../../services/notificacion';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-gestionar-tareas',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDividerModule, MatCheckboxModule, DatePipe],
   templateUrl: './gestionar-tareas.html',
   styleUrl: './gestionar-tareas.scss'
 })
 export class GestionarTareas implements OnInit {
+  private dialogService = inject(DialogService);
+  private notificacion = inject(NotificacionService);
+
   materiaId = 0;
   materia: any = null;
   tareas: any[] = [];
@@ -58,6 +64,11 @@ export class GestionarTareas implements OnInit {
 
   ngOnInit() {
     this.materiaId = Number(this.route.snapshot.paramMap.get('materiaId'));
+    // La materia (nombre y curso) se pide aparte: antes salía de la primera tarea,
+    // así que sin tareas el título decía "Materia" y el AL14 no se podía descargar.
+    this.cursoService.obtenerEstudiantesMateria(this.materiaId).subscribe({
+      next: ({ materia }) => { this.materia = materia; this.cdr.detectChanges(); }
+    });
     this.cargarTareas();
   }
 
@@ -66,9 +77,6 @@ export class GestionarTareas implements OnInit {
     this.tareaService.getTareasPorMateria(this.materiaId, this.semestreSeleccionado).subscribe({
       next: (tareas) => {
         this.tareas = tareas;
-        if (tareas.length > 0) {
-          this.materia = tareas[0].materia;
-        }
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -83,28 +91,22 @@ export class GestionarTareas implements OnInit {
     const lugarFecha = prompt('Ingresa el lugar y fecha', lugarFechaHoy());
     if (!lugarFecha) return;
     
-    // Necesitamos el cursoId
-    this.tareaService.getTareasPorMateria(this.materiaId).subscribe({
-      next: (tareas) => {
-        if (tareas.length === 0) {
-          this.snackBar.open('No hay tareas para generar el reporte', 'OK', { duration: 3000 });
-          return;
-        }
-        const cursoId = tareas[0].materia?.curso?.id;
-        if (!cursoId) return;
-
-        this.tareaService.descargarAL14(cursoId, lugarFecha, this.semestreSeleccionado).subscribe({
-          next: (blob) => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `AL14_semestre${this.semestreSeleccionado}.docx`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-          },
-          error: () => this.snackBar.open('Error al descargar AL14', 'OK', { duration: 3000 })
-        });
-      }
+    const cursoId = this.materia?.cursoId;
+    if (!cursoId) {
+      this.snackBar.open('Todavía se están cargando los datos de la materia', 'OK', { duration: 3000 });
+      return;
+    }
+    // El AL14 también usa las notas del ingreso rápido: no exige que existan tareas.
+    this.tareaService.descargarAL14(cursoId, lugarFecha, this.semestreSeleccionado).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `AL14_semestre${this.semestreSeleccionado}.docx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.snackBar.open('Error al descargar AL14', 'OK', { duration: 3000 })
     });
   }
 
@@ -197,16 +199,20 @@ export class GestionarTareas implements OnInit {
     this.router.navigate(['/tareas', this.materiaId, 'matriz']);
   }
 
-  eliminarTarea(id: number) {
-    if (confirm('¿Eliminar esta tarea y todas sus notas?')) {
-      this.tareaService.eliminarTarea(id).subscribe({
-        next: () => {
-          this.snackBar.open('Tarea eliminada', 'OK', { duration: 3000 });
-          this.cargarTareas();
-        },
-        error: () => this.snackBar.open('Error al eliminar', 'OK', { duration: 3000 })
-      });
-    }
+  async eliminarTarea(id: number) {
+    const ok = await this.dialogService.confirm({
+      titulo: 'Eliminar tarea',
+      mensaje: '¿Eliminar esta tarea y todas sus notas?',
+      peligro: true
+    });
+    if (!ok) return;
+    this.tareaService.eliminarTarea(id).subscribe({
+      next: () => {
+        this.notificacion.exito('Tarea eliminada correctamente');
+        this.cargarTareas();
+      },
+      error: () => this.notificacion.error('Error al eliminar la tarea')
+    });
   }
 
   calcularPromedioTarea(tarea: any): string {

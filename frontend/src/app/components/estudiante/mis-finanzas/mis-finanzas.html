@@ -51,10 +51,8 @@
       </div>
 
       @if (deudas.length === 0) {
-        <div class="vacio en-tarjeta">
-          <mat-icon>receipt_long</mat-icon>
-          <p>Todavía no tienes conceptos de pago registrados</p>
-        </div>
+        <app-estado-vacio icono="receipt_long" titulo="No tienes pagos pendientes"
+                          mensaje="Cuando el centro registre un concepto de pago, lo verás aquí." [compacto]="true" />
       } @else {
         <div class="tabla-scroll">
           <table class="tabla">

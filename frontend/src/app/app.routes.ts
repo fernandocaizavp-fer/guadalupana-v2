@@ -1,87 +1,53 @@
 import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
-import { Dashboard } from './components/dashboard/dashboard';
-import { NuevaMatricula } from './components/matriculas/nueva-matricula/nueva-matricula';
-import { ListaCursos } from './components/cursos/lista-cursos/lista-cursos';
-import { NuevoCurso } from './components/cursos/nuevo-curso/nuevo-curso';
-import { DetalleCurso } from './components/cursos/detalle-curso/detalle-curso';
 import { Landing } from './components/landing/landing';
-import { NotasCurso } from './components/notas/notas-curso/notas-curso';
 import { AuthGuard } from './guards/auth.guard';
-import { DashboardProfesor } from './components/profesor/dashboard-profesor/dashboard-profesor';
-import { DashboardEstudiante } from './components/estudiante/dashboard-estudiante/dashboard-estudiante';
-import { GestionDocentes } from './components/usuarios/gestion-docentes/gestion-docentes';
-import { GestionarTareas } from './components/tareas/gestionar-tareas/gestionar-tareas';
-import { NotasTarea } from './components/tareas/notas-tarea/notas-tarea';
-import { MatrizNotas } from './components/tareas/matriz-notas/matriz-notas';
-import { DetalleMateria } from './components/estudiante/detalle-materia/detalle-materia';
-import { IngresarSupletorios } from './components/supletorios/ingresar-supletorios/ingresar-supletorios';
-import { SupletorioDocente } from './components/supletorios/supletorio-docente/supletorio-docente';
-import { RegistrarAsistencia } from './components/asistencia/registrar-asistencia/registrar-asistencia';
-import { Reportes } from './components/reportes/reportes/reportes';
-import { GestionarAnuncios } from './components/anuncios/gestionar-anuncios/gestionar-anuncios';
-import { SubmateriasMateria } from './components/estudiante/submaterias-materia/submaterias-materia';
-import { IngresarDisciplina } from './components/disciplina/ingresar-disciplina/ingresar-disciplina';
-import { Documentos } from './components/documentos/documentos/documentos';
-import { IngresarExamenGrado } from './components/examen-grado/ingresar-examen-grado/ingresar-examen-grado';
-import { CambiarPassword } from './components/cambiar-password/cambiar-password';
-import { RecuperarPassword } from './components/recuperar-password/recuperar-password';
-import { ConfiguracionComponent } from './components/configuracion/configuracion';
-import { DetalleTarea } from './components/tareas/detalle-tarea/detalle-tarea';
-import { DetalleTareaEstudiante } from './components/estudiante/detalle-tarea-estudiante/detalle-tarea-estudiante';
-import { AulaVirtual } from './components/estudiante/aula-virtual/aula-virtual';
-import { MisFinanzas } from './components/estudiante/mis-finanzas/mis-finanzas';
-import { MisAsistencias } from './components/estudiante/mis-asistencias/mis-asistencias';
-import { GestionarFinanzas } from './components/finanzas/gestionar-finanzas/gestionar-finanzas';
-import { IngresoMasivo } from './components/ingreso-masivo/ingreso-masivo';
-import { Prospectos } from './components/portal/prospectos/prospectos';
-import { AnunciosPublicos } from './components/portal/anuncios-publicos/anuncios-publicos';
-import { GaleriaPublica } from './components/portal/galeria-publica/galeria-publica';
-import { CalendarioPublico } from './components/portal/calendario-publico/calendario-publico';
 
-
-
+// Carga diferida (lazy loading): cada pantalla se descarga solo cuando se visita.
+// Landing y Login quedan en el paquete inicial porque son las puertas de entrada.
 export const routes: Routes = [
   { path: '', component: Landing },
   { path: 'login', component: Login },
-  { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
-  { path: 'cursos', component: ListaCursos, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'cursos/nuevo', component: NuevoCurso, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'cursos/editar/:id', component: NuevoCurso, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'cursos/:id', component: DetalleCurso, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'cursos/:id/notas', component: NotasCurso, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'matriculas/nueva', component: NuevaMatricula, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'profesor', component: DashboardProfesor, canActivate: [AuthGuard], data: { roles: ['PROFESOR'] } },
-  { path: 'estudiante', component: DashboardEstudiante, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'tareas/:materiaId', component: GestionarTareas, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'tareas/:materiaId/notas/:tareaId', component: NotasTarea, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'tareas/:materiaId/matriz', component: MatrizNotas, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'tareas/:materiaId/detalle/:tareaId', component: DetalleTarea, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'docentes', component: GestionDocentes, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'estudiante/materia/:materiaId/:semestre', component: DetalleMateria, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'estudiante/tarea/:materiaId/:tareaId/:semestre', component: DetalleTareaEstudiante, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'estudiante/aula-virtual', component: AulaVirtual, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'estudiante/finanzas', component: MisFinanzas, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'estudiante/asistencias', component: MisAsistencias, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'finanzas', component: GestionarFinanzas, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'dashboard', loadComponent: () => import('./components/dashboard/dashboard').then(m => m.Dashboard), canActivate: [AuthGuard] },
+  { path: 'cursos', loadComponent: () => import('./components/cursos/lista-cursos/lista-cursos').then(m => m.ListaCursos), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'cursos/nuevo', loadComponent: () => import('./components/cursos/nuevo-curso/nuevo-curso').then(m => m.NuevoCurso), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'cursos/editar/:id', loadComponent: () => import('./components/cursos/nuevo-curso/nuevo-curso').then(m => m.NuevoCurso), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'cursos/:id', loadComponent: () => import('./components/cursos/detalle-curso/detalle-curso').then(m => m.DetalleCurso), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'cursos/:id/notas', loadComponent: () => import('./components/notas/notas-curso/notas-curso').then(m => m.NotasCurso), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'matriculas/nueva', loadComponent: () => import('./components/matriculas/nueva-matricula/nueva-matricula').then(m => m.NuevaMatricula), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'profesor', loadComponent: () => import('./components/profesor/dashboard-profesor/dashboard-profesor').then(m => m.DashboardProfesor), canActivate: [AuthGuard], data: { roles: ['PROFESOR'] } },
+  { path: 'estudiante', loadComponent: () => import('./components/estudiante/dashboard-estudiante/dashboard-estudiante').then(m => m.DashboardEstudiante), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'tareas/:materiaId', loadComponent: () => import('./components/tareas/gestionar-tareas/gestionar-tareas').then(m => m.GestionarTareas), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'tareas/:materiaId/notas/:tareaId', loadComponent: () => import('./components/tareas/notas-tarea/notas-tarea').then(m => m.NotasTarea), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'tareas/:materiaId/matriz', loadComponent: () => import('./components/tareas/matriz-notas/matriz-notas').then(m => m.MatrizNotas), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'tareas/:materiaId/detalle/:tareaId', loadComponent: () => import('./components/tareas/detalle-tarea/detalle-tarea').then(m => m.DetalleTarea), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'docentes', loadComponent: () => import('./components/usuarios/gestion-docentes/gestion-docentes').then(m => m.GestionDocentes), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'estudiante/materia/:materiaId/:semestre', loadComponent: () => import('./components/estudiante/detalle-materia/detalle-materia').then(m => m.DetalleMateria), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'estudiante/tarea/:materiaId/:tareaId/:semestre', loadComponent: () => import('./components/estudiante/detalle-tarea-estudiante/detalle-tarea-estudiante').then(m => m.DetalleTareaEstudiante), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'estudiante/aula-virtual', loadComponent: () => import('./components/estudiante/aula-virtual/aula-virtual').then(m => m.AulaVirtual), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'estudiante/finanzas', loadComponent: () => import('./components/estudiante/mis-finanzas/mis-finanzas').then(m => m.MisFinanzas), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'estudiante/asistencias', loadComponent: () => import('./components/estudiante/mis-asistencias/mis-asistencias').then(m => m.MisAsistencias), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'finanzas', loadComponent: () => import('./components/finanzas/gestionar-finanzas/gestionar-finanzas').then(m => m.GestionarFinanzas), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   // Gestión del Portal Web: lo que ve el público en la landing (solo ADMIN).
   // Se entra desde las cuatro tarjetas del panel; no hay vista intermedia.
-  { path: 'portal-web/prospectos', component: Prospectos, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'portal-web/anuncios', component: AnunciosPublicos, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'portal-web/galeria', component: GaleriaPublica, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'portal-web/calendario', component: CalendarioPublico, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'supletorios/:cursoId', component: IngresarSupletorios, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'supletorios/materia/:materiaId', component: SupletorioDocente, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'asistencia/materia/:materiaId', component: RegistrarAsistencia, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'reportes', component: Reportes, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'anuncios', component: GestionarAnuncios, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'estudiante/submaterias/:materiaId/:semestre', component: SubmateriasMateria, canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'disciplina/materia/:materiaId', component: IngresarDisciplina, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'documentos', component: Documentos, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'examen-grado/:materiaId', component: IngresarExamenGrado, canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'configuracion', component: ConfiguracionComponent, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'ingreso-masivo', component: IngresoMasivo, canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'cambiar-password', component: CambiarPassword, canActivate: [AuthGuard] },
-  { path: 'recuperar-password', component: RecuperarPassword },
-  
+  { path: 'portal-web/prospectos', loadComponent: () => import('./components/portal/prospectos/prospectos').then(m => m.Prospectos), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'portal-web/anuncios', loadComponent: () => import('./components/portal/anuncios-publicos/anuncios-publicos').then(m => m.AnunciosPublicos), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'portal-web/galeria', loadComponent: () => import('./components/portal/galeria-publica/galeria-publica').then(m => m.GaleriaPublica), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'portal-web/calendario', loadComponent: () => import('./components/portal/calendario-publico/calendario-publico').then(m => m.CalendarioPublico), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'supletorios/:cursoId', loadComponent: () => import('./components/supletorios/ingresar-supletorios/ingresar-supletorios').then(m => m.IngresarSupletorios), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'supletorios/materia/:materiaId', loadComponent: () => import('./components/supletorios/supletorio-docente/supletorio-docente').then(m => m.SupletorioDocente), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'asistencia/materia/:materiaId', loadComponent: () => import('./components/asistencia/registrar-asistencia/registrar-asistencia').then(m => m.RegistrarAsistencia), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'reportes', loadComponent: () => import('./components/reportes/reportes/reportes').then(m => m.Reportes), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'anuncios', loadComponent: () => import('./components/anuncios/gestionar-anuncios/gestionar-anuncios').then(m => m.GestionarAnuncios), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'estudiante/submaterias/:materiaId/:semestre', loadComponent: () => import('./components/estudiante/submaterias-materia/submaterias-materia').then(m => m.SubmateriasMateria), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  { path: 'disciplina/materia/:materiaId', loadComponent: () => import('./components/disciplina/ingresar-disciplina/ingresar-disciplina').then(m => m.IngresarDisciplina), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'documentos', loadComponent: () => import('./components/documentos/documentos/documentos').then(m => m.Documentos), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'examen-grado/:materiaId', loadComponent: () => import('./components/examen-grado/ingresar-examen-grado/ingresar-examen-grado').then(m => m.IngresarExamenGrado), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'configuracion', loadComponent: () => import('./components/configuracion/configuracion').then(m => m.ConfiguracionComponent), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'ingreso-masivo', loadComponent: () => import('./components/ingreso-masivo/ingreso-masivo').then(m => m.IngresoMasivo), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'auditoria', loadComponent: () => import('./components/auditoria/historial-auditoria').then(m => m.HistorialAuditoria), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'cambiar-password', loadComponent: () => import('./components/cambiar-password/cambiar-password').then(m => m.CambiarPassword), canActivate: [AuthGuard] },
+  { path: 'recuperar-password', loadComponent: () => import('./components/recuperar-password/recuperar-password').then(m => m.RecuperarPassword) },
+  // Siempre la última: cualquier ruta no declarada muestra la página 404.
+  { path: '**', loadComponent: () => import('./components/no-encontrado/no-encontrado').then(m => m.NoEncontrado) },
 ];

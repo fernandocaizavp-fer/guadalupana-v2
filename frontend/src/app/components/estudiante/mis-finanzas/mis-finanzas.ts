@@ -13,13 +13,14 @@ import {
   FinanzasService, Deuda, Comprobante, ResumenFinanzas, EstadoVisible,
   ETIQUETA_ESTADO, estadoVisible, dinero
 } from '../../../services/finanzas';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 const TIPOS_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const LIMITE_BYTES = 5 * 1024 * 1024;
 
 @Component({
   selector: 'app-mis-finanzas',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './mis-finanzas.html',
   styleUrl: './mis-finanzas.scss'

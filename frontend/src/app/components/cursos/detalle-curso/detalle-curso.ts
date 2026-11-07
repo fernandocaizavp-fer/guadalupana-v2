@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, Inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,6 +17,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { DatePipe } from '@angular/common';
 import { CursoService } from '../../../services/curso';
 import { MatriculaService } from '../../../services/matricula';
+import { DialogService } from '../../../services/dialog';
+import { NotificacionService } from '../../../services/notificacion';
 
 @Component({
   selector: 'app-editar-matricula-dialog',
@@ -328,6 +330,9 @@ export class EditarMatriculaDialog {
   styleUrl: './detalle-curso.scss'
 })
 export class DetalleCurso implements OnInit {
+  private dialogService = inject(DialogService);
+  private notificacion = inject(NotificacionService);
+
   curso: any = null;
   loading = true;
   descargando: number | null = null;
@@ -389,16 +394,20 @@ export class DetalleCurso implements OnInit {
     });
   }
 
-  eliminarEstudiante(matricula: any) {
-    if (confirm(`¿Eliminar a ${matricula.nombres} ${matricula.apellidos}?`)) {
-      this.matriculaService.eliminarMatricula(matricula.id).subscribe({
-        next: () => {
-          this.snackBar.open('Estudiante eliminado', 'OK', { duration: 3000 });
-          this.ngOnInit();
-        },
-        error: () => this.snackBar.open('Error al eliminar', 'OK', { duration: 3000 })
-      });
-    }
+  async eliminarEstudiante(matricula: any) {
+    const ok = await this.dialogService.confirm({
+      titulo: 'Eliminar estudiante',
+      mensaje: `¿Eliminar a ${matricula.nombres} ${matricula.apellidos}? Su matrícula quedará archivada y ya no podrá iniciar sesión.`,
+      peligro: true
+    });
+    if (!ok) return;
+    this.matriculaService.eliminarMatricula(matricula.id).subscribe({
+      next: () => {
+        this.notificacion.exito('Estudiante eliminado correctamente');
+        this.ngOnInit();
+      },
+      error: () => this.notificacion.error('Error al eliminar el estudiante')
+    });
   }
 
   descargarMatricula(matricula: any) {
@@ -489,22 +498,26 @@ agregarSubmateriaDoble() {
   });
 }
 
-eliminarSubmateriaDoble(nombre: string) {
-  if (confirm(`¿Eliminar "${nombre}" de Práctica y Teoría?`)) {
-    const subs = this.curso?.materias?.filter((m: any) => m.esSubmateria && m.nombre === nombre) || [];
-    const deletes = subs.map((s: any) => this.cursoService.eliminarSubmateria(s.id));
-    let completados = 0;
-    deletes.forEach((d: any) => d.subscribe({
-      next: () => {
-        completados++;
-        if (completados === deletes.length) {
-          this.snackBar.open('Submateria eliminada', 'OK', { duration: 3000 });
-          this.ngOnInit();
-        }
-      },
-      error: () => this.snackBar.open('Error al eliminar', 'OK', { duration: 3000 })
-    }));
-  }
+async eliminarSubmateriaDoble(nombre: string) {
+  const ok = await this.dialogService.confirm({
+    titulo: 'Eliminar submateria',
+    mensaje: `¿Eliminar "${nombre}" de Práctica y Teoría?`,
+    peligro: true
+  });
+  if (!ok) return;
+  const subs = this.curso?.materias?.filter((m: any) => m.esSubmateria && m.nombre === nombre) || [];
+  const deletes = subs.map((s: any) => this.cursoService.eliminarSubmateria(s.id));
+  let completados = 0;
+  deletes.forEach((d: any) => d.subscribe({
+    next: () => {
+      completados++;
+      if (completados === deletes.length) {
+        this.notificacion.exito('Submateria eliminada correctamente');
+        this.ngOnInit();
+      }
+    },
+    error: () => this.notificacion.error('Error al eliminar la submateria')
+  }));
 }
 
   volver() {

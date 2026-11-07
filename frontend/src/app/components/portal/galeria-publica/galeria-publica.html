@@ -70,10 +70,8 @@
     </div>
 
     @if (cargado && fotos.length === 0) {
-      <div class="vacio">
-        <mat-icon>photo_library</mat-icon>
-        Aún no hay fotos. Mientras tanto, la página principal muestra las fotos de graduados por defecto.
-      </div>
+      <app-estado-vacio icono="photo_library" titulo="Aún no hay fotos"
+                        mensaje="Mientras tanto, la página principal muestra las fotos de graduados por defecto." />
     } @else {
       <div class="panel-cuerpo fotos">
         @for (f of fotos; track f.id) {

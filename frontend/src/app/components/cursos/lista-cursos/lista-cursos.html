@@ -17,11 +17,9 @@
   @if (loading) {
     <div class="center"><mat-spinner></mat-spinner></div>
   } @else if (cursos.length === 0) {
-    <div class="center">
-      <mat-icon class="empty-icon">school</mat-icon>
-      <p>No hay cursos registrados</p>
-      <button class="new-btn" (click)="irANuevoCurso()">Crear primer curso</button>
-    </div>
+    <app-estado-vacio icono="school" titulo="Aún no hay cursos"
+                      mensaje="Crea el primer curso para empezar a matricular estudiantes y asignar docentes."
+                      accion="Crear primer curso" (accionClick)="irANuevoCurso()" />
   } @else {
     <div class="cursos-grid">
       @for (curso of cursos; track curso.id) {

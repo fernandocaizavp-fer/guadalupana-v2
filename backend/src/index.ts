@@ -20,15 +20,26 @@ import configuracionRoutes from './routes/configuracion.routes';
 import finanzasRoutes from './routes/finanzas.routes';
 import academicoRoutes from './routes/academico.routes';
 import portalRoutes from './routes/portal.routes';
+import dashboardRoutes from './routes/dashboard.routes';
+import auditoriaRoutes from './routes/auditoria.routes';
+import helmet from 'helmet';
+import compression from 'compression';
 import { defensaDoS } from './middlewares/defensa.middleware';
-
-
-
+import { manejadorErrores } from './middlewares/errores.middleware';
+import { opcionesCors, avisosDeSeguridad } from './lib/seguridad';
 
 dotenv.config();
+avisosDeSeguridad();
 
 const app = express();
-app.use(cors({ origin: "*" })); // Temporal: permitir cualquier origen.
+// Render pone un proxy delante: sin esto req.ip sería la IP del proxy y el
+// límite anti-DoS (por IP) se repartiría entre todos los usuarios a la vez.
+app.set('trust proxy', 1);
+// Cabeceras de seguridad estándar. CORP en cross-origin para que el frontend
+// (otro dominio) pueda seguir mostrando las imágenes antiguas de /uploads.
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(compression());
+app.use(cors(opcionesCors()));
 app.use(express.json());
 app.use(defensaDoS);
 
@@ -53,12 +64,18 @@ app.use('/api/configuracion', configuracionRoutes);
 app.use('/api/finanzas', finanzasRoutes);
 app.use('/api/academico', academicoRoutes);
 app.use('/api/portal', portalRoutes);
-
-
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/auditoria', auditoriaRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Backend CF Guadalupana funcionando' });
 });
+
+// Siempre al final: rutas inexistentes y errores no capturados responden JSON.
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'Ruta no encontrada' });
+});
+app.use(manejadorErrores);
 
 const PORT = Number(process.env.PORT || 3000);
 app.listen(PORT, '0.0.0.0', () => {

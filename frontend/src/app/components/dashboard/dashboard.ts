@@ -9,15 +9,21 @@ import { AuthService } from '../../services/auth';
 import { FinanzasService } from '../../services/finanzas';
 import { PortalService } from '../../services/portal';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
+import { PanelResumen } from './panel-resumen/panel-resumen';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, PanelResumen],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit {
   usuario: any;
+
+  readonly saludo = saludoSegunHora(new Date().getHours());
+  readonly fechaHoy = new Date().toLocaleDateString('es-EC', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
 
   // Comprobantes de pago en revisión (globo rojo de la tarjeta de Finanzas).
   comprobantesPendientes = 0;
@@ -91,6 +97,10 @@ export class Dashboard implements OnInit {
     this.router.navigate(['/ingreso-masivo']);
   }
 
+  irAAuditoria() {
+    this.router.navigate(['/auditoria']);
+  }
+
   irACursos() {
     this.router.navigate(['/cursos']);
   }
@@ -124,4 +134,10 @@ export class Dashboard implements OnInit {
       }
     });
   }
+}
+
+function saludoSegunHora(hora: number) {
+  if (hora < 12) return 'Buenos días';
+  if (hora < 19) return 'Buenas tardes';
+  return 'Buenas noches';
 }

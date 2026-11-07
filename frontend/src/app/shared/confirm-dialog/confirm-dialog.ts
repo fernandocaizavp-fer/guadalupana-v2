@@ -9,16 +9,18 @@ export interface ConfirmData {
   confirmText?: string;
   cancelText?: string;
   icon?: string;
+  // Acción destructiva (eliminar, quitar): icono de advertencia y botón en rojo.
+  peligro?: boolean;
 }
 
 @Component({
   selector: 'app-confirm-dialog',
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   template: `
-    <div class="confirm-dialog">
+    <div class="confirm-dialog" [class.peligro]="data.peligro">
       <div class="confirm-header">
         <div class="confirm-icon">
-          <mat-icon>{{ data.icon || 'help_outline' }}</mat-icon>
+          <mat-icon>{{ data.icon || (data.peligro ? 'warning_amber' : 'help_outline') }}</mat-icon>
         </div>
         <h2>{{ data.titulo || 'Confirmar' }}</h2>
       </div>
@@ -28,18 +30,18 @@ export interface ConfirmData {
       </div>
 
       <div class="confirm-actions">
-        <button mat-stroked-button (click)="dialogRef.close(false)" class="btn-cancelar">
+        <button mat-flat-button (click)="dialogRef.close(false)" class="btn-cancelar">
           {{ data.cancelText || 'Cancelar' }}
         </button>
-        <button mat-raised-button (click)="dialogRef.close(true)" class="btn-confirmar">
-          <mat-icon>{{ data.icon || 'check' }}</mat-icon>
-          {{ data.confirmText || 'Confirmar' }}
+        <button mat-flat-button (click)="dialogRef.close(true)" class="btn-confirmar">
+          <mat-icon>{{ data.peligro ? 'delete_outline' : 'check' }}</mat-icon>
+          {{ data.confirmText || (data.peligro ? 'Sí, eliminar' : 'Confirmar') }}
         </button>
       </div>
     </div>
   `,
   styles: [`
-    .confirm-dialog { min-width: 320px; }
+    .confirm-dialog { min-width: 300px; }
 
     .confirm-header {
       display: flex;
@@ -73,25 +75,41 @@ export interface ConfirmData {
       padding: 4px 28px 20px;
       text-align: center;
 
-      p { margin: 0; color: #475569; font-size: 14px; line-height: 1.5; }
+      p { margin: 0; color: #475569; font-size: 14px; line-height: 1.5; white-space: pre-line; }
     }
 
     .confirm-actions {
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
       gap: 12px;
-      padding: 16px 24px 24px;
+      padding: 8px 24px 24px;
 
-      button { min-width: 120px; }
+      button { min-width: 120px; border-radius: 10px; }
     }
 
-    .btn-cancelar { color: #64748b !important; border-color: #cbd5e1 !important; }
+    .btn-cancelar {
+      background: #f1f5f9 !important;
+      color: #475569 !important;
+    }
 
     .btn-confirmar {
       background: linear-gradient(135deg, #1a2a5e, #2a4f9f) !important;
       color: white !important;
 
       mat-icon { font-size: 18px; width: 18px; height: 18px; margin-right: 4px; }
+    }
+
+    /* Variante de eliminación: rojo sobrio en lugar del azul institucional */
+    .peligro {
+      .confirm-header h2 { color: #b42318; }
+
+      .confirm-icon {
+        background: #fef3f2;
+        mat-icon { color: #d92d20; }
+      }
+
+      .btn-confirmar { background: linear-gradient(135deg, #b42318, #d92d20) !important; }
     }
   `]
 })

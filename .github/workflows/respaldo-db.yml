@@ -1,0 +1,72 @@
+# Respaldo diario de la base de datos de producción (Supabase).
+# El plan gratuito de Supabase no ofrece respaldos descargables.
+#
+# Secretos necesarios (Settings → Secrets and variables → Actions):
+#   DB_BACKUP_URL      Cadena "Session pooler" de Supabase (host *.pooler.supabase.com,
+#                      puerto 5432). La conexión directa db.*.supabase.co es solo IPv6
+#                      y los runners de GitHub no tienen IPv6.
+#   BACKUP_PASSPHRASE  Contraseña larga para cifrar el respaldo. Guárdala fuera de
+#                      GitHub: sin ella el respaldo no se puede restaurar.
+#
+# EL REPOSITORIO ES PÚBLICO: cualquier usuario de GitHub puede descargar los
+# artefactos, por eso el volcado SIEMPRE se cifra (AES-256) antes de subirlo.
+#
+# Restaurar:
+#   gpg --decrypt respaldo-AAAA-MM-DD.sql.gz.gpg | gunzip > respaldo.sql
+#   psql "<cadena de conexión destino>" -f respaldo.sql
+name: Respaldo de base de datos
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # todos los días a las 02:00 de Ecuador (07:00 UTC)
+  workflow_dispatch: {}
+
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Comprobar secretos
+        env:
+          DB_BACKUP_URL: ${{ secrets.DB_BACKUP_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$DB_BACKUP_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "Faltan los secretos DB_BACKUP_URL y/o BACKUP_PASSPHRASE" >&2
+            exit 1
+          fi
+
+      - name: Instalar pg_dump 17
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Volcar, comprimir y cifrar
+        env:
+          DB_BACKUP_URL: ${{ secrets.DB_BACKUP_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -o pipefail
+          archivo="respaldo-$(date -u +%F).sql.gz.gpg"
+          # Solo el esquema public (el de la aplicación); las tablas internas de
+          # Supabase (auth, storage...) no se usan.
+          /usr/lib/postgresql/17/bin/pg_dump "$DB_BACKUP_URL" \
+              --schema=public --no-owner --no-privileges \
+            | gzip -9 \
+            | gpg --batch --yes --symmetric --cipher-algo AES256 \
+                  --passphrase "$BACKUP_PASSPHRASE" -o "$archivo"
+          echo "ARCHIVO=$archivo" >> "$GITHUB_ENV"
+          ls -lh "$archivo"
+
+      - name: Guardar respaldo cifrado (30 días)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARCHIVO }}
+          path: ${{ env.ARCHIVO }}
+          retention-days: 30
+          if-no-files-found: error

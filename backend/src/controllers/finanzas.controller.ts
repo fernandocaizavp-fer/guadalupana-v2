@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { Prisma } from '@prisma/client';
-import prisma from '../lib/prisma';
+import prisma, { ClienteDb } from '../lib/prisma';
 import { subirArchivo, eliminarArchivo } from '../lib/r2';
 
 const CARPETA_COMPROBANTES = 'cf_guadalupana/comprobantes';
@@ -70,7 +70,7 @@ function inicioDelDia(fecha: Date): Date {
  * Es idempotente: `skipDuplicates` se apoya en @@unique([estudianteId, conceptoId]).
  */
 export async function asignarConceptosFaltantes(
-  db: Prisma.TransactionClient,
+  db: ClienteDb,
   where: Prisma.UsuarioWhereInput
 ): Promise<number> {
   const conceptos = await db.conceptoPago.findMany();

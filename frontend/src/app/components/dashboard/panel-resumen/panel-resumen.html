@@ -1,0 +1,80 @@
+@if (error()) {
+  <div class="aviso-error">
+    <mat-icon>cloud_off</mat-icon>
+    <span>No se pudieron cargar los indicadores.</span>
+    <button type="button" (click)="cargar()">Reintentar</button>
+  </div>
+} @else if (resumen(); as r) {
+  <div class="kpis">
+    @for (k of kpis; track k.clave) {
+      <button type="button" class="kpi" [class]="'tono-' + k.tono" (click)="ir(k.ruta)">
+        <div class="kpi-icono"><mat-icon>{{ k.icono }}</mat-icon></div>
+        <div class="kpi-texto">
+          <span class="kpi-titulo">{{ k.titulo }}</span>
+          <strong class="kpi-valor">
+            <app-contador [valor]="r.kpis[k.clave]" [moneda]="!!k.moneda" />
+          </strong>
+          @if (k.detalle) {
+            <span class="kpi-detalle">{{ k.detalle(r.kpis) }}</span>
+          }
+        </div>
+      </button>
+    }
+  </div>
+
+  <div class="graficos">
+    <section class="panel ancho">
+      <header>
+        <h3>Recaudación mensual</h3>
+        <span>Últimos 6 meses · pagos aprobados</span>
+      </header>
+      @if (sinRecaudacion(r)) {
+        <app-estado-vacio icono="savings" titulo="Aún no hay pagos aprobados"
+                          mensaje="Cuando apruebes comprobantes o registres pagos, verás aquí la evolución mensual."
+                          [compacto]="true" />
+      } @else {
+        <app-grafico-barras [datos]="recaudacion(r)" [moneda]="true" />
+      }
+    </section>
+
+    <section class="panel">
+      <header>
+        <h3>Estado de la cartera</h3>
+        <span>Deudas por estado</span>
+      </header>
+      @if (sinCartera(r)) {
+        <app-estado-vacio icono="receipt_long" titulo="Sin conceptos de pago"
+                          mensaje="Crea un concepto en Configuración → Finanzas para generar las deudas."
+                          [compacto]="true" />
+      } @else {
+        <app-grafico-dona [datos]="r.estadoCartera" unidad="deudas" />
+      }
+    </section>
+
+    <section class="panel">
+      <header>
+        <h3>Estudiantes por curso</h3>
+        <span>Matrículas activas</span>
+      </header>
+      @if (r.estudiantesPorCurso.length === 0) {
+        <app-estado-vacio icono="school" titulo="Aún no hay cursos activos"
+                          mensaje="Crea un curso para empezar a matricular estudiantes."
+                          accion="Ir a Cursos" (accionClick)="ir('/cursos')" [compacto]="true" />
+      } @else {
+        <app-grafico-barras [datos]="r.estudiantesPorCurso" [horizontal]="true" />
+      }
+    </section>
+  </div>
+} @else {
+  <!-- Skeleton mientras llega el resumen -->
+  <div class="kpis" aria-hidden="true">
+    @for (i of [1, 2, 3, 4]; track i) {
+      <div class="kpi esqueleto"></div>
+    }
+  </div>
+  <div class="graficos" aria-hidden="true">
+    <div class="panel ancho esqueleto alto"></div>
+    <div class="panel esqueleto alto"></div>
+    <div class="panel esqueleto alto"></div>
+  </div>
+}

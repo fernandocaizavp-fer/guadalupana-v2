@@ -30,7 +30,8 @@
     </div>
 
     @if (pendientes.length === 0) {
-      <p class="vacio-linea">No hay comprobantes pendientes de revisión.</p>
+      <app-estado-vacio icono="task_alt" titulo="Todo al día"
+                        mensaje="No hay comprobantes pendientes de revisión." [compacto]="true" />
     } @else {
       <div class="pendientes">
         @for (c of pendientes; track c.id) {

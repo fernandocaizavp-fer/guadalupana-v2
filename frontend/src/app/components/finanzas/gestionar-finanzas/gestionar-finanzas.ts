@@ -16,10 +16,11 @@ import {
 } from '../../../services/finanzas';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-gestionar-finanzas',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe, FotoPerfil],
   templateUrl: './gestionar-finanzas.html',
   styleUrl: './gestionar-finanzas.scss'

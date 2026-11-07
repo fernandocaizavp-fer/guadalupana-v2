@@ -1,0 +1,29 @@
+# Mantiene vivos los servicios gratuitos:
+# - Supabase pausa el proyecto tras ~7 días sin actividad en la base.
+# - Render duerme el backend tras 15 minutos sin peticiones.
+# Una petición diaria a una ruta pública que consulta la base basta para ambos.
+# (Una petición al día no se acerca al límite anti-DoS de 50/minuto.)
+name: Keep-alive
+
+on:
+  schedule:
+    - cron: '0 12 * * *' # todos los días a las 07:00 de Ecuador (12:00 UTC)
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Despertar backend y base de datos
+        run: |
+          # Render puede tardar ~1 minuto en arrancar desde frío: se reintenta.
+          for intento in 1 2 3 4 5; do
+            codigo=$(curl -s -o /dev/null -w '%{http_code}' --max-time 90 \
+              https://guadalupana-v2.onrender.com/api/portal/anuncios || true)
+            echo "Intento $intento: HTTP $codigo"
+            if [ "$codigo" = "200" ]; then exit 0; fi
+            sleep 20
+          done
+          echo "El backend no respondió 200 tras 5 intentos" >&2
+          exit 1

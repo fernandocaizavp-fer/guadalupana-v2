@@ -29,7 +29,7 @@ describe('App', () => {
     loadingService.mostrar();
     await fixture.whenStable();
     expect(compiled.querySelector('.loading-texto')?.textContent).toContain(
-      'Cargando, espere por favor...'
+      'Cargando, por favor espere...'
     );
 
     loadingService.ocultar();

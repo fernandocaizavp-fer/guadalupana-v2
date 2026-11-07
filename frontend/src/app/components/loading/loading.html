@@ -1,11 +1,9 @@
 @if (loadingService.isLoading()) {
   <div class="loading-overlay" role="status" aria-live="polite">
-    <div class="spinner">
-      <div class="anillo"></div>
-      <div class="imagen-circular">
-        <img src="cargando.webp" alt="" width="340" height="340">
-      </div>
+    <div class="robot">
+      <img src="cargando.webp" alt="" width="340" height="340">
     </div>
-    <p class="loading-texto">Cargando, espere por favor...</p>
+    <div class="sombra"></div>
+    <p class="loading-texto">Cargando, por favor espere...</p>
   </div>
 }

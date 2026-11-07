@@ -72,14 +72,13 @@
     </div>
 
     @if (cargado && visibles.length === 0) {
-      <div class="vacio">
-        <mat-icon>inbox</mat-icon>
-        @if (prospectos.length === 0) {
-          Todavía nadie ha llenado el formulario de pre-inscripción.
-        } @else {
-          No hay prospectos con este filtro.
-        }
-      </div>
+      @if (prospectos.length === 0) {
+        <app-estado-vacio icono="how_to_reg" titulo="Aún no hay prospectos"
+                          mensaje="Cuando alguien llene el formulario de pre-inscripción de la página principal, aparecerá aquí." />
+      } @else {
+        <app-estado-vacio icono="filter_alt_off" titulo="Sin resultados"
+                          mensaje="No hay prospectos con este filtro." [compacto]="true" />
+      }
     }
 
     @for (p of visibles; track p.id) {

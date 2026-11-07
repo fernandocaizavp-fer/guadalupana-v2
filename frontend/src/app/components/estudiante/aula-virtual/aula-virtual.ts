@@ -9,13 +9,14 @@ import { AuthService } from '../../../services/auth';
 import { AcademicoService, MateriaAula } from '../../../services/academico';
 import { LoadingService } from '../../../services/loading';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const CLAVE_SEMESTRE = 'aulaVirtualSemestre';
 
 @Component({
   selector: 'app-aula-virtual',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule, FotoPerfil],
+  imports: [EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule, FotoPerfil],
   templateUrl: './aula-virtual.html',
   styleUrl: './aula-virtual.scss'
 })

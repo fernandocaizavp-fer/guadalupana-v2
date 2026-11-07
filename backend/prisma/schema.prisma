@@ -604,3 +604,24 @@ model RegistroAsistenciaGlobal {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
+
+// Historial de cambios (solo se inserta, nunca se edita) de las tablas sensibles:
+// notas, finanzas, matrículas y usuarios. Lo escribe la extensión de
+// src/lib/auditoria.ts. usuarioId sin FK a propósito: el historial debe
+// sobrevivir aunque se borre el usuario.
+model Auditoria {
+  id        Int      @id @default(autoincrement())
+  fecha     DateTime @default(now())
+  usuarioId Int?
+  rol       String?  @db.VarChar(20)
+  ip        String?  @db.VarChar(64)
+  accion    String   @db.VarChar(20)
+  entidad   String   @db.VarChar(50)
+  entidadId String?  @db.VarChar(100)
+  antes     Json?
+  despues   Json?
+
+  @@index([fecha])
+  @@index([entidad, entidadId])
+  @@index([usuarioId])
+}

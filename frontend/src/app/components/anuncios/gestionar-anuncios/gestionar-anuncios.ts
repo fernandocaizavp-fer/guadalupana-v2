@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,16 +17,22 @@ import { AuthService } from '../../../services/auth';
 import { etiquetaAutorAnuncio } from '../../../services/anuncio-util';
 import { VisorImagen } from '../../../shared/visor-imagen/visor-imagen';
 import { environment } from '../../../../environments/environment';
+import { DialogService } from '../../../services/dialog';
+import { NotificacionService } from '../../../services/notificacion';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-gestionar-anuncios',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatCardModule, DatePipe, VisorImagen],
   templateUrl: './gestionar-anuncios.html',
   styleUrl: './gestionar-anuncios.scss'
 })
 export class GestionarAnuncios implements OnInit {
+  private dialogService = inject(DialogService);
+  private notificacion = inject(NotificacionService);
+
   anuncios: any[] = [];
   loading = true;
   guardando = false;
@@ -176,16 +182,20 @@ export class GestionarAnuncios implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  eliminar(id: number) {
-    if (confirm('¿Eliminar este anuncio?')) {
-      this.anuncioService.eliminarAnuncio(id).subscribe({
-        next: () => {
-          this.snackBar.open('Anuncio eliminado', 'OK', { duration: 3000 });
-          this.cargarAnuncios();
-        },
-        error: () => this.snackBar.open('Error al eliminar', 'OK', { duration: 3000 })
-      });
-    }
+  async eliminar(id: number) {
+    const ok = await this.dialogService.confirm({
+      titulo: 'Eliminar anuncio',
+      mensaje: '¿Eliminar este anuncio?',
+      peligro: true
+    });
+    if (!ok) return;
+    this.anuncioService.eliminarAnuncio(id).subscribe({
+      next: () => {
+        this.notificacion.exito('Anuncio eliminado correctamente');
+        this.cargarAnuncios();
+      },
+      error: () => this.notificacion.error('Error al eliminar el anuncio')
+    });
   }
 
   resetForm() {

@@ -92,10 +92,8 @@
   }
 
   @if (!loading && anuncios.length === 0) {
-    <div class="center">
-      <mat-icon class="empty-icon">campaign</mat-icon>
-      <p>No hay anuncios publicados aún</p>
-    </div>
+    <app-estado-vacio icono="campaign" titulo="No hay anuncios publicados"
+                      mensaje="Los anuncios que publiques aparecerán en los paneles de docentes y estudiantes." />
   }
 
   @if (!loading && anuncios.length > 0) {

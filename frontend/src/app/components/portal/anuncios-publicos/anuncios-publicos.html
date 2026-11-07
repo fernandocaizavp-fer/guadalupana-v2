@@ -78,10 +78,8 @@
     </div>
 
     @if (cargado && anuncios.length === 0) {
-      <div class="vacio">
-        <mat-icon>newspaper</mat-icon>
-        Aún no hay anuncios para el público.
-      </div>
+      <app-estado-vacio icono="newspaper" titulo="Aún no hay anuncios para el público"
+                        mensaje="Las noticias que publiques aquí se mostrarán en la página principal." />
     }
 
     @for (a of anuncios; track a.id) {

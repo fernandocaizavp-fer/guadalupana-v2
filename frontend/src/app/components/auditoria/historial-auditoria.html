@@ -1,0 +1,120 @@
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+    <div class="nav-group">
+      <button mat-icon-button (click)="volver()" class="back-pill" aria-label="Volver al panel">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="title-meta">
+        <h1>Historial de movimientos</h1>
+        <span>Quién cambió notas, pagos y matrículas, y cuándo</span>
+      </div>
+    </div>
+  </div>
+</mat-toolbar>
+
+<div class="pagina">
+  <form class="filtros" (ngSubmit)="filtrar()">
+    <label>
+      <span>Tipo de registro</span>
+      <select name="entidad" [(ngModel)]="filtros.entidad">
+        <option value="">Todos</option>
+        @for (e of datos()?.entidades ?? []; track e) {
+          <option [value]="e">{{ nombreEntidad(e) }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Acción</span>
+      <select name="accion" [(ngModel)]="filtros.accion">
+        <option value="">Todas</option>
+        @for (a of acciones; track a.valor) {
+          <option [value]="a.valor">{{ a.texto }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span>Desde</span>
+      <input type="date" name="desde" [(ngModel)]="filtros.desde">
+    </label>
+    <label>
+      <span>Hasta</span>
+      <input type="date" name="hasta" [(ngModel)]="filtros.hasta">
+    </label>
+    <div class="botones">
+      <button mat-flat-button type="submit" class="btn-filtrar"><mat-icon>search</mat-icon> Filtrar</button>
+      <button mat-button type="button" (click)="limpiarFiltros()">Limpiar</button>
+    </div>
+  </form>
+
+  <section class="tarjeta">
+    @if (cargando()) {
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="fila-esqueleto"></div>
+      }
+    } @else if (error()) {
+      <app-estado-vacio icono="cloud_off" titulo="No se pudo cargar el historial"
+                        mensaje="Revisa tu conexión e inténtalo de nuevo." accion="Reintentar" (accionClick)="cargar()" />
+    } @else if (datos(); as d) {
+      @if (d.registros.length === 0) {
+        <app-estado-vacio icono="history" titulo="Sin movimientos"
+                          mensaje="No hay cambios registrados con estos filtros. Cada nota, pago o matrícula que se modifique aparecerá aquí." />
+      } @else {
+        <ul class="lista">
+          @for (r of d.registros; track r.id) {
+            <li class="registro" [class.abierto]="abierto() === r.id">
+              <button type="button" class="resumen" (click)="alternar(r.id)" [attr.aria-expanded]="abierto() === r.id">
+                <span class="chip" [class]="accion(r.accion).clase">{{ accion(r.accion).texto }}</span>
+                <span class="que">
+                  <strong>{{ nombreEntidad(r.entidad) }}</strong>
+                  @if (r.entidadId) { <small>#{{ r.entidadId }}</small> }
+                </span>
+                <span class="quien">
+                  <mat-icon>person</mat-icon> {{ r.usuarioNombre }}
+                  @if (r.rol) { <small>{{ r.rol }}</small> }
+                </span>
+                <span class="cuando">{{ r.fecha | date: 'dd/MM/yyyy HH:mm' }}</span>
+                <mat-icon class="flecha">expand_more</mat-icon>
+              </button>
+
+              @if (abierto() === r.id) {
+                <div class="detalle">
+                  @if (cambios(r); as lista) {
+                    @if (lista.length === 0) {
+                      <p class="nota">Sin diferencias visibles en los campos.</p>
+                    } @else {
+                      <table>
+                        <thead><tr><th>Campo</th><th>Antes</th><th>Después</th></tr></thead>
+                        <tbody>
+                          @for (c of lista; track c.campo) {
+                            <tr>
+                              <td>{{ c.campo }}</td>
+                              <td class="antes">{{ c.antes }}</td>
+                              <td class="despues">{{ c.despues }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    }
+                  } @else {
+                    <pre>{{ r.despues | json }}</pre>
+                  }
+                  @if (r.ip) { <p class="nota">IP de origen: {{ r.ip }}</p> }
+                </div>
+              }
+            </li>
+          }
+        </ul>
+
+        <nav class="paginacion" aria-label="Paginación">
+          <button mat-button type="button" [disabled]="d.pagina <= 1" (click)="irAPagina(d.pagina - 1)">
+            <mat-icon>chevron_left</mat-icon> Anterior
+          </button>
+          <span>Página {{ d.pagina }} de {{ totalPaginas(d) }} · {{ d.total }} movimientos</span>
+          <button mat-button type="button" [disabled]="d.pagina >= totalPaginas(d)" (click)="irAPagina(d.pagina + 1)">
+            Siguiente <mat-icon>chevron_right</mat-icon>
+          </button>
+        </nav>
+      }
+    }
+  </section>
+</div>
