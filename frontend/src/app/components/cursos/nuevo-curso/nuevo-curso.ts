@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,14 +9,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { CursoService } from '../../../services/curso';
+import { NotificacionService } from '../../../services/notificacion';
+import { formularioValido } from '../../../shared/validacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-nuevo-curso',
-  imports: [FormsModule, MatToolbarModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule],
+  imports: [MatTooltipModule, FormsModule, MatToolbarModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule],
   templateUrl: './nuevo-curso.html',
   styleUrl: './nuevo-curso.scss'
 })
 export class NuevoCurso implements OnInit {
+  private notificacion = inject(NotificacionService);
+  @ViewChild('formulario') formulario?: NgForm;
+
   loading = false;
   cursoId: number | null = null; // null = modo crear; con valor = modo editar
 
@@ -52,7 +58,7 @@ export class NuevoCurso implements OnInit {
           fechaFin: this.formatearFecha(curso.fechaFin)
         };
       },
-      error: () => this.snackBar.open('Error al cargar el curso', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al cargar el curso')
     });
   }
 
@@ -64,10 +70,7 @@ export class NuevoCurso implements OnInit {
   }
 
   guardar() {
-    if (!this.datos.ramaArtesanal || !this.datos.anioFormativo || !this.datos.fechaInicio || !this.datos.fechaFin) {
-      this.snackBar.open('Todos los campos son obligatorios', 'OK', { duration: 3000 });
-      return;
-    }
+    if (!formularioValido(this.formulario, this.notificacion)) return;
     this.loading = true;
 
     const peticion = this.cursoId
@@ -76,18 +79,14 @@ export class NuevoCurso implements OnInit {
 
     peticion.subscribe({
       next: () => {
-        this.snackBar.open(
-          this.cursoId ? 'Curso actualizado exitosamente' : 'Curso creado exitosamente',
-          'OK', { duration: 3000 }
-        );
+        this.notificacion.exito(
+          this.cursoId ? 'Curso actualizado exitosamente' : 'Curso creado exitosamente');
         this.router.navigate(['/cursos']);
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open(
-          this.cursoId ? 'Error al actualizar curso' : 'Error al crear curso',
-          'OK', { duration: 3000 }
-        );
+        this.notificacion.error(
+          this.cursoId ? 'Error al actualizar curso' : 'Error al crear curso');
       }
     });
   }

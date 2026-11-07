@@ -29,7 +29,7 @@
 
     </div>
 
-    <button mat-icon-button class="logout-btn" (click)="logout()">
+    <button mat-icon-button class="logout-btn" (click)="logout()" matTooltip="Cerrar sesión" aria-label="Cerrar sesión">
 
       <mat-icon>
         logout
@@ -78,6 +78,8 @@
 
   </div>
 
+  <app-resumen-profesor />
+
   <!-- MAIN -->
 
   <div class="main-layout">
@@ -87,9 +89,7 @@
     <div class="left-column">
 
       @if (loading) {
-        <div class="center">
-          <mat-spinner></mat-spinner>
-        </div>
+        <app-esqueleto variante="tarjetas" [filas]="3" />
       }
 
       @if (!loading && cursosAgrupados.length === 0) {

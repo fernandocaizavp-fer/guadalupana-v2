@@ -6,7 +6,7 @@
     <mat-icon style="vertical-align: middle; font-size: 18px;">account_circle</mat-icon>
     {{ usuario?.nombre }}
   </span>
-  <button mat-icon-button style="color: white;" (click)="logout()">
+  <button mat-icon-button style="color: white;" (click)="logout()" matTooltip="Cerrar sesión" aria-label="Cerrar sesión">
     <mat-icon>logout</mat-icon>
   </button>
 </mat-toolbar>
@@ -32,6 +32,8 @@
             <span class="cedula">CI: {{ matricula.cedula }}</span>
           </div>
         </div>
+
+        <app-resumen-estudiante [usuarioId]="usuario.id" [tareas]="tareasPendientes" />
 
         <h2 class="section-title">Mi portal</h2>
 

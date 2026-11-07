@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,8 @@ import { LoadingService } from '../../../services/loading';
 import { PortalService, AnuncioPublico } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const LIMITE_BYTES = 5 * 1024 * 1024;
@@ -20,12 +22,14 @@ const LIMITE_BYTES = 5 * 1024 * 1024;
 // internos (`/anuncios`) de docentes y estudiantes.
 @Component({
   selector: 'app-anuncios-publicos',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './anuncios-publicos.html',
   styleUrl: './anuncios-publicos.scss'
 })
 export class AnunciosPublicos implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   anuncios: AnuncioPublico[] = [];
   cargado = false;
 
@@ -59,7 +63,7 @@ export class AnunciosPublicos implements OnInit {
   }
 
   private avisarError(e: any, porDefecto: string) {
-    this.snackBar.open(e?.error?.error || porDefecto, 'OK', { duration: 4000 });
+    this.notificacion.error(e?.error?.error || porDefecto);
   }
 
   cargar() {
@@ -115,11 +119,11 @@ export class AnunciosPublicos implements OnInit {
     entrada.value = ''; // permite volver a elegir el mismo archivo
     if (!archivo) return;
     if (!TIPOS_IMAGEN.includes(archivo.type)) {
-      this.snackBar.open('Solo se aceptan imágenes JPG, PNG o WEBP', 'OK', { duration: 4000 });
+      this.notificacion.info('Solo se aceptan imágenes JPG, PNG o WEBP');
       return;
     }
     if (archivo.size > LIMITE_BYTES) {
-      this.snackBar.open('La imagen supera el tamaño máximo de 5 MB', 'OK', { duration: 4000 });
+      this.notificacion.error('La imagen supera el tamaño máximo de 5 MB');
       return;
     }
     if (this.vistaPrevia?.startsWith('blob:')) URL.revokeObjectURL(this.vistaPrevia);
@@ -157,7 +161,7 @@ export class AnunciosPublicos implements OnInit {
     this.conCarga(peticion).subscribe({
       next: () => {
         this.cancelar();
-        this.snackBar.open(mensaje, 'OK', { duration: 3000 });
+        this.notificacion.exito(mensaje);
         this.cargar();
       },
       error: (e) => this.avisarError(e, 'Error al guardar el anuncio')
@@ -182,7 +186,7 @@ export class AnunciosPublicos implements OnInit {
           this.anuncios = this.anuncios.filter((a) => a.id !== anuncio.id);
           if (this.editando?.id === anuncio.id) this.cancelar();
           this.cdr.detectChanges();
-          this.snackBar.open('Anuncio eliminado', 'OK', { duration: 3000 });
+          this.notificacion.exito('Anuncio eliminado');
         },
         error: (e) => this.avisarError(e, 'Error al eliminar el anuncio')
       });

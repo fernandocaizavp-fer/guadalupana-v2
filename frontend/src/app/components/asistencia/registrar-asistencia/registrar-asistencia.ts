@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -12,15 +12,30 @@ import { CursoService } from '../../../services/curso';
 import { Title } from '@angular/platform-browser';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
+import { ConCambiosSinGuardar, avisarAlCerrar, Instantanea } from '../../../shared/cambios-sin-guardar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-registrar-asistencia',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, DatePipe],
   templateUrl: './registrar-asistencia.html',
   styleUrl: './registrar-asistencia.scss'
 })
-export class RegistrarAsistencia implements OnInit {
+export class RegistrarAsistencia implements OnInit, ConCambiosSinGuardar {
+  // Foto del estado editable al cargar y al guardar (aviso de cambios sin guardar).
+  private instantanea = new Instantanea();
+
+  hayCambiosSinGuardar(): boolean {
+    return this.instantanea.cambio(this.presentes);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  alCerrarPestana(evento: BeforeUnloadEvent) {
+    avisarAlCerrar(evento, this.hayCambiosSinGuardar());
+  }
+
   private dialogService = inject(DialogService);
   private notificacion = inject(NotificacionService);
 
@@ -60,11 +75,12 @@ export class RegistrarAsistencia implements OnInit {
         this.materia = materia;
         this.matriculas = matriculas || [];
         this.marcarTodos();
+        this.instantanea.fijar(this.presentes);
         this.cargarAsistencias();
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open('Error al cargar los estudiantes de la materia', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al cargar los estudiantes de la materia');
         this.cdr.detectChanges();
       }
     });
@@ -111,11 +127,11 @@ export class RegistrarAsistencia implements OnInit {
 
   guardar() {
     if (!this.fecha) {
-      this.snackBar.open('Selecciona una fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona una fecha');
       return;
     }
     if (this.matriculas.length === 0) {
-      this.snackBar.open('Este curso no tiene estudiantes con matrícula activa', 'OK', { duration: 3000 });
+      this.notificacion.info('Este curso no tiene estudiantes con matrícula activa');
       return;
     }
     this.guardando = true;
@@ -136,14 +152,14 @@ export class RegistrarAsistencia implements OnInit {
       }).subscribe({
         next: () => {
           this.guardando = false;
-          this.snackBar.open('Asistencia actualizada exitosamente', 'OK', { duration: 3000 });
+          this.notificacion.exito('Asistencia actualizada exitosamente');
           this.cancelarEdicion();
           this.cargarAsistencias();
           this.cdr.detectChanges();
         },
         error: () => {
           this.guardando = false;
-          this.snackBar.open('Error al actualizar asistencia', 'OK', { duration: 3000 });
+          this.notificacion.error('Error al actualizar asistencia');
           this.cdr.detectChanges();
         }
       });
@@ -158,14 +174,15 @@ export class RegistrarAsistencia implements OnInit {
     }).subscribe({
       next: () => {
         this.guardando = false;
-        this.snackBar.open('Asistencia registrada exitosamente', 'OK', { duration: 3000 });
+        this.notificacion.exito('Asistencia registrada exitosamente');
         this.cargarAsistencias();
         this.marcarTodos();
+        this.instantanea.fijar(this.presentes);
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.guardando = false;
-        this.snackBar.open(e?.error?.error || 'Error al registrar asistencia', 'OK', { duration: 3000 });
+        this.notificacion.error(e?.error?.error || 'Error al registrar asistencia');
         this.cdr.detectChanges();
       }
     });
@@ -182,6 +199,7 @@ export class RegistrarAsistencia implements OnInit {
     (asistencia.detalles || []).forEach((d: any) => {
       this.presentes[d.matriculaId] = d.presente;
     });
+    this.instantanea.fijar(this.presentes);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     this.cdr.detectChanges();
   }
@@ -190,6 +208,7 @@ export class RegistrarAsistencia implements OnInit {
     this.editandoId = null;
     this.fecha = new Date().toISOString().split('T')[0];
     this.marcarTodos();
+    this.instantanea.fijar(this.presentes);
   }
 
   async eliminarAsistencia(id: number) {

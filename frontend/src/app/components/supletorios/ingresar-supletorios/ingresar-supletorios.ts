@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -12,16 +12,34 @@ import { MatSelectModule } from '@angular/material/select';
 import { CursoService } from '../../../services/curso';
 import { SuplетorioService } from '../../../services/supletorio';
 import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
+import { ConCambiosSinGuardar, avisarAlCerrar, Instantanea } from '../../../shared/cambios-sin-guardar';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-ingresar-supletorios',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, BotonCalendario],
   templateUrl: './ingresar-supletorios.html',
   styleUrl: './ingresar-supletorios.scss'
 })
-export class IngresarSupletorios implements OnInit {
+export class IngresarSupletorios implements OnInit, ConCambiosSinGuardar {
+  private notificacion = inject(NotificacionService);
+
+  // Foto del estado editable al cargar y al guardar (aviso de cambios sin guardar).
+  private instantanea = new Instantanea();
+
+  hayCambiosSinGuardar(): boolean {
+    return this.instantanea.cambio(this.supletorios);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  alCerrarPestana(evento: BeforeUnloadEvent) {
+    avisarAlCerrar(evento, this.hayCambiosSinGuardar());
+  }
+
   cursoId = 0;
   curso: any = null;
   matriculas: any[] = [];
@@ -57,6 +75,7 @@ export class IngresarSupletorios implements OnInit {
             this.supletorios[m.id][mat.id] = '';
           });
         });
+        this.instantanea.fijar(this.supletorios);
 
         this.loading = false;
         this.cdr.detectChanges();
@@ -88,12 +107,13 @@ export class IngresarSupletorios implements OnInit {
     this.suplетorioService.guardarMasivo(data).subscribe({
       next: () => {
         this.guardando = false;
-        this.snackBar.open('Supletorios guardados', 'OK', { duration: 3000 });
+        this.instantanea.fijar(this.supletorios);
+        this.notificacion.exito('Supletorios guardados');
         this.cdr.detectChanges();
       },
       error: () => {
         this.guardando = false;
-        this.snackBar.open('Error al guardar', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al guardar');
         this.cdr.detectChanges();
       }
     });
@@ -101,7 +121,7 @@ export class IngresarSupletorios implements OnInit {
 
   descargarAL15() {
     if (!this.lugarFecha) {
-      this.snackBar.open('Ingresa el lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Ingresa el lugar y fecha');
       return;
     }
     this.suplетorioService.generarAL15(this.cursoId, this.lugarFecha, this.jornada).subscribe({
@@ -113,7 +133,7 @@ export class IngresarSupletorios implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL15', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL15')
     });
   }
 

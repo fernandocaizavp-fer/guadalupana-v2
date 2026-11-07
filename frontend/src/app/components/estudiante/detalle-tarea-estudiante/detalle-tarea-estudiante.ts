@@ -12,10 +12,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-detalle-tarea-estudiante',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, DatePipe],
   templateUrl: './detalle-tarea-estudiante.html',
   styleUrl: './detalle-tarea-estudiante.scss'
@@ -99,14 +101,14 @@ export class DetalleTareaEstudiante implements OnInit {
     if (files.length === 0) return;
 
     if (this.plazoVencido) {
-      this.snackBar.open('El plazo de entrega ya finalizó', 'OK', { duration: 3500 });
+      this.notificacion.info('El plazo de entrega ya finalizó');
       input.value = '';
       return;
     }
 
     const grande = files.find(f => f.size > this.MAX_BYTES);
     if (grande) {
-      this.snackBar.open(`El archivo ${grande.name} supera el tamaño máximo de 10 MB`, 'OK', { duration: 4000 });
+      this.notificacion.error(`El archivo ${grande.name} supera el tamaño máximo de 10 MB`);
       input.value = '';
       return;
     }
@@ -116,13 +118,13 @@ export class DetalleTareaEstudiante implements OnInit {
       next: () => {
         this.subiendo = false;
         input.value = '';
-        this.snackBar.open('Entrega subida', 'OK', { duration: 2500 });
+        this.notificacion.exito('Entrega subida');
         this.cargarMiEntrega();
       },
       error: (e) => {
         this.subiendo = false;
         input.value = '';
-        this.snackBar.open(e?.error?.error || 'Error al subir la entrega', 'OK', { duration: 4000 });
+        this.notificacion.error(e?.error?.error || 'Error al subir la entrega');
         this.cdr.detectChanges();
       }
     });

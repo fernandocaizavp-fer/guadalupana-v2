@@ -1,7 +1,7 @@
 <mat-toolbar class="tareas-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -24,7 +24,7 @@
 
 <div class="page-wrapper">
   @if (loading) {
-    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+    <app-esqueleto variante="lista" [filas]="6" />
   }
 
   @if (!loading && tarea) {
@@ -84,7 +84,7 @@
                 <mat-icon>description</mat-icon>
                 <span class="file-name">{{ a.nombreOriginal }}</span>
               </a>
-              <button mat-icon-button class="file-del" (click)="eliminarArchivo(a)" title="Eliminar">
+              <button mat-icon-button class="file-del" (click)="eliminarArchivo(a)" matTooltip="Eliminar" aria-label="Eliminar">
                 <mat-icon>close</mat-icon>
               </button>
             </div>

@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { formularioValido } from '../../../shared/validacion';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,10 +19,11 @@ import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-gestion-docentes',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
+  imports: [MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatFormFieldModule, MatInputModule, MatTableModule, MatProgressSpinnerModule,
     MatSnackBarModule, MatSelectModule, MatDividerModule, FotoPerfil],
   templateUrl: './gestion-docentes.html',
@@ -96,11 +98,10 @@ export class GestionDocentes implements OnInit {
     });
   }
 
+  @ViewChild('formulario') formulario?: NgForm;
+
   crearDocente() {
-    if (!this.nuevoDocente.nombre || !this.nuevoDocente.correo || !this.nuevoDocente.cedula) {
-      this.snackBar.open('Nombre, correo y cédula son obligatorios', 'OK', { duration: 3000 });
-      return;
-    }
+    if (!formularioValido(this.formulario, this.notificacion)) return;
     this.guardando = true;
     this.cdr.detectChanges();
 
@@ -110,15 +111,16 @@ export class GestionDocentes implements OnInit {
 
     request.subscribe({
       next: () => {
-        this.snackBar.open(this.editando ? 'Docente actualizado' : 'Docente creado', 'OK', { duration: 3000 });
+        this.notificacion.exito(this.editando ? 'Docente actualizado' : 'Docente creado');
         this.nuevoDocente = { nombre: '', apellido: '', correo: '', cedula: '' };
+        this.formulario?.control.markAsUntouched();
         this.editando = null;
         this.guardando = false;
         this.cargarDocentes();
       },
       error: (err) => {
         this.guardando = false;
-        this.snackBar.open(err.error?.error || 'Error al guardar', 'OK', { duration: 3000 });
+        this.notificacion.error(err.error?.error || 'Error al guardar');
         this.cdr.detectChanges();
       }
     });
@@ -139,6 +141,7 @@ export class GestionDocentes implements OnInit {
   cancelarEdicion() {
     this.editando = null;
     this.nuevoDocente = { nombre: '', apellido: '', correo: '', cedula: '' };
+    this.formulario?.control.markAsUntouched();
     this.cdr.detectChanges();
   }
 
@@ -302,7 +305,7 @@ onCursoChange() {
 
   asignarProfesor() {
     if (!this.asignacion.cursoId || !this.asignacion.materiaId || !this.asignacion.profesorId) {
-      this.snackBar.open('Selecciona curso, materia y docente', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona curso, materia y docente');
       return;
     }
     this.usuarioService.asignarProfesor(
@@ -310,12 +313,12 @@ onCursoChange() {
       Number(this.asignacion.profesorId)
     ).subscribe({
       next: () => {
-        this.snackBar.open('Profesor asignado exitosamente', 'OK', { duration: 3000 });
+        this.notificacion.exito('Profesor asignado exitosamente');
         this.asignacion = { cursoId: '', materiaId: '', profesorId: '' };
         this.materiasCurso = [];
         this.cdr.detectChanges();
       },
-      error: () => this.snackBar.open('Error al asignar', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al asignar')
     });
   }
 
@@ -348,7 +351,7 @@ onCursoSubChange() {
 
   asignarProfesorSubmateria() {
     if (!this.asignacionSub.cursoId || !this.asignacionSub.submateriaNombre || !this.asignacionSub.profesorId) {
-      this.snackBar.open('Selecciona curso, submateria y docente', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona curso, submateria y docente');
       return;
     }
     this.cursoService.obtenerCurso(Number(this.asignacionSub.cursoId)).subscribe({
@@ -362,13 +365,13 @@ onCursoSubChange() {
             next: () => {
               completados++;
               if (completados === gemelas.length) {
-                this.snackBar.open('Profesor asignado a Práctica y Teoría', 'OK', { duration: 3000 });
+                this.notificacion.exito('Profesor asignado a Práctica y Teoría');
                 this.asignacionSub = { cursoId: '', submateriaNombre: '', profesorId: '' };
                 this.submateriasCurso = [];
                 this.cdr.detectChanges();
               }
             },
-            error: () => this.snackBar.open('Error al asignar', 'OK', { duration: 3000 })
+            error: () => this.notificacion.error('Error al asignar')
           });
         });
       }
@@ -378,7 +381,7 @@ onCursoSubChange() {
   // PROFESOR PRINCIPAL
   asignarProfesorPrincipal() {
     if (!this.asignacionPrincipal.cursoId || !this.asignacionPrincipal.profesorId) {
-      this.snackBar.open('Selecciona curso y docente', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona curso y docente');
       return;
     }
     this.cursoService.obtenerCurso(Number(this.asignacionPrincipal.cursoId)).subscribe({
@@ -394,12 +397,12 @@ onCursoSubChange() {
             next: () => {
               completados++;
               if (completados === materiasPT.length) {
-                this.snackBar.open('Profesor principal asignado', 'OK', { duration: 3000 });
+                this.notificacion.exito('Profesor principal asignado');
                 this.asignacionPrincipal = { cursoId: '', profesorId: '' };
                 this.cdr.detectChanges();
               }
             },
-            error: () => this.snackBar.open('Error al asignar', 'OK', { duration: 3000 })
+            error: () => this.notificacion.error('Error al asignar')
           });
         });
       }

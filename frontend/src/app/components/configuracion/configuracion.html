@@ -1,7 +1,7 @@
 <mat-toolbar class="admin-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -463,20 +463,23 @@
             comprobante en ese concepto.
           </p>
 
-          <div class="concepto-form">
+          <form class="concepto-form" #formConcepto="ngForm" (ngSubmit)="crearConcepto()">
             <mat-form-field appearance="outline" class="grow">
               <mat-label>Concepto</mat-label>
-              <input matInput maxlength="150" [(ngModel)]="conceptoNombre" placeholder="Ej: Pensión Septiembre">
+              <input matInput name="conceptoNombre" maxlength="150" required [(ngModel)]="conceptoNombre" placeholder="Ej: Pensión Septiembre">
+              <mat-error>Escribe el nombre del concepto</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Monto ($)</mat-label>
-              <input matInput type="number" min="0" step="0.01" [(ngModel)]="conceptoMonto">
+              <input matInput name="conceptoMonto" type="number" min="0.01" step="0.01" required [(ngModel)]="conceptoMonto">
+              <mat-error>El monto debe ser mayor que cero</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Fecha máxima de pago</mat-label>
-              <input matInput type="date" [(ngModel)]="conceptoFecha" min="2000-01-01" max="2100-12-31">
+              <input matInput name="conceptoFecha" type="date" required [(ngModel)]="conceptoFecha" min="2000-01-01" max="2100-12-31">
+              <mat-error>Indica la fecha máxima de pago</mat-error>
             </mat-form-field>
-          </div>
+          </form>
           <div class="acciones">
             <button mat-flat-button color="primary" (click)="crearConcepto()" [disabled]="conceptoGuardando">
               <mat-icon>add</mat-icon>

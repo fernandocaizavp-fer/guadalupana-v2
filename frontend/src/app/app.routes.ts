@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Login } from './components/login/login';
 import { Landing } from './components/landing/landing';
 import { AuthGuard } from './guards/auth.guard';
+import { cambiosSinGuardarGuard } from './shared/cambios-sin-guardar';
 
 // Carga diferida (lazy loading): cada pantalla se descarga solo cuando se visita.
 // Landing y Login quedan en el paquete inicial porque son las puertas de entrada.
@@ -18,7 +19,7 @@ export const routes: Routes = [
   { path: 'profesor', loadComponent: () => import('./components/profesor/dashboard-profesor/dashboard-profesor').then(m => m.DashboardProfesor), canActivate: [AuthGuard], data: { roles: ['PROFESOR'] } },
   { path: 'estudiante', loadComponent: () => import('./components/estudiante/dashboard-estudiante/dashboard-estudiante').then(m => m.DashboardEstudiante), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
   { path: 'tareas/:materiaId', loadComponent: () => import('./components/tareas/gestionar-tareas/gestionar-tareas').then(m => m.GestionarTareas), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'tareas/:materiaId/notas/:tareaId', loadComponent: () => import('./components/tareas/notas-tarea/notas-tarea').then(m => m.NotasTarea), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'tareas/:materiaId/notas/:tareaId', loadComponent: () => import('./components/tareas/notas-tarea/notas-tarea').then(m => m.NotasTarea), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'tareas/:materiaId/matriz', loadComponent: () => import('./components/tareas/matriz-notas/matriz-notas').then(m => m.MatrizNotas), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'tareas/:materiaId/detalle/:tareaId', loadComponent: () => import('./components/tareas/detalle-tarea/detalle-tarea').then(m => m.DetalleTarea), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'docentes', loadComponent: () => import('./components/usuarios/gestion-docentes/gestion-docentes').then(m => m.GestionDocentes), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
@@ -34,17 +35,17 @@ export const routes: Routes = [
   { path: 'portal-web/anuncios', loadComponent: () => import('./components/portal/anuncios-publicos/anuncios-publicos').then(m => m.AnunciosPublicos), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'portal-web/galeria', loadComponent: () => import('./components/portal/galeria-publica/galeria-publica').then(m => m.GaleriaPublica), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'portal-web/calendario', loadComponent: () => import('./components/portal/calendario-publico/calendario-publico').then(m => m.CalendarioPublico), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'supletorios/:cursoId', loadComponent: () => import('./components/supletorios/ingresar-supletorios/ingresar-supletorios').then(m => m.IngresarSupletorios), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'supletorios/materia/:materiaId', loadComponent: () => import('./components/supletorios/supletorio-docente/supletorio-docente').then(m => m.SupletorioDocente), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
-  { path: 'asistencia/materia/:materiaId', loadComponent: () => import('./components/asistencia/registrar-asistencia/registrar-asistencia').then(m => m.RegistrarAsistencia), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'supletorios/:cursoId', loadComponent: () => import('./components/supletorios/ingresar-supletorios/ingresar-supletorios').then(m => m.IngresarSupletorios), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN'] } },
+  { path: 'supletorios/materia/:materiaId', loadComponent: () => import('./components/supletorios/supletorio-docente/supletorio-docente').then(m => m.SupletorioDocente), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'asistencia/materia/:materiaId', loadComponent: () => import('./components/asistencia/registrar-asistencia/registrar-asistencia').then(m => m.RegistrarAsistencia), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'reportes', loadComponent: () => import('./components/reportes/reportes/reportes').then(m => m.Reportes), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'anuncios', loadComponent: () => import('./components/anuncios/gestionar-anuncios/gestionar-anuncios').then(m => m.GestionarAnuncios), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'estudiante/submaterias/:materiaId/:semestre', loadComponent: () => import('./components/estudiante/submaterias-materia/submaterias-materia').then(m => m.SubmateriasMateria), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'disciplina/materia/:materiaId', loadComponent: () => import('./components/disciplina/ingresar-disciplina/ingresar-disciplina').then(m => m.IngresarDisciplina), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'disciplina/materia/:materiaId', loadComponent: () => import('./components/disciplina/ingresar-disciplina/ingresar-disciplina').then(m => m.IngresarDisciplina), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'documentos', loadComponent: () => import('./components/documentos/documentos/documentos').then(m => m.Documentos), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'examen-grado/:materiaId', loadComponent: () => import('./components/examen-grado/ingresar-examen-grado/ingresar-examen-grado').then(m => m.IngresarExamenGrado), canActivate: [AuthGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
+  { path: 'examen-grado/:materiaId', loadComponent: () => import('./components/examen-grado/ingresar-examen-grado/ingresar-examen-grado').then(m => m.IngresarExamenGrado), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN', 'PROFESOR'] } },
   { path: 'configuracion', loadComponent: () => import('./components/configuracion/configuracion').then(m => m.ConfiguracionComponent), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
-  { path: 'ingreso-masivo', loadComponent: () => import('./components/ingreso-masivo/ingreso-masivo').then(m => m.IngresoMasivo), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'ingreso-masivo', loadComponent: () => import('./components/ingreso-masivo/ingreso-masivo').then(m => m.IngresoMasivo), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN'] } },
   { path: 'auditoria', loadComponent: () => import('./components/auditoria/historial-auditoria').then(m => m.HistorialAuditoria), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'cambiar-password', loadComponent: () => import('./components/cambiar-password/cambiar-password').then(m => m.CambiarPassword), canActivate: [AuthGuard] },
   { path: 'recuperar-password', loadComponent: () => import('./components/recuperar-password/recuperar-password').then(m => m.RecuperarPassword) },

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -12,15 +12,35 @@ import { AuthService } from '../../../services/auth';
 import { ConfiguracionService } from '../../../services/configuracion';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { ConCambiosSinGuardar, avisarAlCerrar, Instantanea, confirmarDescarte } from '../../../shared/cambios-sin-guardar';
+import { DialogService } from '../../../services/dialog';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-ingresar-disciplina',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatFormFieldModule, MatInputModule],
   templateUrl: './ingresar-disciplina.html',
   styleUrl: './ingresar-disciplina.scss'
 })
-export class IngresarDisciplina implements OnInit {
+export class IngresarDisciplina implements OnInit, ConCambiosSinGuardar {
+  private notificacion = inject(NotificacionService);
+
+  // Foto del estado editable al cargar y al guardar (aviso de cambios sin guardar).
+  private instantanea = new Instantanea();
+  private dialogService = inject(DialogService);
+
+  hayCambiosSinGuardar(): boolean {
+    return this.instantanea.cambio(this.notas);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  alCerrarPestana(evento: BeforeUnloadEvent) {
+    avisarAlCerrar(evento, this.hayCambiosSinGuardar());
+  }
+
   materiaId: number = 0;
   materia: any = null;
   matriculas: any[] = [];
@@ -77,6 +97,7 @@ export class IngresarDisciplina implements OnInit {
         notasExistentes.forEach(n => {
           this.notas[n.matriculaId] = String(n.valor);
         });
+        this.instantanea.fijar(this.notas);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -87,8 +108,10 @@ export class IngresarDisciplina implements OnInit {
     });
   }
 
-  cambiarSemestre(semestre: number) {
+  async cambiarSemestre(semestre: number) {
     if (this.semestreSeleccionado === semestre) return;
+    // Cambiar de semestre recarga las notas: no perder las del semestre actual.
+    if (this.hayCambiosSinGuardar() && !(await confirmarDescarte(this.dialogService))) return;
     this.semestreSeleccionado = semestre;
     this.cargarNotas();
   }
@@ -109,7 +132,7 @@ export class IngresarDisciplina implements OnInit {
       });
 
     if (notasArray.length === 0) {
-      this.snackBar.open('Ingresa al menos una nota', 'OK', { duration: 3000 });
+      this.notificacion.info('Ingresa al menos una nota');
       return;
     }
 
@@ -123,12 +146,13 @@ export class IngresarDisciplina implements OnInit {
     this.http.post(`${environment.apiUrl}/disciplina/masivo`, { notas: notasArray, semestre: this.semestreSeleccionado }, { headers }).subscribe({
       next: () => {
         this.guardando = false;
-        this.snackBar.open('Notas de disciplina guardadas', 'OK', { duration: 3000 });
+        this.instantanea.fijar(this.notas);
+        this.notificacion.exito('Notas de disciplina guardadas');
         this.cdr.detectChanges();
       },
       error: () => {
         this.guardando = false;
-        this.snackBar.open('Error al guardar', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al guardar');
         this.cdr.detectChanges();
       }
     });

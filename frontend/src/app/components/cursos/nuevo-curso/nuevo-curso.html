@@ -1,7 +1,7 @@
 <mat-toolbar class="page-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -23,29 +23,35 @@
     </mat-card-header>
 
     <mat-card-content>
+      <form #formulario="ngForm" (ngSubmit)="guardar()">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Rama Artesanal</mat-label>
-        <input matInput [(ngModel)]="datos.ramaArtesanal" placeholder="Ej: Corte y Confección">
+        <input matInput name="ramaArtesanal" [(ngModel)]="datos.ramaArtesanal" required placeholder="Ej: Corte y Confección">
         <mat-icon matSuffix>build</mat-icon>
+        <mat-error>Escribe la rama artesanal</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Región</mat-label>
-        <input matInput [(ngModel)]="datos.anioFormativo" placeholder="Ej: Sierra">
+        <input matInput name="anioFormativo" [(ngModel)]="datos.anioFormativo" required maxlength="10" placeholder="Ej: Sierra">
         <mat-icon matSuffix>public</mat-icon>
+        <mat-error>Escribe la región (máximo 10 caracteres)</mat-error>
       </mat-form-field>
 
       <div class="row">
         <mat-form-field appearance="outline">
           <mat-label>Fecha de Inicio</mat-label>
-          <input matInput type="date" [(ngModel)]="datos.fechaInicio">
+          <input matInput type="date" name="fechaInicio" [(ngModel)]="datos.fechaInicio" required>
+          <mat-error>Elige la fecha de inicio</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Fecha de Fin</mat-label>
-          <input matInput type="date" [(ngModel)]="datos.fechaFin">
+          <input matInput type="date" name="fechaFin" [(ngModel)]="datos.fechaFin" required [min]="datos.fechaInicio">
+          <mat-error>Elige una fecha de fin posterior a la de inicio</mat-error>
         </mat-form-field>
       </div>
+      </form>
     </mat-card-content>
 
     <mat-card-actions>

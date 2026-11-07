@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -8,15 +8,33 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ExamenGradoService } from '../../../services/examen-grado';
 import { ConfiguracionService } from '../../../services/configuracion';
+import { ConCambiosSinGuardar, avisarAlCerrar, Instantanea } from '../../../shared/cambios-sin-guardar';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-ingresar-examen-grado',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule],
   templateUrl: './ingresar-examen-grado.html',
   styleUrl: './ingresar-examen-grado.scss'
 })
-export class IngresarExamenGrado implements OnInit {
+export class IngresarExamenGrado implements OnInit, ConCambiosSinGuardar {
+  private notificacion = inject(NotificacionService);
+
+  // Foto del estado editable al cargar y al guardar (aviso de cambios sin guardar).
+  private instantanea = new Instantanea();
+
+  hayCambiosSinGuardar(): boolean {
+    return this.instantanea.cambio(this.notas);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  alCerrarPestana(evento: BeforeUnloadEvent) {
+    avisarAlCerrar(evento, this.hayCambiosSinGuardar());
+  }
+
   materia: any = null;
   estudiantes: any[] = [];
   notas: { [key: number]: number | null } = {};
@@ -84,6 +102,7 @@ export class IngresarExamenGrado implements OnInit {
         this.estudiantes.forEach(e => {
           this.notas[e.id] = e.valor ?? null;
         });
+        this.instantanea.fijar(this.notas);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -106,19 +125,20 @@ export class IngresarExamenGrado implements OnInit {
       }));
 
     if (notas.length === 0) {
-      this.snackBar.open('No hay estudiantes habilitados para registrar exámenes', 'OK', { duration: 3000 });
+      this.notificacion.info('No hay estudiantes habilitados para registrar exámenes');
       return;
     }
 
     this.guardando = true;
     this.examenGradoService.guardar(notas).subscribe({
       next: () => {
-        this.snackBar.open('Exámenes guardados correctamente', 'OK', { duration: 3000 });
+        this.instantanea.fijar(this.notas);
+        this.notificacion.exito('Exámenes guardados correctamente');
         this.guardando = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.snackBar.open(err?.error?.error || 'Error al guardar', 'OK', { duration: 4000 });
+        this.notificacion.error(err?.error?.error || 'Error al guardar');
         this.guardando = false;
         this.cdr.detectChanges();
       }

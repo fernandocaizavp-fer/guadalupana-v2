@@ -1,7 +1,7 @@
 <mat-toolbar class="admin-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-btn">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -29,26 +29,31 @@
         </div>
       </mat-card-header>
       <mat-card-content>
+        <form #formulario="ngForm" (ngSubmit)="crearDocente()">
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Nombres</mat-label>
-            <input matInput [(ngModel)]="nuevoDocente.nombre">
+            <input matInput name="nombre" [(ngModel)]="nuevoDocente.nombre" required>
+            <mat-error>Escribe los nombres</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Apellidos</mat-label>
-            <input matInput [(ngModel)]="nuevoDocente.apellido">
+            <input matInput name="apellido" [(ngModel)]="nuevoDocente.apellido">
           </mat-form-field>
         </div>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Correo Electrónico</mat-label>
-          <input matInput type="email" [(ngModel)]="nuevoDocente.correo">
+          <input matInput type="email" name="correo" [(ngModel)]="nuevoDocente.correo" required email>
           <mat-icon matPrefix>mail_outline</mat-icon>
+          <mat-error>Escribe un correo válido (ej: nombre&#64;correo.com)</mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Cédula de Identidad</mat-label>
-          <input matInput [(ngModel)]="nuevoDocente.cedula">
+          <input matInput name="cedula" [(ngModel)]="nuevoDocente.cedula" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric">
           <mat-hint>Servirá como clave inicial</mat-hint>
+          <mat-error>La cédula debe tener 10 dígitos</mat-error>
         </mat-form-field>
+        </form>
       </mat-card-content>
       <mat-card-actions align="end">
         @if (editando) {
@@ -224,10 +229,10 @@
               }
             </div>
             <div class="docente-acciones" (click)="$event.stopPropagation()">
-              <button mat-icon-button (click)="editarDocente(d)" class="edit-btn">
+              <button mat-icon-button (click)="editarDocente(d)" class="edit-btn" matTooltip="Editar" aria-label="Editar">
                 <mat-icon>edit_note</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="eliminarDocente(d.id)">
+              <button mat-icon-button color="warn" (click)="eliminarDocente(d.id)" matTooltip="Eliminar" aria-label="Eliminar">
                 <mat-icon>delete_outline</mat-icon>
               </button>
             </div>

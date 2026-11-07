@@ -2,7 +2,7 @@
 <mat-toolbar class="admin-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -107,7 +107,7 @@
   <!-- ── ASISTENCIA ─────────────────────────────────── -->
   @if (seccionActiva === 'asistencia') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
@@ -201,7 +201,7 @@
                       placeholder="Ingrese observación...">
                   </td>
                   <td class="text-center">
-                    <button mat-icon-button class="save-btn" (click)="guardarObservacion(est.id)">
+                    <button mat-icon-button class="save-btn" (click)="guardarObservacion(est.id)" matTooltip="Guardar" aria-label="Guardar">
                       <mat-icon>save</mat-icon>
                     </button>
                   </td>
@@ -217,7 +217,7 @@
   <!-- ── CALIFICACIONES AL14 ────────────────────────── -->
   @if (seccionActiva === 'calificaciones') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
@@ -318,7 +318,7 @@
   <!-- ── CUADRO FINAL AL15 ──────────────────────────── -->
   @if (seccionActiva === 'cuadrofinal') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
@@ -365,7 +365,7 @@
   <!-- ── NÓMINA AL9 ─────────────────────────────────── -->
   @if (seccionActiva === 'nomina') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
@@ -419,7 +419,7 @@
   <!-- ── EXAMEN GRADO AL23 ──────────────────────────── -->
   @if (seccionActiva === 'examenGrado') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
@@ -503,7 +503,7 @@
   <!-- ── PROYECTOS PRODUCTIVOS AL19 ─────────────────── -->
   @if (seccionActiva === 'proyectos') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
@@ -550,7 +550,7 @@
   <!-- ── CERTIFICADO DE PROMOCIÓN AL16 ──────────────── -->
   @if (seccionActiva === 'certificado') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">
@@ -637,7 +637,7 @@
   <!-- ── APROBADOS Y NO APROBADOS AL22 ──────────────── -->
   @if (seccionActiva === 'aprobados') {
     <div class="seccion-header-detail">
-      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="header-text">

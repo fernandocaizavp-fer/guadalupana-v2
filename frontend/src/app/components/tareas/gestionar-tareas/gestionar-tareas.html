@@ -1,7 +1,7 @@
 <mat-toolbar class="tareas-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -121,7 +121,7 @@
   </div>
 
   @if (loading) {
-    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+    <app-esqueleto variante="tarjetas" [filas]="4" />
   }
 
   @if (!loading && tareas.length === 0) {
@@ -166,10 +166,10 @@
               }
             </div>
             <div class="tarea-actions" (click)="$event.stopPropagation()">
-              <button mat-icon-button class="edit-btn" (click)="editarTarea(tarea)" title="Editar tarea">
+              <button mat-icon-button class="edit-btn" (click)="editarTarea(tarea)" matTooltip="Editar tarea" aria-label="Editar tarea">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button class="delete-btn" (click)="eliminarTarea(tarea.id)" title="Eliminar tarea">
+              <button mat-icon-button class="delete-btn" (click)="eliminarTarea(tarea.id)" matTooltip="Eliminar tarea" aria-label="Eliminar tarea">
                 <mat-icon>delete_outline</mat-icon>
               </button>
               <mat-icon class="abrir-arrow">chevron_right</mat-icon>

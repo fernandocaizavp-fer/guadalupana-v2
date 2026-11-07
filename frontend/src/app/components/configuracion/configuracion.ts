@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { formularioValido } from '../../shared/validacion';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +19,8 @@ import { AcademicoService } from '../../services/academico';
 import { FinanzasService, ConceptoPago, dinero } from '../../services/finanzas';
 import { LoadingService } from '../../services/loading';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
+import { NotificacionService } from '../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Fila editable de la programación académica de una materia.
 interface FilaProgramacion {
@@ -32,13 +35,15 @@ interface FilaProgramacion {
 
 @Component({
   selector: 'app-configuracion',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, DatePipe],
   templateUrl: './configuracion.html',
   styleUrl: './configuracion.scss'
 })
 export class ConfiguracionComponent implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   loading = true;
   guardando = false;
 
@@ -157,7 +162,7 @@ export class ConfiguracionComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: (e) => {
-          this.snackBar.open(e?.error?.error || 'Error al cargar las materias', 'OK', { duration: 3000 });
+          this.notificacion.error(e?.error?.error || 'Error al cargar las materias');
           this.cdr.detectChanges();
         }
       });
@@ -167,15 +172,15 @@ export class ConfiguracionComponent implements OnInit {
     // Validación en cliente (el backend revalida)
     for (const m of this.progMaterias) {
       if (!!m.fechaInicio !== !!m.fechaFin) {
-        this.snackBar.open(`${m.nombre}: indica la fecha de inicio y la de fin, o deja ambas vacías`, 'OK', { duration: 4000 });
+        this.notificacion.info(`${m.nombre}: indica la fecha de inicio y la de fin, o deja ambas vacías`);
         return;
       }
       if (m.fechaInicio && m.fechaFin <= m.fechaInicio) {
-        this.snackBar.open(`${m.nombre}: la fecha de fin debe ser posterior a la de inicio`, 'OK', { duration: 4000 });
+        this.notificacion.info(`${m.nombre}: la fecha de fin debe ser posterior a la de inicio`);
         return;
       }
       if (m.horasTotales !== null && (!Number.isInteger(Number(m.horasTotales)) || Number(m.horasTotales) <= 0)) {
-        this.snackBar.open(`${m.nombre}: las horas totales deben ser un entero mayor que cero`, 'OK', { duration: 4000 });
+        this.notificacion.info(`${m.nombre}: las horas totales deben ser un entero mayor que cero`);
         return;
       }
     }
@@ -193,12 +198,12 @@ export class ConfiguracionComponent implements OnInit {
     ).pipe(finalize(() => this.loadingService.ocultar())).subscribe({
       next: () => {
         this.progGuardando = false;
-        this.snackBar.open('Programación guardada', 'OK', { duration: 3000 });
+        this.notificacion.exito('Programación guardada');
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.progGuardando = false;
-        this.snackBar.open(e?.error?.error || 'Error al guardar la programación', 'OK', { duration: 4000 });
+        this.notificacion.error(e?.error?.error || 'Error al guardar la programación');
         this.cdr.detectChanges();
       }
     });
@@ -216,19 +221,22 @@ export class ConfiguracionComponent implements OnInit {
     });
   }
 
+  @ViewChild('formConcepto') formConcepto?: NgForm;
+
   crearConcepto() {
+    if (!formularioValido(this.formConcepto, this.notificacion)) return;
     const nombre = this.conceptoNombre.trim();
     const monto = Number(this.conceptoMonto);
     if (!nombre) {
-      this.snackBar.open('Escribe el nombre del concepto', 'OK', { duration: 3000 });
+      this.notificacion.info('Escribe el nombre del concepto');
       return;
     }
     if (!Number.isFinite(monto) || monto <= 0) {
-      this.snackBar.open('El monto debe ser mayor que cero', 'OK', { duration: 3000 });
+      this.notificacion.info('El monto debe ser mayor que cero');
       return;
     }
     if (!this.conceptoFecha) {
-      this.snackBar.open('Indica la fecha máxima de pago', 'OK', { duration: 3000 });
+      this.notificacion.info('Indica la fecha máxima de pago');
       return;
     }
 
@@ -250,16 +258,17 @@ export class ConfiguracionComponent implements OnInit {
         .subscribe({
           next: (res) => {
             this.conceptoGuardando = false;
+            this.formConcepto?.control.markAsUntouched();
             this.conceptoNombre = '';
             this.conceptoMonto = null;
             this.conceptoFecha = '';
-            this.snackBar.open(res?.message || 'Concepto creado', 'OK', { duration: 4000 });
+            this.notificacion.exito(res?.message || 'Concepto creado');
             this.cargarConceptos();
             this.cdr.detectChanges();
           },
           error: (e) => {
             this.conceptoGuardando = false;
-            this.snackBar.open(e?.error?.error || 'Error al crear el concepto', 'OK', { duration: 4000 });
+            this.notificacion.error(e?.error?.error || 'Error al crear el concepto');
             this.cdr.detectChanges();
           }
         });
@@ -281,11 +290,11 @@ export class ConfiguracionComponent implements OnInit {
       // El indicador de carga lo muestra el interceptor (petición DELETE).
       this.finanzasService.eliminarConcepto(concepto.id).subscribe({
         next: () => {
-          this.snackBar.open('Concepto eliminado', 'OK', { duration: 3000 });
+          this.notificacion.exito('Concepto eliminado');
           this.cargarConceptos();
         },
         error: (e) => {
-          this.snackBar.open(e?.error?.error || 'Error al eliminar el concepto', 'OK', { duration: 4000 });
+          this.notificacion.error(e?.error?.error || 'Error al eliminar el concepto');
           this.cdr.detectChanges();
         }
       });
@@ -339,7 +348,7 @@ export class ConfiguracionComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open('Error al cargar la configuración', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al cargar la configuración');
         this.cdr.detectChanges();
       }
     });
@@ -348,11 +357,11 @@ export class ConfiguracionComponent implements OnInit {
   guardar() {
     // Validación en cliente (el backend revalida)
     if (this.notaMinima >= this.notaMaxima) {
-      this.snackBar.open('La nota mínima debe ser menor que la máxima', 'OK', { duration: 3000 });
+      this.notificacion.info('La nota mínima debe ser menor que la máxima');
       return;
     }
     if (this.notaAprobacion < this.notaMinima || this.notaAprobacion > this.notaMaxima) {
-      this.snackBar.open('La nota de aprobación debe estar dentro del rango', 'OK', { duration: 3000 });
+      this.notificacion.info('La nota de aprobación debe estar dentro del rango');
       return;
     }
 
@@ -368,12 +377,12 @@ export class ConfiguracionComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.guardando = false;
-        this.snackBar.open('Configuración guardada', 'OK', { duration: 3000 });
+        this.notificacion.exito('Configuración guardada');
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.guardando = false;
-        this.snackBar.open(e?.error?.error || 'Error al guardar', 'OK', { duration: 3000 });
+        this.notificacion.error(e?.error?.error || 'Error al guardar');
         this.cdr.detectChanges();
       }
     });
@@ -390,7 +399,7 @@ export class ConfiguracionComponent implements OnInit {
       },
       error: () => {
         this.buscando = false;
-        this.snackBar.open('Error al buscar', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al buscar');
         this.cdr.detectChanges();
       }
     });
@@ -404,18 +413,18 @@ export class ConfiguracionComponent implements OnInit {
 
   habilitarPermiso() {
     if (!this.seleccionado || !this.permisoFecha) {
-      this.snackBar.open('Selecciona estudiante y fecha límite', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona estudiante y fecha límite');
       return;
     }
     this.configService.habilitarIndividual(this.seleccionado.id, this.permisoFecha, this.permisoMotivo).subscribe({
       next: () => {
-        this.snackBar.open('Permiso individual habilitado', 'OK', { duration: 3000 });
+        this.notificacion.exito('Permiso individual habilitado');
         this.seleccionado = null;
         this.cargarPermisos();
         this.cdr.detectChanges();
       },
       error: () => {
-        this.snackBar.open('Error al habilitar el permiso', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al habilitar el permiso');
         this.cdr.detectChanges();
       }
     });
@@ -425,12 +434,12 @@ export class ConfiguracionComponent implements OnInit {
     this.configService.revocarIndividual(m.id).subscribe({
       next: () => {
         m.supletorioHabilitadoHasta = null;
-        this.snackBar.open('Permiso revocado', 'OK', { duration: 3000 });
+        this.notificacion.exito('Permiso revocado');
         this.cargarPermisos();
         this.cdr.detectChanges();
       },
       error: () => {
-        this.snackBar.open('Error al revocar', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al revocar');
         this.cdr.detectChanges();
       }
     });
@@ -449,7 +458,7 @@ export class ConfiguracionComponent implements OnInit {
       },
       error: () => {
         this.buscandoExamen = false;
-        this.snackBar.open('Error al buscar', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al buscar');
         this.cdr.detectChanges();
       }
     });
@@ -463,20 +472,20 @@ export class ConfiguracionComponent implements OnInit {
 
   habilitarRecalificacion() {
     if (!this.seleccionadoExamen || !this.permisoFechaExamen) {
-      this.snackBar.open('Selecciona estudiante y fecha límite', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona estudiante y fecha límite');
       return;
     }
     this.configService.habilitarRecalificacionExamen(
       this.seleccionadoExamen.id, this.permisoFechaExamen, this.permisoMotivoExamen
     ).subscribe({
       next: () => {
-        this.snackBar.open('Recalificación habilitada', 'OK', { duration: 3000 });
+        this.notificacion.exito('Recalificación habilitada');
         this.seleccionadoExamen = null;
         this.cargarPermisosExamen();
         this.cdr.detectChanges();
       },
       error: () => {
-        this.snackBar.open('Error al habilitar la recalificación', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al habilitar la recalificación');
         this.cdr.detectChanges();
       }
     });
@@ -486,12 +495,12 @@ export class ConfiguracionComponent implements OnInit {
     this.configService.revocarRecalificacionExamen(m.id).subscribe({
       next: () => {
         m.examenGradoHabilitadoHasta = null;
-        this.snackBar.open('Recalificación revocada', 'OK', { duration: 3000 });
+        this.notificacion.exito('Recalificación revocada');
         this.cargarPermisosExamen();
         this.cdr.detectChanges();
       },
       error: () => {
-        this.snackBar.open('Error al revocar', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al revocar');
         this.cdr.detectChanges();
       }
     });

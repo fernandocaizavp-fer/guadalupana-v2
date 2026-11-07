@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { formularioValido } from '../../../shared/validacion';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,10 +21,12 @@ import { environment } from '../../../../environments/environment';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-gestionar-anuncios',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatCardModule, DatePipe, VisorImagen],
   templateUrl: './gestionar-anuncios.html',
@@ -131,9 +134,10 @@ export class GestionarAnuncios implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  @ViewChild('formulario') formulario?: NgForm;
+
   guardar() {
-  if (!this.nuevo.titulo || !this.nuevo.contenido) {
-    this.snackBar.open('Título y contenido son obligatorios', 'OK', { duration: 3000 });
+  if (!formularioValido(this.formulario, this.notificacion)) {
     this.cdr.detectChanges();
     return;
   }
@@ -155,14 +159,14 @@ export class GestionarAnuncios implements OnInit {
   request.subscribe({
     next: () => {
       this.guardando = false;
-      this.snackBar.open(this.editando ? 'Anuncio actualizado' : 'Anuncio creado', 'OK', { duration: 3000 });
+      this.notificacion.exito(this.editando ? 'Anuncio actualizado' : 'Anuncio creado');
       this.resetForm();
       this.cargarAnuncios();
     },
     error: (err) => {
       this.guardando = false;
       console.error('Error:', err);
-      this.snackBar.open('Error al guardar anuncio', 'OK', { duration: 3000 });
+      this.notificacion.error('Error al guardar anuncio');
       this.cdr.detectChanges();
     }
   });
@@ -200,6 +204,7 @@ export class GestionarAnuncios implements OnInit {
 
   resetForm() {
     this.nuevo = { titulo: '', contenido: '', activo: true, materiaNombre: '', cursoId: null };
+    this.formulario?.control.markAsUntouched();
     this.imagenPreview = null;
     this.imagenFile = null;
     this.editando = null;

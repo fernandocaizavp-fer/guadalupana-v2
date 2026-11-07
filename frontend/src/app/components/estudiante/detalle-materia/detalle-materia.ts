@@ -8,10 +8,11 @@ import { AuthService } from '../../../services/auth';
 import { TareaService } from '../../../services/tarea';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-detalle-materia',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './detalle-materia.html',
   styleUrl: './detalle-materia.scss'
 })

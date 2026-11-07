@@ -21,10 +21,12 @@ import { Title } from '@angular/platform-browser';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-gestionar-tareas',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDividerModule, MatCheckboxModule, DatePipe],
   templateUrl: './gestionar-tareas.html',
@@ -93,7 +95,7 @@ export class GestionarTareas implements OnInit {
     
     const cursoId = this.materia?.cursoId;
     if (!cursoId) {
-      this.snackBar.open('Todavía se están cargando los datos de la materia', 'OK', { duration: 3000 });
+      this.notificacion.info('Todavía se están cargando los datos de la materia');
       return;
     }
     // El AL14 también usa las notas del ingreso rápido: no exige que existan tareas.
@@ -106,7 +108,7 @@ export class GestionarTareas implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al descargar AL14', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al descargar AL14')
     });
   }
 
@@ -117,11 +119,11 @@ export class GestionarTareas implements OnInit {
 
   guardarTarea() {
     if (!this.nuevaTarea.nombre || !this.nuevaTarea.fechaInicio) {
-      this.snackBar.open('Nombre y fecha de inicio son obligatorios', 'OK', { duration: 3000 });
+      this.notificacion.info('Nombre y fecha de inicio son obligatorios');
       return;
     }
     if (this.nuevaTarea.fechaFin && this.nuevaTarea.fechaFin < this.nuevaTarea.fechaInicio) {
-      this.snackBar.open('La fecha límite no puede ser anterior a la de inicio', 'OK', { duration: 3500 });
+      this.notificacion.info('La fecha límite no puede ser anterior a la de inicio');
       return;
     }
     this.guardando = true;
@@ -139,7 +141,7 @@ export class GestionarTareas implements OnInit {
         },
         error: () => {
           this.guardando = false;
-          this.snackBar.open('Error al actualizar tarea', 'OK', { duration: 3000 });
+          this.notificacion.error('Error al actualizar tarea');
           this.cdr.detectChanges();
         }
       });
@@ -157,7 +159,7 @@ export class GestionarTareas implements OnInit {
       },
       error: () => {
         this.guardando = false;
-        this.snackBar.open('Error al crear tarea', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al crear tarea');
         this.cdr.detectChanges();
       }
     });
@@ -231,7 +233,7 @@ export class GestionarTareas implements OnInit {
     const files = Array.from(input.files || []);
     const grande = files.find(f => f.size > this.MAX_BYTES);
     if (grande) {
-      this.snackBar.open(`El archivo ${grande.name} supera el tamaño máximo de 10 MB`, 'OK', { duration: 4000 });
+      this.notificacion.error(`El archivo ${grande.name} supera el tamaño máximo de 10 MB`);
       input.value = '';
       return;
     }
@@ -251,7 +253,7 @@ export class GestionarTareas implements OnInit {
       this.editandoId = null;
       this.mostrarAdjuntar = false;
       this.guardando = false;
-      this.snackBar.open(mensaje, 'OK', { duration: 3000 });
+      this.notificacion.exito(mensaje);
       this.cargarTareas();
     };
     if (this.archivosNuevos.length === 0) { terminar(); return; }
@@ -259,7 +261,7 @@ export class GestionarTareas implements OnInit {
       next: () => terminar(),
       error: () => {
         this.guardando = false;
-        this.snackBar.open('Tarea guardada, pero falló la subida de archivos', 'OK', { duration: 4000 });
+        this.notificacion.error('Tarea guardada, pero falló la subida de archivos');
         this.archivosNuevos = [];
         this.cargarTareas();
       }

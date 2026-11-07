@@ -19,10 +19,13 @@ import { MatriculaService } from '../../../services/matricula';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Title } from '@angular/platform-browser';
 import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
+import { NotificacionService } from '../../../services/notificacion';
+import { formularioValido } from '../../../shared/validacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-nueva-matricula',
-  imports: [
+  imports: [MatTooltipModule, 
     ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatCardModule, MatSelectModule, MatDividerModule,
     MatSnackBarModule, MatProgressSpinnerModule, MatToolbarModule, BotonCalendario
@@ -31,6 +34,8 @@ import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/luga
   styleUrl: './nueva-matricula.scss'
 })
 export class NuevaMatricula implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   loading = false;
   consultandoCedula = false;
   ultimaCedulaConsultada = '';
@@ -92,7 +97,7 @@ export class NuevaMatricula implements OnInit {
       if (resultado.reemplazar || !control.value.trim() || esPredeterminado) cambios[campo] = valor.trim();
     }
     if (!Object.keys(cambios).length) {
-      this.snackBar.open('Los campos detectados ya están completos. Activa reemplazar si deseas cambiarlos.', 'OK', { duration: 4500 });
+      this.notificacion.info('Los campos detectados ya están completos. Activa reemplazar si deseas cambiarlos.');
       return;
     }
     const cambiosNormalizados = this.normalizarDatosExtraidos(cambios);
@@ -102,7 +107,7 @@ export class NuevaMatricula implements OnInit {
     for (const campo of Object.keys(cambiosNormalizados)) this.form.get(campo)?.markAsDirty();
     this.form.markAsDirty();
     this.cdr.markForCheck();
-    this.snackBar.open('Datos aplicados. Revísalos antes de guardar la matrícula.', 'OK', { duration: 4500 });
+    this.notificacion.exito('Datos aplicados. Revísalos antes de guardar la matrícula.');
   }
 
   private normalizarDatosExtraidos(cambios: Record<string, string>): Record<string, string> {
@@ -156,7 +161,7 @@ export class NuevaMatricula implements OnInit {
           this.onCursoChange();
         }
       },
-      error: () => this.snackBar.open('Error al cargar cursos', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al cargar cursos')
     });
   }
 
@@ -173,7 +178,7 @@ export class NuevaMatricula implements OnInit {
         // App zoneless: forzar el refresco de la vista al llegar la respuesta.
         this.cdr.markForCheck();
       },
-      error: () => this.snackBar.open('No se pudo calcular el número de matrícula', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('No se pudo calcular el número de matrícula')
     });
   }
 
@@ -189,21 +194,13 @@ export class NuevaMatricula implements OnInit {
 
   guardar() {
     if (this.loading || this.consultandoCedula) return;
-    if (!this.datos.cursoId) {
-      this.snackBar.open('Selecciona un curso', 'OK', { duration: 3000 });
-      return;
-    }
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.snackBar.open('Revisa los campos obligatorios: curso, nombres, apellidos, cédula y correo del estudiante.', 'OK', { duration: 4500 });
-      return;
-    }
+    if (!formularioValido(this.form, this.notificacion)) return;
     this.loading = true;
     this.matriculaService.crearMatricula(this.datos).subscribe({
       next: () => {
         this.loading = false;
         this.cdr.markForCheck();
-        this.snackBar.open('Matrícula guardada exitosamente', 'OK', { duration: 3000 });
+        this.notificacion.exito('Matrícula guardada exitosamente');
         // Vuelve al detalle del curso, donde ya aparece el nuevo estudiante.
         // La matrícula se puede descargar después desde ahí.
         this.router.navigate(['/cursos', this.datos.cursoId]);
@@ -211,7 +208,7 @@ export class NuevaMatricula implements OnInit {
       error: (err) => {
         this.loading = false;
         this.cdr.markForCheck();
-        this.snackBar.open(err.error?.error || 'Error al crear matrícula', 'OK', { duration: 4000 });
+        this.notificacion.error(err.error?.error || 'Error al crear matrícula');
       }
     });
   }
@@ -223,12 +220,12 @@ export class NuevaMatricula implements OnInit {
   buscarPorCedula() {
     if (this.consultandoCedula) return;
     if (!this.datos.cedula || this.datos.cedula.length !== 10) {
-      this.snackBar.open('Ingrese una cédula de 10 dígitos', 'OK', { duration: 3000 });
+      this.notificacion.info('Ingrese una cédula de 10 dígitos');
       return;
     }
     if (this.datos.cedula === this.ultimaCedulaConsultada) {
       // Sin este aviso el clic parecería no hacer nada.
-      this.snackBar.open('Esta cédula ya fue consultada', 'OK', { duration: 3000 });
+      this.notificacion.info('Esta cédula ya fue consultada');
       return;
     }
 
@@ -265,7 +262,7 @@ export class NuevaMatricula implements OnInit {
         this.form.controls.nombremama.setValue(d.nombremama ?? '');
         this.consultandoCedula = false;
         this.cdr.markForCheck();
-        this.snackBar.open('Datos cargados desde el Registro Civil', 'OK', { duration: 3000 });
+        this.notificacion.exito('Datos cargados desde el Registro Civil');
       },
       error: (err: any) => {
         this.consultandoCedula = false;
@@ -273,7 +270,7 @@ export class NuevaMatricula implements OnInit {
         // Si la consulta falla, tampoco deben quedar datos viejos a la vista.
         this.limpiarDatosConsultaCedula();
         this.cdr.markForCheck();
-        this.snackBar.open(err.error?.error || 'No se pudieron cargar los datos', 'OK', { duration: 3000 });
+        this.notificacion.error(err.error?.error || 'No se pudieron cargar los datos');
       }
     });
   }
@@ -370,7 +367,7 @@ export class NuevaMatricula implements OnInit {
       error: () => {
         this.loading = false;
         this.cdr.markForCheck();
-        this.snackBar.open('Error al descargar documento', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al descargar documento');
       }
     });
   }
@@ -386,7 +383,7 @@ export class NuevaMatricula implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: () => {
-        this.snackBar.open('Error al descargar certificado', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al descargar certificado');
       }
     });
   }

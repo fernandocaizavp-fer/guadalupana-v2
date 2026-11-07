@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, TemplateRef, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,15 +17,19 @@ import {
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-gestionar-finanzas',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe, FotoPerfil],
   templateUrl: './gestionar-finanzas.html',
   styleUrl: './gestionar-finanzas.scss'
 })
 export class GestionarFinanzas implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   @ViewChild('modalRechazo') modalRechazo!: TemplateRef<unknown>;
   @ViewChild('modalPago') modalPago!: TemplateRef<unknown>;
   @ViewChild('modalEditarPago') modalEditarPago!: TemplateRef<unknown>;
@@ -72,7 +76,7 @@ export class GestionarFinanzas implements OnInit {
         this.cursos = cursos;
         this.cdr.detectChanges();
       },
-      error: () => this.snackBar.open('Error al cargar los cursos', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al cargar los cursos')
     });
   }
 
@@ -83,7 +87,7 @@ export class GestionarFinanzas implements OnInit {
   }
 
   private avisarError(e: any, porDefecto: string) {
-    this.snackBar.open(e?.error?.error || porDefecto, 'OK', { duration: 4000 });
+    this.notificacion.error(e?.error?.error || porDefecto);
     this.cdr.detectChanges();
   }
 
@@ -181,7 +185,7 @@ export class GestionarFinanzas implements OnInit {
       if (!ok) return;
       this.conCarga(this.finanzasService.aprobarComprobante(comprobanteId)).subscribe({
         next: () => {
-          this.snackBar.open('Comprobante aprobado', 'OK', { duration: 3000 });
+          this.notificacion.exito('Comprobante aprobado');
           this.refrescar();
         },
         error: (e) => {
@@ -199,7 +203,7 @@ export class GestionarFinanzas implements OnInit {
         if (!confirmado) return;
         this.conCarga(this.finanzasService.rechazarComprobante(comprobanteId, this.motivoRechazo.trim())).subscribe({
           next: () => {
-            this.snackBar.open('Comprobante rechazado', 'OK', { duration: 3000 });
+            this.notificacion.exito('Comprobante rechazado');
             this.refrescar();
           },
           error: (e) => {
@@ -219,7 +223,7 @@ export class GestionarFinanzas implements OnInit {
         if (!ok) return;
         this.conCarga(this.finanzasService.registrarPago(deuda.id, this.metodoPago)).subscribe({
           next: (res) => {
-            this.snackBar.open(res?.message || 'Pago registrado', 'OK', { duration: 3000 });
+            this.notificacion.exito(res?.message || 'Pago registrado');
             this.refrescar();
           },
           error: (e) => {
@@ -244,7 +248,7 @@ export class GestionarFinanzas implements OnInit {
           if (pago.metodo === this.metodoPago) return;
           this.conCarga(this.finanzasService.cambiarMetodo(pago.id, this.metodoPago)).subscribe({
             next: (res) => {
-              this.snackBar.open(res?.message || 'Método actualizado', 'OK', { duration: 3000 });
+              this.notificacion.exito(res?.message || 'Método actualizado');
               this.refrescar();
             },
             error: (e) => {
@@ -262,7 +266,7 @@ export class GestionarFinanzas implements OnInit {
   private anularPago(pago: Comprobante) {
     this.conCarga(this.finanzasService.anularPago(pago.id, this.motivoAnulacion.trim())).subscribe({
       next: () => {
-        this.snackBar.open('Pago anulado: el concepto vuelve a estar pendiente', 'OK', { duration: 3500 });
+        this.notificacion.exito('Pago anulado: el concepto vuelve a estar pendiente');
         this.refrescar();
       },
       error: (e) => {

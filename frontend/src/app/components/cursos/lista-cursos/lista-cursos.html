@@ -15,7 +15,7 @@
 
 <div class="content">
   @if (loading) {
-    <div class="center"><mat-spinner></mat-spinner></div>
+    <app-esqueleto variante="tarjetas" [filas]="6" />
   } @else if (cursos.length === 0) {
     <app-estado-vacio icono="school" titulo="Aún no hay cursos"
                       mensaje="Crea el primer curso para empezar a matricular estudiantes y asignar docentes."

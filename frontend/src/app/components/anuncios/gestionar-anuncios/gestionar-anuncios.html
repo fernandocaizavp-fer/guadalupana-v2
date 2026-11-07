@@ -1,7 +1,7 @@
 <mat-toolbar class="admin-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -22,17 +22,22 @@
     </div>
 
     <div class="form-body">
+      <!-- Solo los campos obligatorios van en el ngForm (la validación los marca en rojo). -->
+      <form #formulario="ngForm" (ngSubmit)="guardar()">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Título del anuncio</mat-label>
-        <input matInput [(ngModel)]="nuevo.titulo" placeholder="Ej: Reunión de padres de familia">
+        <input matInput name="titulo" [(ngModel)]="nuevo.titulo" required placeholder="Ej: Reunión de padres de familia">
         <mat-icon matSuffix>title</mat-icon>
+        <mat-error>Escribe un título</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Contenido</mat-label>
-        <textarea matInput [(ngModel)]="nuevo.contenido" rows="4"
+        <textarea matInput name="contenido" [(ngModel)]="nuevo.contenido" rows="4" required
           placeholder="Describe el anuncio o evento..."></textarea>
+        <mat-error>Escribe el contenido del anuncio</mat-error>
       </mat-form-field>
+      </form>
 
       @if (materiasOpciones.length > 0) {
         <mat-form-field appearance="outline" class="full-width">
@@ -88,7 +93,7 @@
   <h2 class="section-title">Anuncios Publicados ({{ anuncios.length }})</h2>
 
   @if (loading) {
-    <div class="center"><mat-spinner diameter="40"></mat-spinner></div>
+    <app-esqueleto variante="tarjetas" [filas]="3" />
   }
 
   @if (!loading && anuncios.length === 0) {

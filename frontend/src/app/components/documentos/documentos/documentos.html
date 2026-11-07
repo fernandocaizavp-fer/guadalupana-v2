@@ -1,7 +1,7 @@
 <mat-toolbar class="admin-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -38,7 +38,7 @@
   </div>
 
   @if (loading) {
-    <div class="center"><mat-spinner></mat-spinner></div>
+    <app-esqueleto variante="tabla" [filas]="8" />
   }
 
   @if (!loading && matriculasFiltradas.length === 0) {

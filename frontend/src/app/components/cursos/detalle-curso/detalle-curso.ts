@@ -19,6 +19,8 @@ import { CursoService } from '../../../services/curso';
 import { MatriculaService } from '../../../services/matricula';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-editar-matricula-dialog',
@@ -322,7 +324,7 @@ export class EditarMatriculaDialog {
 // ===== COMPONENTE PRINCIPAL =====
 @Component({
   selector: 'app-detalle-curso',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatTableModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, 
     MatFormFieldModule, MatInputModule, DatePipe],
 
@@ -385,10 +387,10 @@ export class DetalleCurso implements OnInit {
       if (result) {
         this.matriculaService.actualizarMatricula(matricula.id, result).subscribe({
           next: () => {
-            this.snackBar.open('Estudiante actualizado', 'OK', { duration: 3000 });
+            this.notificacion.exito('Estudiante actualizado');
             this.ngOnInit();
           },
-          error: () => this.snackBar.open('Error al actualizar', 'OK', { duration: 3000 })
+          error: () => this.notificacion.error('Error al actualizar')
         });
       }
     });
@@ -424,7 +426,7 @@ export class DetalleCurso implements OnInit {
       },
       error: () => {
         this.descargando = null;
-        this.snackBar.open('Error al descargar matrícula', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al descargar matrícula');
       }
     });
   }
@@ -443,7 +445,7 @@ export class DetalleCurso implements OnInit {
       },
       error: () => {
         this.descargando = null;
-        this.snackBar.open('Error al descargar certificado', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al descargar certificado');
       }
     });
   }
@@ -485,16 +487,16 @@ docenteDe(materia: any): string {
 agregarSubmateriaDoble() {
   const nombre = this.nuevaSubmateriaUnica?.trim();
   if (!nombre) {
-    this.snackBar.open('Ingresa el nombre de la submateria', 'OK', { duration: 3000 });
+    this.notificacion.info('Ingresa el nombre de la submateria');
     return;
   }
   this.cursoService.agregarSubmateria(this.curso.id, nombre).subscribe({
     next: () => {
-      this.snackBar.open('Submateria agregada en Práctica y Teoría', 'OK', { duration: 3000 });
+      this.notificacion.exito('Submateria agregada en Práctica y Teoría');
       this.nuevaSubmateriaUnica = '';
       this.ngOnInit();
     },
-    error: () => this.snackBar.open('Error al agregar submateria', 'OK', { duration: 3000 })
+    error: () => this.notificacion.error('Error al agregar submateria')
   });
 }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import { forkJoin } from 'rxjs';
 import { TareaService } from '../../../services/tarea';
 import { CursoService } from '../../../services/curso';
 import { Title } from '@angular/platform-browser';
+import { NotificacionService } from '../../../services/notificacion';
 
 @Component({
   selector: 'app-matriz-notas',
@@ -20,6 +21,8 @@ import { Title } from '@angular/platform-browser';
   styleUrl: './matriz-notas.scss'
 })
 export class MatrizNotas implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   materiaId = 0;
   materia: any = null;
   tareas: any[] = [];
@@ -76,7 +79,7 @@ export class MatrizNotas implements OnInit {
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open('Error al cargar la matriz', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al cargar la matriz');
         this.cdr.detectChanges();
       }
     });

@@ -8,10 +8,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../services/auth';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-submaterias-materia',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule],
   templateUrl: './submaterias-materia.html',
   styleUrl: './submaterias-materia.scss'

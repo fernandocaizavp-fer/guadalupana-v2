@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, TemplateRef, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
@@ -14,18 +14,22 @@ import {
   ETIQUETA_ESTADO, estadoVisible, dinero
 } from '../../../services/finanzas';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const TIPOS_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
 const LIMITE_BYTES = 5 * 1024 * 1024;
 
 @Component({
   selector: 'app-mis-finanzas',
-  imports: [EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [MatTooltipModule, EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './mis-finanzas.html',
   styleUrl: './mis-finanzas.scss'
 })
 export class MisFinanzas implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   @ViewChild('modalComprobante') modalComprobante!: TemplateRef<unknown>;
 
   usuario: any;
@@ -122,7 +126,7 @@ export class MisFinanzas implements OnInit {
       .subscribe({
         next: () => {
           this.dialogRef?.close();
-          this.snackBar.open('Comprobante enviado. El centro lo revisará pronto.', 'OK', { duration: 4000 });
+          this.notificacion.exito('Comprobante enviado. El centro lo revisará pronto.');
           this.cargar();
         },
         error: (e) => {

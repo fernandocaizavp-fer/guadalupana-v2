@@ -26,6 +26,15 @@ export interface ResumenDashboard {
   estudiantesPorCurso: (PuntoGrafico & { cursoId: number })[];
 }
 
+export interface ResumenProfesor {
+  materias: number;
+  cursos: number;
+  estudiantes: number;
+  porCalificar: number;
+  tareasActivas: number;
+  asistenciasSemana: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private apiUrl = `${environment.apiUrl}/dashboard`;
@@ -40,5 +49,9 @@ export class DashboardService {
 
   obtenerResumen(): Observable<ResumenDashboard> {
     return this.http.get<ResumenDashboard>(`${this.apiUrl}/resumen`, { headers: this.getHeaders() });
+  }
+
+  obtenerResumenProfesor(): Observable<ResumenProfesor> {
+    return this.http.get<ResumenProfesor>(`${this.apiUrl}/profesor`, { headers: this.getHeaders() });
   }
 }

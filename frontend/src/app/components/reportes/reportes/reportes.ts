@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,16 +17,20 @@ import { ReporteService } from '../../../services/reporte';
 import { ExamenGradoService } from '../../../services/examen-grado';
 import { calcularDisciplinaPonderada } from '../../../services/disciplina-util';
 import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-reportes',
-  imports: [BotonCalendario, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [MatTooltipModule, BotonCalendario, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatSelectModule,
     MatFormFieldModule, MatInputModule],
   templateUrl: './reportes.html',
   styleUrl: './reportes.scss'
 })
 export class Reportes implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   cursos: any[] = [];
   seccionActiva: string | null = null;
 
@@ -140,14 +144,14 @@ export class Reportes implements OnInit {
       cursoId: this.cursoSeleccionado,
       observacion: this.observaciones[matriculaId] || ''
     }).subscribe({
-      next: () => this.snackBar.open('Observación guardada', 'OK', { duration: 2000 }),
-      error: () => this.snackBar.open('Error al guardar', 'OK', { duration: 2000 })
+      next: () => this.notificacion.exito('Observación guardada'),
+      error: () => this.notificacion.error('Error al guardar')
     });
   }
 
   descargarAL18() {
     if (!this.cursoSeleccionado || !this.lugarFecha) {
-      this.snackBar.open('Completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Completa lugar y fecha');
       return;
     }
     this.asistenciaService.generarAL18(this.cursoSeleccionado, this.lugarFecha, this.jornada).subscribe({
@@ -160,7 +164,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL18', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL18')
     });
   }
 
@@ -262,7 +266,7 @@ export class Reportes implements OnInit {
 
   descargarAL14() {
     if (!this.cursoCalificaciones || !this.lugarFechaCalificaciones) {
-      this.snackBar.open('Completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Completa lugar y fecha');
       return;
     }
     this.tareaService.descargarAL14(
@@ -279,14 +283,14 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL14', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL14')
     });
   }
 
   // ── CUADRO FINAL AL15 ────────────────────────────────
   descargarAL15() {
     if (!this.cursoAL15 || !this.lugarFechaAL15) {
-      this.snackBar.open('Selecciona curso y completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona curso y completa lugar y fecha');
       return;
     }
     this.suplетorioService.generarAL15(this.cursoAL15, this.lugarFechaAL15, this.jornadaAL15).subscribe({
@@ -299,14 +303,14 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL15', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL15')
     });
   }
 
   // ── NÓMINA AL9 ───────────────────────────────────────
   descargarAL9() {
     if (!this.cursoAL9 || !this.lugarFechaAL9) {
-      this.snackBar.open('Selecciona curso y completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona curso y completa lugar y fecha');
       return;
     }
     this.reporteService.generarAL9(
@@ -324,7 +328,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL9', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL9')
     });
   }
 
@@ -393,7 +397,7 @@ export class Reportes implements OnInit {
 
   descargarAL23() {
     if (!this.cursoAL23 || !this.lugarFechaAL23) {
-      this.snackBar.open('Completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Completa lugar y fecha');
       return;
     }
     this.examenGradoService.generarAL23(
@@ -410,14 +414,14 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL23', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL23')
     });
   }
 
   // ── PROYECTOS PRODUCTIVOS AL19 ────────────────────────
   descargarAL19() {
     if (!this.cursoAL19 || !this.lugarFechaAL19) {
-      this.snackBar.open('Completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Completa lugar y fecha');
       return;
     }
     this.suplетorioService.generarAL19(
@@ -434,7 +438,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL19', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL19')
     });
   }
 
@@ -460,7 +464,7 @@ export class Reportes implements OnInit {
 
   descargarAL16(est: any) {
     if (!this.lugarFechaAL16) {
-      this.snackBar.open('Completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Completa lugar y fecha');
       return;
     }
     this.descargandoAL16 = est.id;
@@ -477,7 +481,7 @@ export class Reportes implements OnInit {
       },
       error: () => {
         this.descargandoAL16 = null;
-        this.snackBar.open('Error al generar AL16', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al generar AL16');
         this.cdr.detectChanges();
       }
     });
@@ -486,7 +490,7 @@ export class Reportes implements OnInit {
   // ── CUADRO APROBADOS Y NO APROBADOS AL22 ─────────────
   descargarAL22() {
     if (!this.cursoAL22 || !this.lugarFechaAL22) {
-      this.snackBar.open('Selecciona curso y completa lugar y fecha', 'OK', { duration: 3000 });
+      this.notificacion.info('Selecciona curso y completa lugar y fecha');
       return;
     }
     this.suplетorioService.generarAL22(
@@ -504,7 +508,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al generar AL22', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al generar AL22')
     });
   }
 

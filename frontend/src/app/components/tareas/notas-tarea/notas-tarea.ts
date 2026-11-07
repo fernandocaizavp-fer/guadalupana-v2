@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -12,16 +12,37 @@ import { CursoService } from '../../../services/curso';
 import { TareaService } from '../../../services/tarea';
 import { ConfiguracionService } from '../../../services/configuracion';
 import { Title } from '@angular/platform-browser';
+import { ConCambiosSinGuardar, avisarAlCerrar } from '../../../shared/cambios-sin-guardar';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 
 @Component({
   selector: 'app-notas-tarea',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatInputModule, MatFormFieldModule],
   templateUrl: './notas-tarea.html',
   styleUrl: './notas-tarea.scss'
 })
-export class NotasTarea implements OnInit {
+export class NotasTarea implements OnInit, ConCambiosSinGuardar {
+  private notificacion = inject(NotificacionService);
+
+  // Las notas se guardan al salir de cada casilla; queda "sucia" la que se
+  // está escribiendo o una cuyo guardado falló.
+  hayCambiosSinGuardar(): boolean {
+    return Object.entries(this.notas).some(([id, n]) => {
+      const o = this.orig[Number(id)] || { valor: '', observacion: '' };
+      const valor = n.valor === null || n.valor === undefined ? '' : String(n.valor);
+      return valor !== o.valor || (n.observacion || '') !== o.observacion;
+    });
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  alCerrarPestana(evento: BeforeUnloadEvent) {
+    avisarAlCerrar(evento, this.hayCambiosSinGuardar());
+  }
+
   materiaId = 0;
   tareaId = 0;
   tarea: any = null;
@@ -118,7 +139,7 @@ export class NotasTarea implements OnInit {
         this.notas[matriculaId].valor = o.valor;
         this.notas[matriculaId].observacion = o.observacion;
         this.estado = 'error';
-        this.snackBar.open(e?.error?.error || 'Error al guardar la nota', 'OK', { duration: 3500 });
+        this.notificacion.error(e?.error?.error || 'Error al guardar la nota');
         this.cdr.detectChanges();
       }
     });

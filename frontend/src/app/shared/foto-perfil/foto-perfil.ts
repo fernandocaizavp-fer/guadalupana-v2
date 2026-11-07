@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { NotificacionService } from '../../services/notificacion';
+import { Component, EventEmitter, Input, Output, signal, inject } from '@angular/core';
 import { finalize } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -25,6 +26,7 @@ const LIMITE_BYTES = 5 * 1024 * 1024;
   styleUrl: './foto-perfil.scss'
 })
 export class FotoPerfil {
+  private notificacion = inject(NotificacionService);
   @Input() fotoUrl: string | null | undefined = null;
   @Input() nombre: string | null | undefined = '';
   @Input() tamano = 56; // px
@@ -63,11 +65,11 @@ export class FotoPerfil {
     if (!archivo) return;
 
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(archivo.type)) {
-      this.snackBar.open('La foto debe ser una imagen JPG, PNG o WEBP', 'OK', { duration: 4000 });
+      this.notificacion.info('La foto debe ser una imagen JPG, PNG o WEBP');
       return;
     }
     if (archivo.size > LIMITE_BYTES) {
-      this.snackBar.open('La foto supera el tamaño máximo de 5 MB', 'OK', { duration: 4000 });
+      this.notificacion.error('La foto supera el tamaño máximo de 5 MB');
       return;
     }
 
@@ -88,10 +90,10 @@ export class FotoPerfil {
             this.authService.actualizarFoto(res.fotoUrl);
             this.fotoPropia.set(res.fotoUrl);
           }
-          this.snackBar.open('Foto de perfil actualizada', 'OK', { duration: 3000 });
+          this.notificacion.exito('Foto de perfil actualizada');
         },
         error: (e) => {
-          this.snackBar.open(e?.error?.error || 'Error al subir la foto', 'OK', { duration: 4000 });
+          this.notificacion.error(e?.error?.error || 'Error al subir la foto');
         }
       });
   }

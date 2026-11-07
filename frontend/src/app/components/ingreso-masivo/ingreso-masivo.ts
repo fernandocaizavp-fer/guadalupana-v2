@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, ElementRef, OnInit } from '@angular/core';
+import { Component, ChangeDetectorRef, ElementRef, OnInit, HostListener, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -15,6 +15,8 @@ import { CursoService } from '../../services/curso';
 import { ConfiguracionService } from '../../services/configuracion';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { AgregarEstudianteDialog, AgregarEstudianteData } from './agregar-estudiante-dialog';
+import { ConCambiosSinGuardar, avisarAlCerrar } from '../../shared/cambios-sin-guardar';
+import { NotificacionService } from '../../services/notificacion';
 
 type Pestana = 'notas' | 'examenes' | 'asistencias';
 type Valor = number | null;
@@ -29,7 +31,18 @@ type Valor = number | null;
   templateUrl: './ingreso-masivo.html',
   styleUrl: './ingreso-masivo.scss'
 })
-export class IngresoMasivo implements OnInit {
+export class IngresoMasivo implements OnInit, ConCambiosSinGuardar {
+  private notificacion = inject(NotificacionService);
+
+  hayCambiosSinGuardar(): boolean {
+    return this.sinGuardar;
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  alCerrarPestana(evento: BeforeUnloadEvent) {
+    avisarAlCerrar(evento, this.hayCambiosSinGuardar());
+  }
+
   cursos: any[] = [];
   // Rango de notas guardado en Configuración (el servidor valida con el mismo).
   notaMinima = 0;
@@ -75,7 +88,7 @@ export class IngresoMasivo implements OnInit {
   ngOnInit() {
     this.cursoService.listarCursos().subscribe({
       next: (cursos) => { this.cursos = cursos; this.cdr.detectChanges(); },
-      error: () => this.snackBar.open('Error al cargar los cursos', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al cargar los cursos')
     });
     this.configuracionService.obtener().subscribe({
       next: (config) => {
@@ -86,8 +99,9 @@ export class IngresoMasivo implements OnInit {
     });
   }
 
-  async volver() {
-    if (await this.puedeDescartar()) this.router.navigate(['/dashboard']);
+  // El aviso de cambios sin guardar lo hace el guard de la ruta (canDeactivate).
+  volver() {
+    this.router.navigate(['/dashboard']);
   }
 
   // ── Claves de las casillas ──
@@ -202,7 +216,7 @@ export class IngresoMasivo implements OnInit {
 
     const fin = () => { this.cargando = false; this.cdr.detectChanges(); };
     const error = (e: any) => {
-      this.snackBar.open(e?.error?.error || 'Error al cargar los datos del curso', 'OK', { duration: 3500 });
+      this.notificacion.error(e?.error?.error || 'Error al cargar los datos del curso');
     };
 
     if (this.pestana === 'notas') {
@@ -248,7 +262,7 @@ export class IngresoMasivo implements OnInit {
     const destino = this.pestana === 'asistencias'
       ? 'todos los estudiantes'
       : `la columna ${this.columnasActuales.find((c) => c.clave === this.columnaMasiva)?.nombre}`;
-    this.snackBar.open(`Se aplicó ${valor} a ${destino}`, 'OK', { duration: 2500 });
+    this.notificacion.exito(`Se aplicó ${valor} a ${destino}`);
   }
 
   copiarPrimerSemestre() {
@@ -281,7 +295,7 @@ export class IngresoMasivo implements OnInit {
     }
     this.semestre = 2;
     this.marcarCambio();
-    this.snackBar.open('Notas copiadas al Segundo Semestre. Revísalas y pulsa Guardar.', 'OK', { duration: 3500 });
+    this.notificacion.exito('Notas copiadas al Segundo Semestre. Revísalas y pulsa Guardar.');
     this.cdr.detectChanges();
   }
 
@@ -350,10 +364,10 @@ export class IngresoMasivo implements OnInit {
         .pipe(finalize(() => { this.guardando = false; this.cdr.detectChanges(); }))
         .subscribe({
           next: (res) => {
-            this.snackBar.open(`Datos borrados (${res.borrados} registro(s))`, 'OK', { duration: 3000 });
+            this.notificacion.exito(`Datos borrados (${res.borrados} registro(s))`);
             this.cargar();
           },
-          error: (e) => this.snackBar.open(e?.error?.error || 'Error al borrar los datos', 'OK', { duration: 4000 })
+          error: (e) => this.notificacion.error(e?.error?.error || 'Error al borrar los datos')
         });
     });
   }
@@ -392,10 +406,10 @@ export class IngresoMasivo implements OnInit {
     peticion.pipe(finalize(() => { this.guardando = false; this.cdr.detectChanges(); })).subscribe({
       next: (res) => {
         this.sinGuardar = false;
-        this.snackBar.open(res?.message || 'Guardado', 'OK', { duration: 3000 });
+        this.notificacion.exito(res?.message || 'Guardado');
       },
       error: (e) => {
-        this.snackBar.open(e?.error?.error || 'Error al guardar', 'OK', { duration: 4000 });
+        this.notificacion.error(e?.error?.error || 'Error al guardar');
       }
     });
   }

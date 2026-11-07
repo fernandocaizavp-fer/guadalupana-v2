@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,8 @@ import { LoadingService } from '../../../services/loading';
 import { PortalService, FotoGaleria, FormatoGrid, FORMATOS_GRID } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const TIPOS_IMAGEN = ['image/jpeg', 'image/png', 'image/webp'];
 const LIMITE_BYTES = 5 * 1024 * 1024;
@@ -19,12 +21,14 @@ const LIMITE_BYTES = 5 * 1024 * 1024;
 // Fotos públicas de la landing. Las imágenes se guardan en Cloudflare R2.
 @Component({
   selector: 'app-galeria-publica',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './galeria-publica.html',
   styleUrl: './galeria-publica.scss'
 })
 export class GaleriaPublica implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   fotos: FotoGaleria[] = [];
   cargado = false;
 
@@ -60,7 +64,7 @@ export class GaleriaPublica implements OnInit {
   }
 
   private avisarError(e: any, porDefecto: string) {
-    this.snackBar.open(e?.error?.error || porDefecto, 'OK', { duration: 4000 });
+    this.notificacion.error(e?.error?.error || porDefecto);
   }
 
   cargar() {
@@ -84,11 +88,11 @@ export class GaleriaPublica implements OnInit {
     entrada.value = ''; // permite volver a elegir el mismo archivo
     if (!archivo) return;
     if (!TIPOS_IMAGEN.includes(archivo.type)) {
-      this.snackBar.open('Solo se aceptan imágenes JPG, PNG o WEBP', 'OK', { duration: 4000 });
+      this.notificacion.info('Solo se aceptan imágenes JPG, PNG o WEBP');
       return;
     }
     if (archivo.size > LIMITE_BYTES) {
-      this.snackBar.open('La imagen supera el tamaño máximo de 5 MB', 'OK', { duration: 4000 });
+      this.notificacion.error('La imagen supera el tamaño máximo de 5 MB');
       return;
     }
     this.descartarImagen();
@@ -115,7 +119,7 @@ export class GaleriaPublica implements OnInit {
         this.formato = 'PEQUENA_1';
         this.descartarImagen();
         this.cdr.detectChanges();
-        this.snackBar.open('Foto publicada en la galería', 'OK', { duration: 3000 });
+        this.notificacion.exito('Foto publicada en la galería');
       },
       error: (e) => this.avisarError(e, 'Error al subir la foto')
     });
@@ -141,7 +145,7 @@ export class GaleriaPublica implements OnInit {
         foto.formatoGrid = this.formatoEditado;
         this.renombrando = null;
         this.cdr.detectChanges();
-        this.snackBar.open('Título actualizado', 'OK', { duration: 3000 });
+        this.notificacion.exito('Título actualizado');
       },
       error: (e) => this.avisarError(e, 'Error al actualizar la foto')
     });
@@ -164,7 +168,7 @@ export class GaleriaPublica implements OnInit {
         next: () => {
           this.fotos = this.fotos.filter((f) => f.id !== foto.id);
           this.cdr.detectChanges();
-          this.snackBar.open('Foto eliminada', 'OK', { duration: 3000 });
+          this.notificacion.exito('Foto eliminada');
         },
         error: (e) => this.avisarError(e, 'Error al eliminar la foto')
       });

@@ -1,7 +1,7 @@
 <mat-toolbar class="disciplina-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -30,7 +30,7 @@
 
 <div class="page-wrapper">
   @if (loading) {
-    <div class="center"><mat-spinner diameter="48"></mat-spinner></div>
+    <app-esqueleto variante="tabla" [filas]="8" />
   }
 
   @if (!loading) {

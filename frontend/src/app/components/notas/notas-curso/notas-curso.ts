@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,16 +12,21 @@ import { CursoService } from '../../../services/curso';
 import { TareaService } from '../../../services/tarea';
 import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 import { Title } from '@angular/platform-browser';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-notas-curso',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatFormFieldModule,
     MatInputModule, FormsModule, BotonCalendario],
   templateUrl: './notas-curso.html',
   styleUrl: './notas-curso.scss'
 })
 export class NotasCurso implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   curso: any = null;
   materias: any[] = [];
   matriculas: any[] = [];
@@ -94,7 +99,7 @@ export class NotasCurso implements OnInit {
 
   descargarAL14() {
     if (!this.lugarFecha) {
-      this.snackBar.open('Ingresa el lugar y fecha primero', 'OK', { duration: 3000 });
+      this.notificacion.info('Ingresa el lugar y fecha primero');
       return;
     }
     this.tareaService.descargarAL14(this.cursoId, this.lugarFecha, this.semestreSeleccionado).subscribe({
@@ -106,7 +111,7 @@ export class NotasCurso implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Error al descargar AL14', 'OK', { duration: 3000 })
+      error: () => this.notificacion.error('Error al descargar AL14')
     });
   }
 

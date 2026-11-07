@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -9,15 +9,33 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../services/auth';
 import { SuplетorioService } from '../../../services/supletorio';
 import { ConfiguracionService } from '../../../services/configuracion';
+import { ConCambiosSinGuardar, avisarAlCerrar, Instantanea } from '../../../shared/cambios-sin-guardar';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-supletorio-docente',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule],
   templateUrl: './supletorio-docente.html',
   styleUrl: './supletorio-docente.scss'
 })
-export class SupletorioDocente implements OnInit {
+export class SupletorioDocente implements OnInit, ConCambiosSinGuardar {
+  private notificacion = inject(NotificacionService);
+
+  // Foto del estado editable al cargar y al guardar (aviso de cambios sin guardar).
+  private instantanea = new Instantanea();
+
+  hayCambiosSinGuardar(): boolean {
+    return this.instantanea.cambio(this.supletorios);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  alCerrarPestana(evento: BeforeUnloadEvent) {
+    avisarAlCerrar(evento, this.hayCambiosSinGuardar());
+  }
+
   materiaId = 0;
   materia: any = null;
   estudiantes: any[] = [];
@@ -109,12 +127,13 @@ export class SupletorioDocente implements OnInit {
             habilitarSup
           };
         });
+        this.instantanea.fijar(this.supletorios);
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.loading = false;
-        this.snackBar.open(e?.error?.error || 'Error al cargar los estudiantes', 'OK', { duration: 3000 });
+        this.notificacion.error(e?.error?.error || 'Error al cargar los estudiantes');
         this.cdr.detectChanges();
       }
     });
@@ -133,7 +152,7 @@ export class SupletorioDocente implements OnInit {
       }));
 
     if (data.length === 0) {
-      this.snackBar.open('No hay supletorios para guardar', 'OK', { duration: 3000 });
+      this.notificacion.info('No hay supletorios para guardar');
       this.guardando = false;
       return;
     }
@@ -141,12 +160,13 @@ export class SupletorioDocente implements OnInit {
     this.suplетorioService.guardarMasivo(data).subscribe({
       next: () => {
         this.guardando = false;
-        this.snackBar.open('Supletorios guardados', 'OK', { duration: 3000 });
+        this.instantanea.fijar(this.supletorios);
+        this.notificacion.exito('Supletorios guardados');
         this.cdr.detectChanges();
       },
       error: () => {
         this.guardando = false;
-        this.snackBar.open('Error al guardar', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al guardar');
         this.cdr.detectChanges();
       }
     });

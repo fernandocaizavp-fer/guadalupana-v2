@@ -1,10 +1,13 @@
-<mat-toolbar class="toolbar">
-  <button mat-icon-button class="btn-back" (click)="volver()">
-    <mat-icon>arrow_back</mat-icon>
-  </button>
-  <div class="toolbar-title">
-    <span class="titulo">{{ curso?.ramaArtesanal }}</span>
-    <span class="subtitulo">{{ curso?.anioFormativo }}</span>
+<mat-toolbar class="page-toolbar">
+  <div class="toolbar-content">
+  <div class="nav-group">
+    <button mat-icon-button class="back-pill" (click)="volver()" matTooltip="Volver" aria-label="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="title-meta">
+      <h1>{{ curso?.ramaArtesanal }}</h1>
+      <span>{{ curso?.anioFormativo }}</span>
+    </div>
   </div>
   <span class="spacer"></span>
   <div class="toolbar-actions">
@@ -18,11 +21,12 @@
       <mat-icon>person_add</mat-icon> MATRICULAR
     </button>
   </div>
+  </div>
 </mat-toolbar>
 
 <div class="content">
   @if (loading) {
-    <div class="center"><mat-spinner></mat-spinner></div>
+    <app-esqueleto variante="lista" [filas]="8" />
   }
 
   @if (!loading && curso) {
@@ -121,7 +125,7 @@
                 <span class="tag teoria">Teoría</span>
               </span>
             </div>
-            <button mat-icon-button color="warn" (click)="eliminarSubmateriaDoble(sub.nombre)">
+            <button mat-icon-button color="warn" (click)="eliminarSubmateriaDoble(sub.nombre)" matTooltip="Eliminar" aria-label="Eliminar">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -185,10 +189,10 @@
           <ng-container matColumnDef="acciones">
             <th mat-header-cell *matHeaderCellDef>Acciones</th>
             <td mat-cell *matCellDef="let m">
-              <button mat-icon-button class="btn-action dark" (click)="editarMatricula(m)" title="Editar">
+              <button mat-icon-button class="btn-action dark" (click)="editarMatricula(m)" matTooltip="Editar" aria-label="Editar">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button class="btn-action red" (click)="eliminarEstudiante(m)" title="Eliminar">
+              <button mat-icon-button class="btn-action red" (click)="eliminarEstudiante(m)" matTooltip="Eliminar" aria-label="Eliminar">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>

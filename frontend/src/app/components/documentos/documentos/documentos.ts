@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -11,17 +11,22 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CursoService } from '../../../services/curso';
 import { MatriculaService } from '../../../services/matricula';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 
 @Component({
   selector: 'app-documentos',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatFormFieldModule,
     MatInputModule, MatSelectModule],
   templateUrl: './documentos.html',
   styleUrl: './documentos.scss'
 })
 export class Documentos implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   cursos: any[] = [];
   matriculas: any[] = [];
   matriculasFiltradas: any[] = [];
@@ -112,7 +117,7 @@ export class Documentos implements OnInit {
       },
       error: () => {
         this.descargando = null;
-        this.snackBar.open('Error al descargar matrícula', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al descargar matrícula');
         this.cdr.detectChanges();
       }
     });
@@ -133,7 +138,7 @@ export class Documentos implements OnInit {
       },
       error: () => {
         this.descargando = null;
-        this.snackBar.open('Error al descargar certificado', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al descargar certificado');
         this.cdr.detectChanges();
       }
     });

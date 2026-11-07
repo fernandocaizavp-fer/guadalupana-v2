@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,11 +16,15 @@ import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { VisorImagen } from '../../../shared/visor-imagen/visor-imagen';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 import { environment } from '../../../../environments/environment';
+import { NotificacionService } from '../../../services/notificacion';
+import { ResumenProfesorComponent } from '../resumen-profesor/resumen-profesor';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-dashboard-profesor',
   standalone: true,
-  imports: [
+  imports: [Esqueleto, MatTooltipModule, ResumenProfesorComponent,
     MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatMenuModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, DatePipe,
     VisorImagen, FotoPerfil
@@ -29,6 +33,8 @@ import { environment } from '../../../../environments/environment';
   styleUrl: './dashboard-profesor.scss'
 })
 export class DashboardProfesor implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   usuario: any;
   cursosAgrupados: any[] = [];
   anuncios: any[] = [];
@@ -104,7 +110,7 @@ export class DashboardProfesor implements OnInit {
       error: () => {
         this.loading = false;
         this.cdr.detectChanges();
-        this.snackBar.open('Error al cargar materias', 'OK', { duration: 3000 });
+        this.notificacion.error('Error al cargar materias');
       }
     });
 

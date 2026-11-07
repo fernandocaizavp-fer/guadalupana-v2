@@ -1,7 +1,7 @@
 <mat-toolbar class="admin-toolbar">
   <div class="toolbar-content">
     <div class="nav-group">
-      <button mat-icon-button (click)="volver()" class="back-pill">
+      <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver" aria-label="Volver">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="title-meta">
@@ -62,6 +62,7 @@
                 <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
               }
             </mat-select>
+            <mat-error>Selecciona el curso</mat-error>
           </mat-form-field>
         </div>
       </div>
@@ -86,14 +87,17 @@
                 <mat-icon>search</mat-icon>
               </button>
             }
+            <mat-error>Escribe la cédula o pasaporte</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Apellidos</mat-label>
             <input matInput formControlName="apellidos">
+            <mat-error>Escribe los apellidos</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Nombres</mat-label>
             <input matInput formControlName="nombres">
+            <mat-error>Escribe los nombres</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Sexo</mat-label>
@@ -148,6 +152,7 @@
             <mat-label>Correo Electrónico del Estudiante</mat-label>
             <input matInput type="email" formControlName="correoestudiante">
             <mat-icon matPrefix>mail_outline</mat-icon>
+            <mat-error>Escribe un correo válido (ej: nombre&#64;correo.com)</mat-error>
           </mat-form-field>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,8 @@ import { LoadingService } from '../../../services/loading';
 import { PortalService, EventoPublico, DatosEvento } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
@@ -19,12 +21,14 @@ const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'o
 // Las fechas son días completos: se guardan a medianoche UTC y se muestran en UTC.
 @Component({
   selector: 'app-calendario-publico',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './calendario-publico.html',
   styleUrl: './calendario-publico.scss'
 })
 export class CalendarioPublico implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   eventos: EventoPublico[] = [];
   cargado = false;
 
@@ -57,7 +61,7 @@ export class CalendarioPublico implements OnInit {
   }
 
   private avisarError(e: any, porDefecto: string) {
-    this.snackBar.open(e?.error?.error || porDefecto, 'OK', { duration: 4000 });
+    this.notificacion.error(e?.error?.error || porDefecto);
   }
 
   cargar() {
@@ -138,7 +142,7 @@ export class CalendarioPublico implements OnInit {
     this.conCarga(peticion).subscribe({
       next: () => {
         this.cancelar();
-        this.snackBar.open(mensaje, 'OK', { duration: 3000 });
+        this.notificacion.exito(mensaje);
         this.cargar();
       },
       error: (e) => this.avisarError(e, 'Error al guardar el evento')
@@ -163,7 +167,7 @@ export class CalendarioPublico implements OnInit {
           this.eventos = this.eventos.filter((e) => e.id !== evento.id);
           if (this.editando?.id === evento.id) this.cancelar();
           this.cdr.detectChanges();
-          this.snackBar.open('Evento eliminado', 'OK', { duration: 3000 });
+          this.notificacion.exito('Evento eliminado');
         },
         error: (e) => this.avisarError(e, 'Error al eliminar el evento')
       });

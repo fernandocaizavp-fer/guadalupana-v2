@@ -12,10 +12,12 @@ import { CursoService } from '../../../services/curso';
 import { ConfiguracionService } from '../../../services/configuracion';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-detalle-tarea',
-  imports: [FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, DatePipe],
   templateUrl: './detalle-tarea.html',
   styleUrl: './detalle-tarea.scss'
@@ -130,7 +132,7 @@ export class DetalleTarea implements OnInit {
         this.notas[matriculaId].valor = o.valor;
         this.notas[matriculaId].observacion = o.observacion;
         this.estado = 'error';
-        this.snackBar.open(e?.error?.error || 'Error al guardar la nota', 'OK', { duration: 3500 });
+        this.notificacion.error(e?.error?.error || 'Error al guardar la nota');
         this.cdr.detectChanges();
       }
     });
@@ -151,7 +153,7 @@ export class DetalleTarea implements OnInit {
 
     const grande = files.find(f => f.size > this.MAX_BYTES);
     if (grande) {
-      this.snackBar.open(`El archivo ${grande.name} supera el tamaño máximo de 10 MB`, 'OK', { duration: 4000 });
+      this.notificacion.error(`El archivo ${grande.name} supera el tamaño máximo de 10 MB`);
       input.value = '';
       return;
     }
@@ -162,13 +164,13 @@ export class DetalleTarea implements OnInit {
         this.tarea.archivos = [...(this.tarea.archivos || []), ...res.archivos];
         this.subiendo = false;
         input.value = '';
-        this.snackBar.open('Archivos subidos', 'OK', { duration: 2500 });
+        this.notificacion.exito('Archivos subidos');
         this.cdr.detectChanges();
       },
       error: (e) => {
         this.subiendo = false;
         input.value = '';
-        this.snackBar.open(e?.error?.error || 'Error al subir archivos', 'OK', { duration: 4000 });
+        this.notificacion.error(e?.error?.error || 'Error al subir archivos');
         this.cdr.detectChanges();
       }
     });

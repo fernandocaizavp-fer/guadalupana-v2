@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -16,6 +16,9 @@ import { VisorImagen } from '../../../shared/visor-imagen/visor-imagen';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { NotificacionService } from '../../../services/notificacion';
+import { ResumenEstudiante } from '../resumen-estudiante/resumen-estudiante';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface Acceso {
   titulo: string;
@@ -26,12 +29,14 @@ interface Acceso {
 
 @Component({
   selector: 'app-dashboard-estudiante',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule,
+  imports: [MatTooltipModule, ResumenEstudiante, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule,
     MatDialogModule, DatePipe, VisorImagen, FotoPerfil],
   templateUrl: './dashboard-estudiante.html',
   styleUrl: './dashboard-estudiante.scss'
 })
 export class DashboardEstudiante implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   usuario: any;
   matricula: any = null;
   loading = true;
@@ -120,7 +125,7 @@ export class DashboardEstudiante implements OnInit {
     if (acceso.ruta) {
       this.router.navigate([acceso.ruta]);
     } else {
-      this.snackBar.open(`${acceso.titulo}: disponible próximamente`, 'OK', { duration: 3000 });
+      this.notificacion.info(`${acceso.titulo}: disponible próximamente`);
     }
   }
 

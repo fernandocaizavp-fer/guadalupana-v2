@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,8 @@ import { LoadingService } from '../../../services/loading';
 import { PortalService, Prospecto, DatosProspecto, EstadoProspecto, ESPECIALIDADES } from '../../../services/portal';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { NotificacionService } from '../../../services/notificacion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 type Filtro = 'TODOS' | EstadoProspecto;
 
@@ -19,12 +21,14 @@ type Filtro = 'TODOS' | EstadoProspecto;
 // administrador las revisa y marca a quién ya contactó.
 @Component({
   selector: 'app-prospectos',
-  imports: [EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
+  imports: [MatTooltipModule, EstadoVacio, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatDialogModule,
     MatSnackBarModule, DatePipe],
   templateUrl: './prospectos.html',
   styleUrl: './prospectos.scss'
 })
 export class Prospectos implements OnInit {
+  private notificacion = inject(NotificacionService);
+
   especialidades = ESPECIALIDADES;
   prospectos: Prospecto[] = [];
   cargado = false;
@@ -58,7 +62,7 @@ export class Prospectos implements OnInit {
   }
 
   private avisarError(e: any, porDefecto: string) {
-    this.snackBar.open(e?.error?.error || porDefecto, 'OK', { duration: 4000 });
+    this.notificacion.error(e?.error?.error || porDefecto);
   }
 
   cargar() {
@@ -103,7 +107,7 @@ export class Prospectos implements OnInit {
       next: () => {
         p.estado = estado;
         this.cdr.detectChanges();
-        this.snackBar.open(estado === 'CONTACTADO' ? 'Marcado como contactado' : 'Devuelto a pendiente', 'OK', { duration: 3000 });
+        this.notificacion.exito(estado === 'CONTACTADO' ? 'Marcado como contactado' : 'Devuelto a pendiente');
       },
       error: (e) => this.avisarError(e, 'Error al actualizar el prospecto')
     });
@@ -126,7 +130,7 @@ export class Prospectos implements OnInit {
         next: () => {
           this.prospectos = this.prospectos.filter((x) => x.id !== p.id);
           this.cdr.detectChanges();
-          this.snackBar.open('Prospecto eliminado', 'OK', { duration: 3000 });
+          this.notificacion.exito('Prospecto eliminado');
         },
         error: (e) => this.avisarError(e, 'Error al eliminar el prospecto')
       });
@@ -152,7 +156,7 @@ export class Prospectos implements OnInit {
         this.formularioAbierto = false;
         this.nuevo = this.vacio();
         this.cdr.detectChanges();
-        this.snackBar.open('Prospecto registrado', 'OK', { duration: 3000 });
+        this.notificacion.exito('Prospecto registrado');
       },
       error: (e) => this.avisarError(e, 'Error al registrar el prospecto')
     });

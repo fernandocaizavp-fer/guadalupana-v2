@@ -10,10 +10,11 @@ import { FinanzasService } from '../../services/finanzas';
 import { PortalService } from '../../services/portal';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { PanelResumen } from './panel-resumen/panel-resumen';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, PanelResumen],
+  imports: [MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, PanelResumen],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

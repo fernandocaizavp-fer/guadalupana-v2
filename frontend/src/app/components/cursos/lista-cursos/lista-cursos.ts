@@ -11,10 +11,11 @@ import { DatePipe } from '@angular/common';
 import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 
 @Component({
   selector: 'app-lista-cursos',
-  imports: [EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatChipsModule, MatProgressSpinnerModule, DatePipe],
+  imports: [Esqueleto, EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatChipsModule, MatProgressSpinnerModule, DatePipe],
   templateUrl: './lista-cursos.html',
   styleUrl: './lista-cursos.scss'
 })
