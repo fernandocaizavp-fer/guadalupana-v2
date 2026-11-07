@@ -57,6 +57,20 @@ export class MatriculaService {
     });
   }
 
+  // Estudiantes dados de baja (de todos los cursos), para volver a matricularlos.
+  listarArchivadas(q = ''): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/matriculas/archivadas`, {
+      headers: this.getHeaders(),
+      params: q ? { q } : {}
+    });
+  }
+
+  reactivarMatricula(id: number, cursoId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/matriculas/${id}/reactivar`, { cursoId }, {
+      headers: this.getHeaders()
+    });
+  }
+
   getCursos(): Observable<any> {
     return this.http.get(`${this.apiUrl}/cursos`, {
       headers: this.getHeaders()

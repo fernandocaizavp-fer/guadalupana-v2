@@ -153,6 +153,7 @@ export class AgregarEstudianteDialog {
       },
       error: (e) => {
         this.error = e?.error?.error || 'No se pudo matricular al estudiante';
+        if (e?.error?.archivada) this.error += '. Reactívalo desde el detalle del curso → "Archivados".';
       }
     });
   }

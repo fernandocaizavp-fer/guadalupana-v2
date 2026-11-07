@@ -21,6 +21,7 @@ import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
+import { ArchivadosDialog, ArchivadosData } from './archivados-dialog';
 
 @Component({
   selector: 'app-editar-matricula-dialog',
@@ -367,6 +368,12 @@ export class DetalleCurso implements OnInit {
 
   irAMatricular() {
     this.router.navigate(['/matriculas/nueva'], { queryParams: { cursoId: this.curso.id } });
+  }
+
+  verArchivados() {
+    const data: ArchivadosData = { cursoId: this.curso.id, cursoNombre: this.curso.ramaArtesanal };
+    this.dialog.open(ArchivadosDialog, { width: '640px', maxWidth: '95vw', maxHeight: '90vh', data })
+      .afterClosed().subscribe(huboCambios => { if (huboCambios) this.ngOnInit(); });
   }
 
   irANotas() {

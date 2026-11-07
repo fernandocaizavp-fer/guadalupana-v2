@@ -20,6 +20,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Title } from '@angular/platform-browser';
 import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 import { NotificacionService } from '../../../services/notificacion';
+import { DialogService } from '../../../services/dialog';
 import { formularioValido } from '../../../shared/validacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -35,6 +36,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class NuevaMatricula implements OnInit {
   private notificacion = inject(NotificacionService);
+  private dialogService = inject(DialogService);
 
   loading = false;
   consultandoCedula = false;
@@ -208,7 +210,36 @@ export class NuevaMatricula implements OnInit {
       error: (err) => {
         this.loading = false;
         this.cdr.markForCheck();
+        if (err.status === 409 && err.error?.archivada) {
+          this.ofrecerReactivar(err.error.archivada);
+          return;
+        }
         this.notificacion.error(err.error?.error || 'Error al crear matrícula');
+      }
+    });
+  }
+
+  // La cédula o el correo pertenecen a un estudiante dado de baja: no se puede crear
+  // otra cuenta (son únicos), pero sí reactivar la suya en el curso elegido.
+  private async ofrecerReactivar(archivada: { id: number; nombres: string; apellidos: string; curso: { ramaArtesanal: string } }) {
+    const ok = await this.dialogService.confirm({
+      titulo: 'Estudiante dado de baja',
+      mensaje: `${archivada.nombres} ${archivada.apellidos} ya estuvo matriculado/a (${archivada.curso.ramaArtesanal}) y su matrícula está archivada. ¿Reactivarla en el curso seleccionado? Se conservan sus datos y su contraseña; lo escrito en este formulario no se guarda (puedes editarlo después).`,
+      confirmText: 'Reactivar',
+      icon: 'person_add'
+    });
+    if (!ok) return;
+    this.loading = true;
+    this.matriculaService.reactivarMatricula(archivada.id, Number(this.datos.cursoId)).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.notificacion.exito(res.message);
+        this.router.navigate(['/cursos', this.datos.cursoId]);
+      },
+      error: (e) => {
+        this.loading = false;
+        this.cdr.markForCheck();
+        this.notificacion.error(e.error?.error || 'No se pudo reactivar la matrícula');
       }
     });
   }

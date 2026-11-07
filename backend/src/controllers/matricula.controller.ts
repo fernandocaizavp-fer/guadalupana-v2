@@ -188,6 +188,20 @@ export const crearMatricula = async (req: Request, res: Response) => {
     if (error.code === 'P2002') {
       const target = error.meta?.target;
       const campos = Array.isArray(target) ? target.join(',') : String(target ?? '');
+      // Si la cédula o el correo son de un estudiante dado de baja, se avisa con 409
+      // para que la pantalla ofrezca reactivarlo en lugar de un simple "duplicado".
+      if (campos.includes('cedula') || campos.includes('correo')) {
+        const archivada = await prisma.matricula.findFirst({
+          where: { activo: false, OR: [{ cedula: texto(cedula) }, { usuario: { correo: correoFinal.toLowerCase() } }] },
+          select: { id: true, nombres: true, apellidos: true, curso: { select: { ramaArtesanal: true } } }
+        }).catch(() => null);
+        if (archivada) {
+          return res.status(409).json({
+            error: `${archivada.nombres} ${archivada.apellidos} tiene una matrícula archivada (${archivada.curso.ramaArtesanal})`,
+            archivada
+          });
+        }
+      }
       if (campos.includes('cedula')) {
         return res.status(400).json({ error: 'Ya existe un estudiante matriculado con esa cédula' });
       }
@@ -395,5 +409,104 @@ export const obtenerMatricula = async (req: Request, res: Response) => {
     res.json(matricula);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener matrícula' });
+  }
+};
+// Estudiantes dados de baja (matrícula archivada), de todos los cursos, para
+// poder reactivarlos. Filtro opcional por nombre, apellido o cédula.
+export const listarArchivadas = async (req: Request, res: Response) => {
+  const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+  try {
+    const matriculas = await prisma.matricula.findMany({
+      where: {
+        activo: false,
+        ...(q && {
+          OR: [
+            { nombres: { contains: q, mode: 'insensitive' } },
+            { apellidos: { contains: q, mode: 'insensitive' } },
+            { cedula: { contains: q } }
+          ]
+        })
+      },
+      select: {
+        id: true, nombres: true, apellidos: true, cedula: true, matriculaNo: true, updatedAt: true,
+        curso: { select: { id: true, ramaArtesanal: true, anioFormativo: true, fechaInicio: true } }
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 100
+    });
+    res.json(matriculas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al listar los estudiantes archivados' });
+  }
+};
+
+// Vuelve a matricular a un estudiante archivado. La cédula y el correo son únicos y
+// un Usuario tiene una sola Matricula (1:1), así que no se crea una matrícula nueva:
+// se reactiva la misma fila (y su cuenta), en el mismo curso o en otro.
+// - Mismo curso: recupera todas sus notas y asistencias tal como estaban.
+// - Otro curso (p. ej. regresa el año siguiente): las notas del curso anterior se
+//   conservan ligadas a las materias de ese curso, pero se borran los registros que
+//   no dependen del curso (ingreso rápido y observación de asistencia), porque si no
+//   aparecerían en los documentos AL del curso nuevo.
+// La contraseña no cambia.
+export const reactivarMatricula = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const cursoId = Number(req.body?.cursoId);
+  if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Matrícula inválida' });
+  if (!Number.isInteger(cursoId) || cursoId <= 0) return res.status(400).json({ error: 'Selecciona un curso válido' });
+
+  try {
+    const [matricula, curso] = await Promise.all([
+      prisma.matricula.findUnique({ where: { id }, select: { activo: true, cursoId: true, matriculaNo: true, tomo: true, usuarioId: true } }),
+      prisma.curso.findUnique({ where: { id: cursoId }, select: { id: true, ramaArtesanal: true } })
+    ]);
+    if (!matricula) return res.status(404).json({ error: 'Matrícula no encontrada' });
+    if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
+    if (matricula.activo) return res.status(409).json({ error: 'Esta matrícula ya está activa' });
+
+    const cambiaDeCurso = matricula.cursoId !== cursoId;
+
+    // Conserva su número si sigue libre en el mismo curso; si no, el siguiente.
+    let numeracion = await calcularSiguienteMatricula(cursoId, matricula.tomo ?? undefined);
+    if (!cambiaDeCurso) {
+      const ocupado = await prisma.matricula.findFirst({
+        where: { cursoId, activo: true, matriculaNo: matricula.matriculaNo },
+        select: { id: true }
+      });
+      if (!ocupado) {
+        const n = parseInt(matricula.matriculaNo, 10) || 1;
+        numeracion = { matriculaNo: matricula.matriculaNo, tomo: matricula.tomo || '1', pagina: String(n * 2 - 1) };
+      }
+    }
+
+    const reactivada = await prisma.$transaction(async (tx) => {
+      if (cambiaDeCurso) {
+        await tx.registroNotaGlobal.deleteMany({ where: { matriculaId: id } });
+        await tx.registroExamenGlobal.deleteMany({ where: { matriculaId: id } });
+        await tx.registroAsistenciaGlobal.deleteMany({ where: { matriculaId: id } });
+        await tx.observacionAsistencia.deleteMany({ where: { matriculaId: id } });
+      }
+      const actualizada = await tx.matricula.update({
+        where: { id },
+        data: { activo: true, cursoId, ...numeracion },
+        select: { id: true, nombres: true, apellidos: true, matriculaNo: true }
+      });
+      await tx.usuario.update({ where: { id: matricula.usuarioId }, data: { activo: true } });
+      await asignarConceptosFaltantes(tx, { id: matricula.usuarioId });
+      return actualizada;
+    });
+
+    res.json({
+      message: `Matrícula reactivada en ${curso.ramaArtesanal} (N.º ${reactivada.matriculaNo})`,
+      matricula: reactivada,
+      cambiaDeCurso
+    });
+  } catch (error: any) {
+    if (error.code === 'P2002') {
+      return res.status(409).json({ error: 'El número de matrícula se ocupó al mismo tiempo; inténtalo de nuevo' });
+    }
+    console.error(error);
+    res.status(500).json({ error: 'Error al reactivar la matrícula' });
   }
 };
