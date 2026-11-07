@@ -21,11 +21,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // El login devuelve 401 por credenciales incorrectas: eso lo maneja su pantalla.
       const esAutenticacion = req.url.includes('/auth/');
 
-      if (err.status === 401 && !esAutenticacion && authService.isLoggedIn()) {
-        authService.logout();
-        notificacion.info('Tu sesión expiró. Vuelve a iniciar sesión.');
-        router.navigate(['/login']);
-        // No se propaga: la pantalla que hizo la petición ya no está visible.
+      if (err.status === 401 && !esAutenticacion) {
+        // Solo la primera de varias peticiones simultáneas cierra la sesión y avisa.
+        if (authService.isLoggedIn()) {
+          authService.logout();
+          notificacion.info('Tu sesión expiró. Vuelve a iniciar sesión.');
+          router.navigate(['/login']);
+        }
+        // No se propaga (ni la primera ni las siguientes): la pantalla que hizo la
+        // petición ya no está visible y no debe mostrar un error encima del login.
         return EMPTY;
       }
 

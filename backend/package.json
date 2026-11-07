@@ -8,6 +8,7 @@
     "seed": "ts-node src/seed.ts",
     "limpiar-matricula": "ts-node src/scripts/limpiarMatricula.ts",
     "start": "prisma migrate deploy && node dist/seed.js; node dist/index.js",
+    "test": "node --require ts-node/register --test \"tests/*.test.cjs\"",
     "test:extraccion": "node --require ts-node/register --test tests/matricula-extraccion.test.cjs"
   },
   "dependencies": {

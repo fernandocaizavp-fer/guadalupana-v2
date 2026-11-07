@@ -1,0 +1,48 @@
+# Integración continua: en cada push o pull request a main se compilan el backend y
+# el frontend y se ejecutan sus pruebas automatizadas. Las pruebas no usan la base
+# de datos (datos ficticios), así que no necesitan secretos.
+name: Pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npx prisma generate
+      - name: Compilar (TypeScript)
+        run: npx tsc --noEmit -p .
+      - name: Pruebas
+        run: npm test
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Pruebas
+        run: npx ng test --watch=false

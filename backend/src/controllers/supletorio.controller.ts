@@ -21,7 +21,7 @@ const fmt2 = (valor: number | null | undefined): string => {
 };
 
 // Estado de aprobación: nota >= notaAprobacion configurada (7 por defecto).
-const estadoAprobacion = (valor: number | null | undefined, aprob: number = 7): string => {
+export const estadoAprobacion = (valor: number | null | undefined, aprob: number = 7): string => {
   if (valor === null || valor === undefined) return '';
   return valor >= aprob ? 'APROBADO' : 'NO APROBADO';
 };
@@ -33,7 +33,7 @@ const MESES_CAP = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
 
 // Nota de una materia en un semestre (AL15, AL16, AL22): la nota del ingreso rápido
 // si el administrador la registró; si no, el promedio de las notas de tarea.
-const getNota = (matricula: any, nombreMateria: string, semestre: number): number | null => {
+export const getNota = (matricula: any, nombreMateria: string, semestre: number): number | null => {
   const rapida = notaGlobal(matricula, claveMateria(nombreMateria), semestre);
   if (rapida !== null) return rapida;
   const notas = matricula.notasTarea.filter((n: any) =>
@@ -45,7 +45,7 @@ const getNota = (matricula: any, nombreMateria: string, semestre: number): numbe
 };
 
 // Nota del supletorio de una materia, si existe.
-const getSupletorio = (matricula: any, nombreMateria: string): number | null => {
+export const getSupletorio = (matricula: any, nombreMateria: string): number | null => {
   const sup = matricula.supletorios.find((s: any) =>
     s.materia.nombre.toLowerCase().includes(nombreMateria.toLowerCase())
   );
@@ -67,7 +67,7 @@ const calcularSuma = (n1: number | null, n2: number | null): string => {
   return fmt(suma);
 };
 
-const calcularPfNum = (n1: number | null, n2: number | null, sup: number | null): number | null => {
+export const calcularPfNum = (n1: number | null, n2: number | null, sup: number | null): number | null => {
   if (n1 === null || n2 === null) return null;
   const suma = (n1 + n2) / 2;
   if (sup !== null) return (suma + sup) / 2;

@@ -45,14 +45,35 @@ export const materiasDelDocente = async (usuarioId: number, materiaIds: number[]
       select: { cursoId: true }
     })
   ]);
-  const gemelas = new Set(propiasDelCurso.map((m) => `${m.cursoId}|${m.nombre}`));
-  const cursosPrincipal = new Set(principalEn.map((m) => m.cursoId));
+  return decidirMateriasPermitidas(usuarioId, materias, propiasDelCurso, principalEn.map((m) => m.cursoId));
+};
+
+interface MateriaParaPermiso {
+  id: number;
+  nombre: string;
+  cursoId: number;
+  esSubmateria: boolean;
+  profesorId: number | null;
+  profesorPrincipalId: number | null;
+}
+
+// La regla, separada del acceso a datos para poder probarla sin base de datos.
+//   submateriasPropias: submaterias de esos cursos donde el docente es profesorId.
+//   cursosPrincipal:    cursos donde el docente es docente principal de alguna materia.
+export const decidirMateriasPermitidas = (
+  usuarioId: number,
+  materias: MateriaParaPermiso[],
+  submateriasPropias: { cursoId: number; nombre: string }[],
+  cursosPrincipal: number[]
+): Set<number> => {
+  const gemelas = new Set(submateriasPropias.map((m) => `${m.cursoId}|${m.nombre}`));
+  const principal = new Set(cursosPrincipal);
 
   const permitidas = new Set<number>();
   for (const m of materias) {
     if (m.profesorId === usuarioId || m.profesorPrincipalId === usuarioId) permitidas.add(m.id);
     else if (m.esSubmateria && gemelas.has(`${m.cursoId}|${m.nombre}`)) permitidas.add(m.id);
-    else if (cursosPrincipal.has(m.cursoId) && (m.esSubmateria || CONTENEDORAS.includes(m.nombre))) permitidas.add(m.id);
+    else if (principal.has(m.cursoId) && (m.esSubmateria || CONTENEDORAS.includes(m.nombre))) permitidas.add(m.id);
   }
   return permitidas;
 };
