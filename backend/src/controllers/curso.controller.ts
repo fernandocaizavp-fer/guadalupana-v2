@@ -48,6 +48,31 @@ export const listarCursos = async (req: Request, res: Response) => {
 
 export const obtenerCurso = async (req: Request, res: Response) => {
   try {
+    // El estudiante solo ve su propio curso (materias y docentes), nunca la lista
+    // de compañeros con sus cédulas.
+    const usuario = (req as any).usuario;
+    if (usuario?.rol === 'ESTUDIANTE') {
+      const propia = await prisma.matricula.findFirst({
+        where: { usuarioId: Number(usuario.id), activo: true, cursoId: Number(req.params.id) },
+        select: { id: true }
+      });
+      if (!propia) return res.status(403).json({ error: 'Solo puedes consultar tu propio curso' });
+      const curso = await prisma.curso.findUnique({
+        where: { id: Number(req.params.id) },
+        include: {
+          materias: {
+            include: {
+              profesor: { select: { id: true, nombre: true, apellido: true } },
+              profesorPrincipal: { select: { id: true, nombre: true, apellido: true } }
+            },
+            orderBy: { id: 'asc' }
+          }
+        }
+      });
+      if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
+      return res.json({ ...curso, matriculas: [] });
+    }
+
     const curso = await prisma.curso.findUnique({
       where: { id: Number(req.params.id) },
       include: {

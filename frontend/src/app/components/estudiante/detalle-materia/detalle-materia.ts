@@ -51,6 +51,8 @@ export class DetalleMateria implements OnInit {
     ).subscribe({
       next: (matricula) => {
         this.matriculaId = matricula.id;
+        // Nombre de la materia desde su curso: así el título sale aunque no haya tareas.
+        this.materia = (matricula.curso?.materias || []).find((m: any) => m.id === this.materiaId) || null;
         this.cargarTareas();
       }
     });
@@ -59,7 +61,7 @@ export class DetalleMateria implements OnInit {
   cargarTareas() {
     this.tareaService.getTareasPorMateria(this.materiaId, this.semestre).subscribe({
       next: (tareas) => {
-        if (tareas.length > 0) {
+        if (tareas.length > 0 && !this.materia) {
           this.materia = tareas[0].materia;
         }
 

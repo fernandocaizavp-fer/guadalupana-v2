@@ -25,7 +25,7 @@ export const getEstudiantesExamenGrado = async (req: Request, res: Response) => 
       include: {
         curso: {
           include: {
-            matriculas: { orderBy: { apellidos: 'asc' } }
+            matriculas: { where: { activo: true }, orderBy: { apellidos: 'asc' } }
           }
         }
       }
@@ -138,7 +138,7 @@ export const getExamenesPorCurso = async (req: Request, res: Response) => {
     });
 
     const matriculas = await prisma.matricula.findMany({
-      where: { cursoId: Number(cursoId) },
+      where: { cursoId: Number(cursoId), activo: true },
       include: { examenesGrado: true },
       orderBy: { apellidos: 'asc' }
     });
@@ -179,7 +179,7 @@ export const generarAL23 = async (req: Request, res: Response) => {
 
     // Matriculas con exámenes y disciplina
     const matriculas = await prisma.matricula.findMany({
-      where: { cursoId: Number(cursoId) },
+      where: { cursoId: Number(cursoId), activo: true },
       include: {
         examenesGrado: true,
         notasDisciplina: {

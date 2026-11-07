@@ -18,6 +18,14 @@ export class SuplетorioService {
     });
   }
 
+  // Estudiantes activos de la materia con sus promedios por semestre (ingreso
+  // rápido o tareas, igual que el AL15) y el supletorio ya guardado.
+  getSupletoriosMateria(materiaId: number): Observable<{ materia: any; estudiantes: any[] }> {
+    return this.http.get<{ materia: any; estudiantes: any[] }>(`${this.apiUrl}/supletorios/materia/${materiaId}`, {
+      headers: this.getHeaders()
+    });
+  }
+
   guardarMasivo(supletorios: any[]): Observable<any> {
     return this.http.post(`${this.apiUrl}/supletorios/masivo`, { supletorios }, {
       headers: this.getHeaders()

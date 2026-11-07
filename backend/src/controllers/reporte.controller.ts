@@ -32,6 +32,7 @@ export const generarAL9 = async (req: Request, res: Response) => {
       where: { id: Number(cursoId) },
       include: {
         matriculas: {
+          where: { activo: true },
           orderBy: { apellidos: 'asc' },
           include: {
             datosPersonales: true,

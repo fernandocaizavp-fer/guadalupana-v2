@@ -103,7 +103,7 @@ export const habilitarSupletorioIndividual = async (req: Request, res: Response)
 export const listarPermisosSupletorio = async (req: Request, res: Response) => {
   try {
     const matriculas = await prisma.matricula.findMany({
-      where: { supletorioHabilitadoHasta: { not: null } },
+      where: { supletorioHabilitadoHasta: { not: null }, activo: true },
       select: {
         id: true,
         nombres: true,
@@ -171,7 +171,7 @@ export const habilitarRecalificacionExamen = async (req: Request, res: Response)
 export const listarPermisosExamenGrado = async (req: Request, res: Response) => {
   try {
     const matriculas = await prisma.matricula.findMany({
-      where: { examenGradoHabilitadoHasta: { not: null } },
+      where: { examenGradoHabilitadoHasta: { not: null }, activo: true },
       select: {
         id: true,
         nombres: true,

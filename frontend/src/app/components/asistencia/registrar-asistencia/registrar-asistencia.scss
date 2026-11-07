@@ -279,6 +279,13 @@ $rojo-border: #fca5a5;
     .estado-label { color: $rojo; }
   }
 
+  // Al editar una fecha: estudiante sin registro ese día (no se guarda si no se marca).
+  &.sin-registro {
+    background: #f4f5f8;
+    border-style: dashed;
+    .row-icon, .estado-label { color: #8a90a2; }
+  }
+
   &:hover { transform: translateX(5px); }
 }
 

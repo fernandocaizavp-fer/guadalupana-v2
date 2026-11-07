@@ -66,17 +66,18 @@
         }
         @for (matricula of matriculas; track matricula.id; let i = $index) {
           <div class="estudiante-row"
-            [class.presente]="presentes[matricula.id]"
-            [class.ausente]="!presentes[matricula.id]"
+            [class.presente]="presentes[matricula.id] === true"
+            [class.ausente]="presentes[matricula.id] === false"
+            [class.sin-registro]="presentes[matricula.id] === undefined"
             (click)="togglePresente(matricula.id)">
             <div class="row-num">{{ i + 1 }}</div>
             <div class="row-nombre">{{ matricula.apellidos }} {{ matricula.nombres }}</div>
             <div class="row-estado">
               <span class="estado-label">
-                {{ presentes[matricula.id] ? 'PRESENTE' : 'AUSENTE' }}
+                {{ presentes[matricula.id] === undefined ? 'SIN REGISTRO' : (presentes[matricula.id] ? 'PRESENTE' : 'AUSENTE') }}
               </span>
               <mat-icon class="row-icon">
-                {{ presentes[matricula.id] ? 'check_circle' : 'cancel' }}
+                {{ presentes[matricula.id] === undefined ? 'help_outline' : (presentes[matricula.id] ? 'check_circle' : 'cancel') }}
               </mat-icon>
             </div>
           </div>

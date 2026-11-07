@@ -6,9 +6,10 @@ const router = Router();
 
 router.post('/extraer-datos', verificarToken, soloAdmin, extraerDatosMatricula);
 router.post('/', verificarToken, soloAdmin, crearMatricula);
-router.get('/buscar', verificarToken, buscarEstudiante);
+// Datos personales del estudiante: solo administración.
+router.get('/buscar', verificarToken, soloAdmin, buscarEstudiante);
 router.get('/siguiente/:cursoId', verificarToken, soloAdmin, siguienteMatricula);
-router.get('/:id', verificarToken, obtenerMatricula);
+router.get('/:id', verificarToken, soloAdmin, obtenerMatricula);
 router.put('/:id', verificarToken, soloAdmin, actualizarMatricula);
 router.delete('/:id', verificarToken, soloAdmin, eliminarMatricula);
 

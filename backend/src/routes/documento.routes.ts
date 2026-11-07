@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { descargarMatricula, descargarCertificado } from '../controllers/documento.controller';
-import { verificarToken } from '../middlewares/auth.middleware';
+import { verificarToken, soloAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.get('/matricula/:id', verificarToken, descargarMatricula);
-router.get('/certificado/:id', verificarToken, descargarCertificado);
+// Ficha (AL12) y certificado (AL13) llevan datos personales: solo administración.
+router.get('/matricula/:id', verificarToken, soloAdmin, descargarMatricula);
+router.get('/certificado/:id', verificarToken, soloAdmin, descargarCertificado);
 
 export default router;

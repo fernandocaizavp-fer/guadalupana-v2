@@ -78,6 +78,61 @@ const calcularPf = (n1: number | null, n2: number | null, sup: number | null): s
   return fmt(calcularPfNum(n1, n2, sup));
 };
 
+// Pantalla de supletorios del docente (GET /api/supletorios/materia/:materiaId).
+// Lista las matrículas activas del curso de la materia, sin depender de que existan
+// tareas, con el promedio de cada semestre calculado igual que el AL15: la nota del
+// ingreso rápido si existe; si no, el promedio de las notas de tarea de esta materia.
+// Incluye el supletorio ya guardado para que el docente lo vea y lo corrija.
+export const getSupletoriosMateria = async (req: Request, res: Response) => {
+  try {
+    const materia = await prisma.materia.findUnique({
+      where: { id: Number(req.params.materiaId) },
+      select: { id: true, nombre: true, cursoId: true, esSubmateria: true, materiaParent: true }
+    });
+    if (!materia) return res.status(404).json({ error: 'Materia no encontrada' });
+
+    const matriculas = await prisma.matricula.findMany({
+      where: { cursoId: materia.cursoId, activo: true },
+      select: {
+        id: true, apellidos: true, nombres: true, matriculaNo: true, supletorioHabilitadoHasta: true,
+        notasTarea: {
+          where: { tarea: { materiaId: materia.id }, valor: { not: null } },
+          select: { valor: true, tarea: { select: { semestre: true } } }
+        },
+        notasGlobales: { select: { materia: true, semestre: true, nota: true } },
+        supletorios: { where: { materiaId: materia.id }, select: { valor: true } }
+      },
+      orderBy: [{ apellidos: 'asc' }, { nombres: 'asc' }]
+    });
+
+    // Las submaterias no tienen casilla propia en el ingreso rápido.
+    const clave = materia.esSubmateria ? null : claveMateria(materia.nombre);
+    const promedio = (m: typeof matriculas[number], semestre: number): number | null => {
+      const rapida = notaGlobal(m, clave, semestre);
+      if (rapida !== null) return rapida;
+      const valores = m.notasTarea.filter((n) => n.tarea.semestre === semestre).map((n) => n.valor as number);
+      return valores.length > 0 ? valores.reduce((a, b) => a + b, 0) / valores.length : null;
+    };
+
+    res.json({
+      materia,
+      estudiantes: matriculas.map((m) => ({
+        id: m.id,
+        apellidos: m.apellidos,
+        nombres: m.nombres,
+        matriculaNo: m.matriculaNo,
+        supletorioHabilitadoHasta: m.supletorioHabilitadoHasta,
+        promedioS1: promedio(m, 1),
+        promedioS2: promedio(m, 2),
+        supletorio: m.supletorios[0]?.valor ?? null
+      }))
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los supletorios de la materia' });
+  }
+};
+
 export const guardarSupletorio = async (req: Request, res: Response) => {
   const { matriculaId, materiaId, valor } = req.body;
   try {
@@ -198,6 +253,7 @@ export const generarAL15 = async (req: Request, res: Response) => {
           orderBy: { id: 'asc' }
         },
         matriculas: {
+          where: { activo: true },
           include: {
             notasTarea: {
               include: { tarea: { include: { materia: true } } }
@@ -411,6 +467,8 @@ export const generarAL16 = async (req: Request, res: Response) => {
     });
 
     if (!matricula) return res.status(404).json({ error: 'Matrícula no encontrada' });
+    // Los estudiantes dados de baja no reciben certificado de promoción.
+    if (!matricula.activo) return res.status(409).json({ error: 'El estudiante está dado de baja' });
 
     const m = matricula;
     const pf = (nombre: string) =>
@@ -509,6 +567,7 @@ export const generarAL22 = async (req: Request, res: Response) => {
       where: { id: Number(cursoId) },
       include: {
         matriculas: {
+          where: { activo: true },
           orderBy: { apellidos: 'asc' },
           include: {
             notasTarea: { include: { tarea: { include: { materia: true } } } },
@@ -582,6 +641,7 @@ export const generarAL19 = async (req: Request, res: Response) => {
       where: { id: Number(cursoId) },
       include: {
         matriculas: {
+          where: { activo: true },
           include: {
             notasTarea: {
               include: { tarea: { include: { materia: true } } }

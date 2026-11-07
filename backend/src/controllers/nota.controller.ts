@@ -36,6 +36,7 @@ export const descargarAL14 = async (req: Request, res: Response) => {
           }
         },
         matriculas: {
+          where: { activo: true },
           include: {
             notasTarea: {
               include: {

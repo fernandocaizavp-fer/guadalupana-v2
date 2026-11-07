@@ -7,10 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../services/auth';
-import { TareaService } from '../../../services/tarea';
 import { SuplетorioService } from '../../../services/supletorio';
 import { ConfiguracionService } from '../../../services/configuracion';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-supletorio-docente',
@@ -39,10 +37,8 @@ export class SupletorioDocente implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    private tareaService: TareaService,
     private suplетorioService: SuplетorioService,
     private configService: ConfiguracionService,
-    private http: HttpClient,
     private snackBar: MatSnackBar,
     private cdr: ChangeDetectorRef
   ) {
@@ -85,74 +81,40 @@ export class SupletorioDocente implements OnInit {
     return true;
   }
 
+  // Estudiantes y promedios vienen de una sola ruta que no depende de que la materia
+  // tenga tareas y que respeta las notas del ingreso rápido (mismo cálculo que el AL15).
   cargarDatos() {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.authService.getToken()}`
-    });
+    const fmt = (v: number | null) => v === null ? '-' : (v % 1 === 0 ? String(v) : v.toFixed(1));
+    this.suplетorioService.getSupletoriosMateria(this.materiaId).subscribe({
+      next: ({ materia, estudiantes }) => {
+        this.materia = materia;
+        this.supletorios = {};
+        this.estudiantes = estudiantes.map((m: any) => {
+          const suma = m.promedioS1 !== null && m.promedioS2 !== null
+            ? (m.promedioS1 + m.promedioS2) / 2
+            : null;
 
-    // Obtener tareas de la materia para ambos semestres
-    this.tareaService.getTareasPorMateria(this.materiaId).subscribe({
-      next: (tareas) => {
-        if (tareas.length > 0) {
-          this.materia = tareas[0].materia;
-          const cursoId = tareas[0].materia?.curso?.id;
+          // Habilitar supletorio según el control del administrador:
+          // ventana general abierta, o permiso individual vigente para este estudiante.
+          const habilitarSup = this.ventanaAbierta || this.vigenteHasta(m.supletorioHabilitadoHasta);
 
-          // Obtener notas del curso
-          this.tareaService.getNotasCursoSemestre(cursoId).subscribe({
-            next: (data) => {
-              this.estudiantes = data.matriculas.map((m: any) => {
-                // Promedio semestre 1
-                const notasS1 = m.notasTarea?.filter((n: any) =>
-                  n.tarea?.materiaId === this.materiaId &&
-                  n.tarea?.semestre === 1 &&
-                  n.valor !== null
-                ) || [];
-                const promedioS1 = notasS1.length > 0
-                  ? notasS1.reduce((a: number, b: any) => a + b.valor, 0) / notasS1.length
-                  : null;
+          // Supletorio ya guardado, para verlo y corregirlo.
+          this.supletorios[m.id] = m.supletorio !== null ? String(m.supletorio) : '';
 
-                // Promedio semestre 2
-                const notasS2 = m.notasTarea?.filter((n: any) =>
-                  n.tarea?.materiaId === this.materiaId &&
-                  n.tarea?.semestre === 2 &&
-                  n.valor !== null
-                ) || [];
-                const promedioS2 = notasS2.length > 0
-                  ? notasS2.reduce((a: number, b: any) => a + b.valor, 0) / notasS2.length
-                  : null;
-
-                // Suma de promedios
-                const suma = promedioS1 !== null && promedioS2 !== null
-                  ? (promedioS1 + promedioS2) / 2
-                  : null;
-
-                // Habilitar supletorio según el control del administrador:
-                // ventana general abierta, o permiso individual vigente para este estudiante.
-                const permisoIndividual = this.vigenteHasta(m.supletorioHabilitadoHasta);
-                const habilitarSup = this.ventanaAbierta || permisoIndividual;
-
-                this.supletorios[m.id] = '';
-
-                return {
-                  ...m,
-                  promedioS1: promedioS1 !== null ? (promedioS1 % 1 === 0 ? String(promedioS1) : promedioS1.toFixed(1)) : '-',
-                  promedioS2: promedioS2 !== null ? (promedioS2 % 1 === 0 ? String(promedioS2) : promedioS2.toFixed(1)) : '-',
-                  suma: suma !== null ? (suma % 1 === 0 ? String(suma) : suma.toFixed(1)) : '-',
-                  habilitarSup
-                };
-              });
-
-              this.loading = false;
-              this.cdr.detectChanges();
-            }
-          });
-        } else {
-          this.loading = false;
-          this.cdr.detectChanges();
-        }
-      },
-      error: () => {
+          return {
+            ...m,
+            promedioS1: fmt(m.promedioS1),
+            promedioS2: fmt(m.promedioS2),
+            suma: fmt(suma),
+            habilitarSup
+          };
+        });
         this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (e) => {
+        this.loading = false;
+        this.snackBar.open(e?.error?.error || 'Error al cargar los estudiantes', 'OK', { duration: 3000 });
         this.cdr.detectChanges();
       }
     });
@@ -160,8 +122,10 @@ export class SupletorioDocente implements OnInit {
 
   guardar() {
     this.guardando = true;
+    // Solo los habilitados: los demás pueden mostrar un supletorio ya guardado, pero
+    // reenviarlo haría que el servidor rechace el lote fuera de la ventana.
     const data = this.estudiantes
-      .filter(e => this.supletorios[e.id] !== '' && this.supletorios[e.id] !== null)
+      .filter(e => e.habilitarSup && this.supletorios[e.id] !== '' && this.supletorios[e.id] !== null)
       .map(e => ({
         matriculaId: e.id,
         materiaId: this.materiaId,

@@ -34,6 +34,23 @@ export const getTareasPorMateria = async (req: Request, res: Response) => {
     const where: any = { materiaId: Number(materiaId) };
     if (semestre) where.semestre = Number(semestre);
 
+    // Notas de matrículas activas; el estudiante recibe solo las suyas y solo de
+    // materias de su propio curso (antes recibía las notas de todo el curso).
+    const notasWhere: any = { matricula: { activo: true } };
+    const usuario = (req as any).usuario;
+    if (usuario?.rol === 'ESTUDIANTE') {
+      const [propia, materia] = await Promise.all([
+        prisma.matricula.findFirst({
+          where: { usuarioId: Number(usuario.id), activo: true }, select: { id: true, cursoId: true }
+        }),
+        prisma.materia.findUnique({ where: { id: Number(materiaId) }, select: { cursoId: true } })
+      ]);
+      if (!propia || !materia || materia.cursoId !== propia.cursoId) {
+        return res.status(403).json({ error: 'Solo puedes consultar las materias de tu curso' });
+      }
+      notasWhere.matriculaId = propia.id;
+    }
+
     const tareas = await prisma.tarea.findMany({
       where,
       include: {
@@ -41,6 +58,7 @@ export const getTareasPorMateria = async (req: Request, res: Response) => {
           include: { curso: true }
         },
         notas: {
+          where: notasWhere,
           include: { matricula: true }
         },
         archivos: { orderBy: { createdAt: 'asc' } }
@@ -114,9 +132,9 @@ export const getNotasCursoSemestre = async (req: Request, res: Response) => {
       select: { id: true, nombre: true, esSubmateria: true, materiaParent: true }
     });
 
-    // Matrículas con notas de tareas y disciplina
+    // Matrículas activas con notas de tareas y disciplina
     const matriculas = await prisma.matricula.findMany({
-      where: { cursoId: Number(cursoId) },
+      where: { cursoId: Number(cursoId), activo: true },
       include: {
         notasTarea: {
           include: {
