@@ -5,10 +5,11 @@ const API_BASE = 'https://apiconsult.zampisoft.com/api/consultar';
 /**
  * Consulta al proveedor de datos del Registro Civil.
  *
- * COSTO: se realiza UNA SOLA petición con full=true ($0.05). Antes existía un
- * reintento automático con full=false ($0.02) cuando el nivel Full no traía
- * nombre, lo que podía llegar a costar $0.07 por búsqueda sin que el usuario
- * lo supiera. Ese reintento fue eliminado a propósito: NO volver a añadirlo.
+ * COSTO: se realiza UNA SOLA petición con full=false (consulta Básica, $0.02).
+ * El proveedor retiró DE FORMA PERMANENTE la consulta Full (full=true): desde
+ * noviembre de 2026 responde HTTP 503 "Esta ruta está deshabilitada
+ * temporalmente" (confirmado por el soporte de ZampiSoft). NO volver a
+ * full=true ni añadir reintentos: cada consulta cuesta saldo.
  */
 export const consultarCedula = async (req: Request, res: Response) => {
   // req.params viene tipado como string | string[]: se normaliza antes de validar.
@@ -27,7 +28,7 @@ export const consultarCedula = async (req: Request, res: Response) => {
   const sinToken = (texto: string) => texto.split(token).join('***');
 
   try {
-    const url = `${API_BASE}?token=${encodeURIComponent(token)}&identificacion=${cedula}&full=true`;
+    const url = `${API_BASE}?token=${encodeURIComponent(token)}&identificacion=${cedula}&full=false`;
     // El token se envía además como Bearer porque es la forma preferida; se
     // mantiene en el query string porque es la que el proveedor tiene
     // confirmada. Enviar ambas es inocuo y evita romper producción si el
@@ -67,8 +68,8 @@ export const consultarCedula = async (req: Request, res: Response) => {
       });
     }
 
-    // La API Full devuelve la persona anidada; una respuesta plana también es
-    // posible. Se soportan ambas sin hacer una segunda consulta.
+    // La consulta Básica devuelve un objeto plano; la forma anidada (`persona`)
+    // de la antigua consulta Full se sigue aceptando por compatibilidad.
     const persona: any = data?.persona ?? data ?? {};
     const direccion: any = persona?.direccion ?? {};
     const fechas: any = persona?.fechas ?? {};
