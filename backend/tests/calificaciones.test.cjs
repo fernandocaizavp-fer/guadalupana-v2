@@ -64,6 +64,39 @@ describe('Origen de la nota por semestre', () => {
     assert.equal(getSupletorio(matricula, 'Inglés'), null);
   });
 
+  test('Práctica/Teoría sin valor rápido: promedio de las tareas de sus submaterias', () => {
+    const sub = (nombre, parent) => ({ nombre, esSubmateria: true, materiaParent: parent });
+    const m = {
+      notasGlobales: [],
+      notasTarea: [
+        { valor: 8, tarea: { semestre: 1, materia: sub('Corte', 'Teoría') } },
+        { valor: 10, tarea: { semestre: 1, materia: sub('Costura', 'Teoría') } },
+        { valor: 6, tarea: { semestre: 1, materia: sub('Corte', 'Práctica') } },
+        { valor: 9, tarea: { semestre: 2, materia: sub('Corte', 'Teoría') } }
+      ]
+    };
+    assert.equal(getNota(m, 'Teoría', 1), 9);
+    assert.equal(getNota(m, 'Práctica', 1), 6);
+    assert.equal(getNota(m, 'Teoría', 2), 9);
+    assert.equal(getNota(m, 'Práctica', 2), null);
+  });
+
+  test('Práctica/Teoría con valor rápido: se usa la nota escrita tal cual', () => {
+    const m = {
+      notasGlobales: [{ materia: 'TEORIA', semestre: 1, nota: 7.25 }],
+      notasTarea: [{ valor: 10, tarea: { semestre: 1, materia: { nombre: 'Corte', esSubmateria: true, materiaParent: 'Teoría' } } }]
+    };
+    assert.equal(getNota(m, 'Teoría', 1), 7.25);
+  });
+
+  test('Práctica/Teoría sin submaterias: tareas de la materia contenedora', () => {
+    const m = {
+      notasGlobales: [],
+      notasTarea: [{ valor: 8, tarea: { semestre: 1, materia: { nombre: 'Práctica', esSubmateria: false } } }]
+    };
+    assert.equal(getNota(m, 'Práctica', 1), 8);
+  });
+
   test('los nombres de los AL se traducen a la clave del ingreso rápido', () => {
     assert.equal(claveMateria('Inglés Técnico'), 'INGLES');
     assert.equal(claveMateria('Elaboración de Proyectos'), 'PROYECTOS');

@@ -31,15 +31,36 @@ const MESES_MAYUS = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
 const MESES_CAP = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
+// 'Práctica' y 'Teoría' son materias contenedoras: sus tareas viven en las
+// submaterias (p. ej. "Corte y Confección"), cuyo nombre NO contiene "Teoría".
+const CONTENEDORAS = ['Práctica', 'Teoría'];
+
 // Nota de una materia en un semestre (AL15, AL16, AL22): la nota del ingreso rápido
-// si el administrador la registró; si no, el promedio de las notas de tarea.
+// si el administrador la registró (se usa tal cual); si no, el promedio de las notas
+// de tarea. Para Práctica/Teoría el promedio junta las tareas de todas sus
+// submaterias (mismo criterio que el AL14); si el curso no tiene submaterias, se
+// usan las tareas puestas directamente en la materia contenedora.
 export const getNota = (matricula: any, nombreMateria: string, semestre: number): number | null => {
   const rapida = notaGlobal(matricula, claveMateria(nombreMateria), semestre);
   if (rapida !== null) return rapida;
-  const notas = matricula.notasTarea.filter((n: any) =>
-    n.tarea.materia.nombre.toLowerCase().includes(nombreMateria.toLowerCase()) &&
+  const delSemestre = matricula.notasTarea.filter((n: any) =>
     n.tarea.semestre === semestre && n.valor !== null
   );
+  let notas: any[];
+  if (CONTENEDORAS.includes(nombreMateria)) {
+    notas = delSemestre.filter((n: any) =>
+      n.tarea.materia.esSubmateria && n.tarea.materia.materiaParent === nombreMateria
+    );
+    if (notas.length === 0) {
+      notas = delSemestre.filter((n: any) =>
+        !n.tarea.materia.esSubmateria && n.tarea.materia.nombre === nombreMateria
+      );
+    }
+  } else {
+    notas = delSemestre.filter((n: any) =>
+      n.tarea.materia.nombre.toLowerCase().includes(nombreMateria.toLowerCase())
+    );
+  }
   if (notas.length === 0) return null;
   return notas.reduce((a: number, b: any) => a + b.valor, 0) / notas.length;
 };
