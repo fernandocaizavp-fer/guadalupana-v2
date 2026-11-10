@@ -146,9 +146,11 @@ export class IngresoMasivo implements OnInit, ConCambiosSinGuardar {
       : this.fueraDeRango(this.valorMasivo);
   }
 
-  // Promedio del AL23: media de las notas presentes del estudiante.
+  // Promedio del AL23: media de las notas presentes del estudiante. La
+  // disciplina se muestra pero NO entra en el promedio (igual que el AL23).
   promedioExamen(matriculaId: number): string {
     const valores = this.materiasExamen
+      .filter((m) => m.clave !== 'DISCIPLINA')
       .map((m) => this.examenes[this.claveExamen(matriculaId, m.clave)])
       .filter((v): v is number => v !== null && v !== undefined && !this.fueraDeRango(v));
     if (valores.length === 0) return '—';

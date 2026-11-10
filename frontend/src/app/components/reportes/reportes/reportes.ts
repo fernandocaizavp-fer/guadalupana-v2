@@ -244,20 +244,14 @@ export class Reportes implements OnInit {
     );
   }
 
+  // La disciplina se muestra en su columna pero NO entra en el promedio
+  // (misma regla que los documentos AL14, AL15, AL16 y AL23).
   getPromedioGeneral(matricula: any): string {
     const valores: number[] = [];
     for (const materia of this.materiasCalificaciones) {
-      let val: string;
-      if (materia.nombre.toLowerCase().includes('disciplina')) {
-        val = this.getNotaDisciplina(matricula);
-      } else {
-        val = this.getPromedioMateria(matricula, materia.id);
-      }
+      if (materia.nombre.toLowerCase().includes('disciplina')) continue;
+      const val = this.getPromedioMateria(matricula, materia.id);
       if (val !== '-') valores.push(Number(val));
-    }
-    if (!this.tieneMateriaDiscipilna) {
-      const disc = this.getNotaDisciplina(matricula);
-      if (disc !== '-') valores.push(Number(disc));
     }
     if (valores.length === 0) return '-';
     const prom = valores.reduce((a, b) => a + b, 0) / valores.length;
