@@ -10,10 +10,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-submaterias-materia',
-  imports: [Esqueleto, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, Esqueleto, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule],
   templateUrl: './submaterias-materia.html',
   styleUrl: './submaterias-materia.scss'

@@ -134,7 +134,8 @@
           </div>
         }
         @if (getSubmateriasUnicas().length === 0) {
-          <p class="sin-submaterias">No hay submaterias configuradas</p>
+          <app-estado-vacio icono="account_tree" titulo="Sin submaterias"
+                          mensaje="Las submaterias que agregues a Práctica y Teoría aparecerán aquí." [compacto]="true" />
         }
       </div>
 
@@ -158,16 +159,8 @@
     </div>
 
     @if (curso.matriculas?.length === 0) {
-      <div class="center">
-        <div class="empty-state">
-          <mat-icon>people</mat-icon>
-          <h3>Sin estudiantes</h3>
-          <p>No hay estudiantes matriculados en este curso</p>
-          <button mat-raised-button class="btn-gold" (click)="irAMatricular()">
-            <mat-icon>person_add</mat-icon> Matricular primer estudiante
-          </button>
-        </div>
-      </div>
+      <app-estado-vacio icono="groups" titulo="Aún no hay estudiantes en este curso"
+                          mensaje="Matricula al primer estudiante para empezar a registrar notas y asistencia." accion="Matricular primer estudiante" (accionClick)="irAMatricular()" />
     }
 
     @if (curso.matriculas?.length > 0) {

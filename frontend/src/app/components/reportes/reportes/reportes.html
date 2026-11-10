@@ -149,10 +149,8 @@
       <div class="center-box"><mat-spinner diameter="40"></mat-spinner></div>
     }
     @if (!loading && cursoSeleccionado && resumen.length === 0) {
-      <div class="empty-box">
-        <mat-icon>event_busy</mat-icon>
-        <p>Sin registros de asistencia</p>
-      </div>
+      <app-estado-vacio icono="event_busy" titulo="Sin registros de asistencia"
+                          mensaje="Este curso todavía no tiene asistencias registradas." [compacto]="true" />
     }
     @if (!loading && resumen.length > 0) {
       <div class="table-container-modern">
@@ -627,10 +625,8 @@
       </div>
     }
     @if (!loadingAL16 && cursoAL16 && estudiantesAL16.length === 0) {
-      <div class="empty-box">
-        <mat-icon>workspace_premium</mat-icon>
-        <p>No hay estudiantes matriculados en este curso</p>
-      </div>
+      <app-estado-vacio icono="workspace_premium" titulo="Aún no hay estudiantes en este curso"
+                          mensaje="Matricula estudiantes para generar sus certificados." [compacto]="true" />
     }
   }
 

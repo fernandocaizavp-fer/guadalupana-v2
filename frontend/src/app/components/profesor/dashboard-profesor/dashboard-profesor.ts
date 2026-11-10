@@ -20,11 +20,12 @@ import { NotificacionService } from '../../../services/notificacion';
 import { ResumenProfesorComponent } from '../resumen-profesor/resumen-profesor';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-dashboard-profesor',
   standalone: true,
-  imports: [Esqueleto, MatTooltipModule, ResumenProfesorComponent,
+  imports: [EstadoVacio, Esqueleto, MatTooltipModule, ResumenProfesorComponent,
     MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatMenuModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, DatePipe,
     VisorImagen, FotoPerfil

@@ -13,10 +13,8 @@
 
 <div class="content">
   @if (!loading && !matricula) {
-    <div class="center">
-      <mat-icon class="empty-icon">school</mat-icon>
-      <p>No tienes matrícula registrada</p>
-    </div>
+    <app-estado-vacio icono="school" titulo="No tienes una matrícula registrada"
+                          mensaje="Comunícate con la secretaría del centro para completar tu matrícula." />
   }
 
   @if (!loading && matricula) {
@@ -112,7 +110,8 @@
           </div>
 
           @if (tareasPendientes.length === 0) {
-            <p class="sin-tareas">No tienes tareas pendientes</p>
+            <app-estado-vacio icono="task_alt" titulo="¡Estás al día!"
+                          mensaje="No tienes tareas pendientes por entregar." [compacto]="true" />
           } @else {
             <ul class="tareas-list">
               @for (tarea of tareasPendientes; track tarea.id) {

@@ -23,10 +23,8 @@
   }
 
   @if (!loading && estudiantes.length === 0) {
-    <div class="center">
-      <mat-icon class="empty-icon">people</mat-icon>
-      <p>No hay estudiantes en esta materia</p>
-    </div>
+    <app-estado-vacio icono="groups" titulo="Aún no hay estudiantes en esta materia"
+                          mensaje="Cuando el curso tenga estudiantes podrás registrar sus supletorios aquí." />
   }
 
   @if (!loading && estudiantes.length > 0) {

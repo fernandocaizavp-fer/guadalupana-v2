@@ -25,10 +25,8 @@
     </div>
 
     @if (submaterias.length === 0) {
-      <div class="center">
-        <mat-icon class="empty-icon">book</mat-icon>
-        <p>No hay submaterias registradas</p>
-      </div>
+      <app-estado-vacio icono="menu_book" titulo="Aún no hay submaterias"
+                          mensaje="Las submaterias de esta materia aparecerán aquí cuando se configuren." />
     }
 
     @if (submaterias.length > 0) {

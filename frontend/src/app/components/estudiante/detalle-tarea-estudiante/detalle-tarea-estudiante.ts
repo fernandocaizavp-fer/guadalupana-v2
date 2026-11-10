@@ -14,10 +14,11 @@ import { DialogService } from '../../../services/dialog';
 import { NotificacionService } from '../../../services/notificacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-detalle-tarea-estudiante',
-  imports: [Esqueleto, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, Esqueleto, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, DatePipe],
   templateUrl: './detalle-tarea-estudiante.html',
   styleUrl: './detalle-tarea-estudiante.scss'

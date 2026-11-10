@@ -43,10 +43,8 @@
     </div>
 
     @if (matriculas.length === 0) {
-      <div class="center">
-        <mat-icon class="empty-icon">people</mat-icon>
-        <p>No hay estudiantes matriculados</p>
-      </div>
+      <app-estado-vacio icono="groups" titulo="Aún no hay estudiantes matriculados"
+                          mensaje="Cuando el curso tenga estudiantes podrás registrar su disciplina aquí." />
     }
 
     @if (matriculas.length > 0) {

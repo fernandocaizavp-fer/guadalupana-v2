@@ -22,6 +22,7 @@ import { NotificacionService } from '../../../services/notificacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 import { ArchivadosDialog, ArchivadosData } from './archivados-dialog';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-editar-matricula-dialog',
@@ -342,7 +343,7 @@ export function aplanarMatricula(m: any): any {
 // ===== COMPONENTE PRINCIPAL =====
 @Component({
   selector: 'app-detalle-curso',
-  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
+  imports: [EstadoVacio, Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatTableModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, 
     MatFormFieldModule, MatInputModule, DatePipe],
 

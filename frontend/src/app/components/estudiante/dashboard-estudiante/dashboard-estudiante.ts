@@ -19,6 +19,7 @@ import { environment } from '../../../../environments/environment';
 import { NotificacionService } from '../../../services/notificacion';
 import { ResumenEstudiante } from '../resumen-estudiante/resumen-estudiante';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 interface Acceso {
   titulo: string;
@@ -29,7 +30,7 @@ interface Acceso {
 
 @Component({
   selector: 'app-dashboard-estudiante',
-  imports: [MatTooltipModule, ResumenEstudiante, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule,
+  imports: [EstadoVacio, MatTooltipModule, ResumenEstudiante, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule,
     MatDialogModule, DatePipe, VisorImagen, FotoPerfil],
   templateUrl: './dashboard-estudiante.html',
   styleUrl: './dashboard-estudiante.scss'

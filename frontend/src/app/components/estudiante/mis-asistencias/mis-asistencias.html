@@ -44,10 +44,8 @@
     </div>
 
     @if (resumen.clases === 0) {
-      <div class="vacio">
-        <mat-icon>event_busy</mat-icon>
-        <p>Tus docentes todavía no han registrado asistencia</p>
-      </div>
+      <app-estado-vacio icono="event_available" titulo="Aún no hay asistencias registradas"
+                          mensaje="Cuando tus docentes registren la asistencia, verás aquí tus clases y faltas." />
     } @else {
       <div class="lista">
         @for (materia of materias; track materia.id) {

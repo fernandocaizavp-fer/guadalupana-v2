@@ -186,7 +186,8 @@
           <div class="permisos-activos">
             <h4>Permisos activos</h4>
             @if (permisosActivos.length === 0) {
-              <p class="hint">No hay permisos de supletorio vigentes.</p>
+              <app-estado-vacio icono="event_available" titulo="Sin permisos vigentes"
+                          mensaje="No hay permisos de supletorio abiertos en este momento." [compacto]="true" />
             } @else {
               <div class="resultados">
                 @for (m of permisosActivos; track m.id) {
@@ -326,7 +327,8 @@
           <div class="permisos-activos">
             <h4>Permisos activos</h4>
             @if (permisosExamenActivos.length === 0) {
-              <p class="hint">No hay recalificaciones de examen de grado vigentes.</p>
+              <app-estado-vacio icono="event_available" titulo="Sin recalificaciones vigentes"
+                          mensaje="No hay recalificaciones de examen de grado abiertas en este momento." [compacto]="true" />
             } @else {
               <div class="resultados">
                 @for (m of permisosExamenActivos; track m.id) {
@@ -496,7 +498,8 @@
         </div>
         <div class="config-body">
           @if (conceptos.length === 0) {
-            <p class="hint">Todavía no hay conceptos de pago.</p>
+            <app-estado-vacio icono="receipt_long" titulo="Aún no hay conceptos de pago"
+                          mensaje="Los conceptos que crees aparecerán aquí." [compacto]="true" />
           } @else {
             <div class="resultados">
               @for (c of conceptos; track c.id) {

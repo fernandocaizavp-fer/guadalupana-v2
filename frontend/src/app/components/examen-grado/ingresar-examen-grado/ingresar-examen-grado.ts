@@ -12,10 +12,11 @@ import { ConCambiosSinGuardar, avisarAlCerrar, Instantanea } from '../../../shar
 import { NotificacionService } from '../../../services/notificacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-ingresar-examen-grado',
-  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule],
   templateUrl: './ingresar-examen-grado.html',
   styleUrl: './ingresar-examen-grado.scss'

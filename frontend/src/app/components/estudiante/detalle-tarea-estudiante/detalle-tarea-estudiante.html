@@ -93,7 +93,8 @@
           }
         </div>
       } @else {
-        <p class="vacio">Aún no has subido tu entrega. Usa "Subir archivos" para enviar tu trabajo.</p>
+        <app-estado-vacio icono="upload_file" titulo="Aún no has subido tu entrega"
+                          mensaje="Usa «Subir archivos» para enviar tu trabajo." [compacto]="true" />
       }
     </div>
 

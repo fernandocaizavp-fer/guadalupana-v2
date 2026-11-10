@@ -9,10 +9,11 @@ import { TareaService } from '../../../services/tarea';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-detalle-materia',
-  imports: [MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [EstadoVacio, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './detalle-materia.html',
   styleUrl: './detalle-materia.scss'
 })

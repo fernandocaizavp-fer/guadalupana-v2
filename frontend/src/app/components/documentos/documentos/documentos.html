@@ -42,10 +42,8 @@
   }
 
   @if (!loading && matriculasFiltradas.length === 0) {
-    <div class="center">
-      <mat-icon class="empty-icon">search_off</mat-icon>
-      <p>No se encontraron estudiantes</p>
-    </div>
+    <app-estado-vacio icono="search_off" titulo="No se encontraron estudiantes"
+                          mensaje="Revisa el nombre o la cédula que escribiste." />
   }
 
   @if (!loading && matriculasFiltradas.length > 0) {

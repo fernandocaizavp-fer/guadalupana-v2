@@ -94,17 +94,8 @@
 
       @if (!loading && cursosAgrupados.length === 0) {
 
-        <div class="empty-state">
-
-          <mat-icon>school</mat-icon>
-
-          <h3>No tienes materias asignadas</h3>
-
-          <p>
-            Contacta con administración
-          </p>
-
-        </div>
+        <app-estado-vacio icono="school" titulo="Aún no tienes materias asignadas"
+                          mensaje="Comunícate con la administración para que te asigne tus materias." />
 
       }
 

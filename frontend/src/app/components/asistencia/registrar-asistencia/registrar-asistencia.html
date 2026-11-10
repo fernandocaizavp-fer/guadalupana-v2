@@ -108,10 +108,8 @@
     </div>
 
     @if (asistencias.length === 0) {
-      <div class="center">
-        <mat-icon class="empty-icon">event_busy</mat-icon>
-        <p>No hay registros de asistencia aún</p>
-      </div>
+      <app-estado-vacio icono="event_busy" titulo="Aún no hay registros de asistencia"
+                          mensaje="Cuando registres la asistencia de una clase, aparecerá aquí." />
     }
 
     @if (asistencias.length > 0) {

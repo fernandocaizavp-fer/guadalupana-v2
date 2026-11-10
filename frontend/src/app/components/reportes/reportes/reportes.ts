@@ -19,10 +19,11 @@ import { calcularDisciplinaPonderada } from '../../../services/disciplina-util';
 import { BotonCalendario, lugarFechaHoy } from '../../../shared/lugar-fecha/lugar-fecha';
 import { NotificacionService } from '../../../services/notificacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-reportes',
-  imports: [MatTooltipModule, BotonCalendario, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, MatTooltipModule, BotonCalendario, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatSelectModule,
     MatFormFieldModule, MatInputModule],
   templateUrl: './reportes.html',

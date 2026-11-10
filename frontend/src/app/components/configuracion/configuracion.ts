@@ -21,6 +21,7 @@ import { LoadingService } from '../../services/loading';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { NotificacionService } from '../../services/notificacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EstadoVacio } from '../../shared/estado-vacio/estado-vacio';
 
 // Fila editable de la programación académica de una materia.
 interface FilaProgramacion {
@@ -35,7 +36,7 @@ interface FilaProgramacion {
 
 @Component({
   selector: 'app-configuracion',
-  imports: [MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, DatePipe],
   templateUrl: './configuracion.html',

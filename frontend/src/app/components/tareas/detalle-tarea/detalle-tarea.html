@@ -91,7 +91,8 @@
           }
         </div>
       } @else {
-        <p class="vacio">Aún no has subido documentos para esta tarea.</p>
+        <app-estado-vacio icono="attach_file" titulo="Sin documentos adjuntos"
+                          mensaje="Sube el enunciado o material de apoyo para tus estudiantes." [compacto]="true" />
       }
     </div>
 
@@ -139,7 +140,8 @@
           }
         </div>
       } @else {
-        <p class="vacio">No hay estudiantes matriculados en este curso.</p>
+        <app-estado-vacio icono="groups" titulo="Aún no hay estudiantes en este curso"
+                          mensaje="Cuando haya estudiantes matriculados podrás calificarlos aquí." [compacto]="true" />
       }
     </div>
 

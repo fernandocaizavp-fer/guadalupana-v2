@@ -15,10 +15,11 @@ import { NotificacionService } from '../../../services/notificacion';
 import { ConCambiosSinGuardar, avisarAlCerrar, Instantanea } from '../../../shared/cambios-sin-guardar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-registrar-asistencia',
-  imports: [Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, DatePipe],
   templateUrl: './registrar-asistencia.html',
   styleUrl: './registrar-asistencia.scss'

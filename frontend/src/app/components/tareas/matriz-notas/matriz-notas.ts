@@ -12,10 +12,11 @@ import { TareaService } from '../../../services/tarea';
 import { CursoService } from '../../../services/curso';
 import { Title } from '@angular/platform-browser';
 import { NotificacionService } from '../../../services/notificacion';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-matriz-notas',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule,
+  imports: [EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatSnackBarModule, MatTooltipModule, DatePipe],
   templateUrl: './matriz-notas.html',
   styleUrl: './matriz-notas.scss'

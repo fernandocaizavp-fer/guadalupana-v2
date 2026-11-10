@@ -9,10 +9,11 @@ import { AuthService } from '../../../services/auth';
 import { AcademicoService, AsistenciaMateria, AsistenciasRespuesta } from '../../../services/academico';
 import { LoadingService } from '../../../services/loading';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-mis-asistencias',
-  imports: [MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, DatePipe],
+  imports: [EstadoVacio, MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, DatePipe],
   templateUrl: './mis-asistencias.html',
   styleUrl: './mis-asistencias.scss'
 })
