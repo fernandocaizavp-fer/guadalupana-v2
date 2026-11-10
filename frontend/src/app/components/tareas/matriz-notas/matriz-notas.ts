@@ -77,9 +77,9 @@ export class MatrizNotas implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.notificacion.error('Error al cargar la matriz');
+        this.notificacion.error(err.error?.error || 'Error al cargar la matriz');
         this.cdr.detectChanges();
       }
     });

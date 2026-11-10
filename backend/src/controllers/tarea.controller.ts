@@ -3,15 +3,41 @@ import prisma from '../lib/prisma';
 import { getConfiguracion, primeraNotaFueraDeRango } from '../lib/configuracion';
 
 // Crear tarea
+// Validación común de crear/editar tarea. Antes un dato inválido (nombre de más
+// de 150 caracteres, fecha vacía o mal formada, semestre ausente) terminaba en
+// un 500 genérico ("Error al crear tarea") sin decir qué estaba mal.
+const fechaValida = (v: unknown) => !!v && !isNaN(new Date(String(v)).getTime());
+export const errorDeTarea = (datos: any, creando: boolean): string | null => {
+  const { nombre, fechaInicio, fecha, fechaFin, semestre } = datos || {};
+  if (creando || nombre !== undefined) {
+    const n = typeof nombre === 'string' ? nombre.trim() : '';
+    if (!n) return 'El nombre de la tarea es obligatorio';
+    if (n.length > 150) return `El nombre de la tarea es demasiado largo (${n.length} caracteres; máximo 150). Usa la descripción para el detalle.`;
+  }
+  const inicio = fechaInicio ?? fecha;
+  if (creando && !fechaValida(inicio)) return 'La fecha de inicio es obligatoria y debe ser válida';
+  if (!creando && inicio !== undefined && inicio !== null && inicio !== '' && !fechaValida(inicio)) {
+    return 'La fecha de inicio no es válida';
+  }
+  if (fechaFin && !fechaValida(fechaFin)) return 'La fecha límite no es válida';
+  if (fechaFin && fechaValida(inicio) && new Date(fechaFin) < new Date(inicio)) {
+    return 'La fecha límite no puede ser anterior a la de inicio';
+  }
+  if (creando && ![1, 2].includes(Number(semestre))) return 'El semestre debe ser 1 o 2';
+  return null;
+};
+
 export const crearTarea = async (req: Request, res: Response) => {
   const { nombre, descripcion, fechaInicio, fechaFin, fecha, semestre, materiaId } = req.body;
+  const invalido = errorDeTarea(req.body, true);
+  if (invalido) return res.status(400).json({ error: invalido });
   try {
     // `fecha` (campo histórico, requerido) se toma de la fecha de inicio para
     // mantener compatibilidad con los reportes AL14 y el ordenamiento existente.
     const inicio = fechaInicio || fecha;
     const tarea = await prisma.tarea.create({
       data: {
-        nombre,
+        nombre: String(nombre).trim(),
         descripcion,
         fecha: new Date(inicio),
         fechaInicio: inicio ? new Date(inicio) : null,
@@ -22,6 +48,7 @@ export const crearTarea = async (req: Request, res: Response) => {
     });
     res.json({ message: 'Tarea creada', tarea });
   } catch (error) {
+    console.error('[tarea] crearTarea falló:', error);
     res.status(500).json({ error: 'Error al crear tarea' });
   }
 };
@@ -162,9 +189,11 @@ export const getNotasCursoSemestre = async (req: Request, res: Response) => {
 export const actualizarTarea = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { nombre, descripcion, fechaInicio, fechaFin, fecha } = req.body;
+  const invalido = errorDeTarea(req.body, false);
+  if (invalido) return res.status(400).json({ error: invalido });
   try {
     const data: any = {};
-    if (nombre !== undefined) data.nombre = nombre;
+    if (nombre !== undefined) data.nombre = String(nombre).trim();
     if (descripcion !== undefined) data.descripcion = descripcion;
     // La fecha de inicio manda: actualiza también el campo histórico `fecha`.
     const inicio = fechaInicio ?? fecha;
@@ -176,7 +205,9 @@ export const actualizarTarea = async (req: Request, res: Response) => {
       data
     });
     res.json({ message: 'Tarea actualizada', tarea });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 'P2025') return res.status(404).json({ error: 'La tarea ya no existe' });
+    console.error('[tarea] actualizarTarea falló:', error);
     res.status(500).json({ error: 'Error al actualizar tarea' });
   }
 };

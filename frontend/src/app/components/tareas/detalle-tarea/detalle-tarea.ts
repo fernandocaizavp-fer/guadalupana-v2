@@ -189,7 +189,7 @@ export class DetalleTarea implements OnInit {
         this.cdr.detectChanges();
         this.notificacion.exito('Archivo eliminado');
       },
-      error: () => this.notificacion.error('Error al eliminar archivo')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al eliminar archivo')
     });
   }
 

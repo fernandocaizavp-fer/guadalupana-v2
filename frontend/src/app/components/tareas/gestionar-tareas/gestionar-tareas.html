@@ -38,7 +38,7 @@
     <div class="form-grid">
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Nombre de la tarea</mat-label>
-        <input matInput [(ngModel)]="nuevaTarea.nombre" placeholder="Ej: Speaking — Saludos">
+        <input matInput [(ngModel)]="nuevaTarea.nombre" maxlength="150" placeholder="Ej: Speaking — Saludos">
         <mat-icon matPrefix>assignment</mat-icon>
       </mat-form-field>
 

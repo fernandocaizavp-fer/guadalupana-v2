@@ -82,8 +82,9 @@ export class GestionarTareas implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
+        this.notificacion.error(err.error?.error || 'No se pudieron cargar las tareas');
         this.cdr.detectChanges();
       }
     });
@@ -139,9 +140,9 @@ export class GestionarTareas implements OnInit {
         next: () => {
           this.finalizarGuardado(this.editandoId!, 'Tarea actualizada exitosamente');
         },
-        error: () => {
+        error: (err) => {
           this.guardando = false;
-          this.notificacion.error('Error al actualizar tarea');
+          this.notificacion.error(err.error?.error || 'Error al actualizar tarea');
           this.cdr.detectChanges();
         }
       });
@@ -157,9 +158,9 @@ export class GestionarTareas implements OnInit {
       next: (res: any) => {
         this.finalizarGuardado(res.tarea.id, 'Tarea creada exitosamente');
       },
-      error: () => {
+      error: (err) => {
         this.guardando = false;
-        this.notificacion.error('Error al crear tarea');
+        this.notificacion.error(err.error?.error || 'Error al crear tarea');
         this.cdr.detectChanges();
       }
     });
@@ -213,7 +214,7 @@ export class GestionarTareas implements OnInit {
         this.notificacion.exito('Tarea eliminada correctamente');
         this.cargarTareas();
       },
-      error: () => this.notificacion.error('Error al eliminar la tarea')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al eliminar la tarea')
     });
   }
 
@@ -259,9 +260,10 @@ export class GestionarTareas implements OnInit {
     if (this.archivosNuevos.length === 0) { terminar(); return; }
     this.tareaService.subirArchivosTarea(tareaId, this.archivosNuevos).subscribe({
       next: () => terminar(),
-      error: () => {
+      error: (err) => {
         this.guardando = false;
-        this.notificacion.error('Tarea guardada, pero falló la subida de archivos');
+        const motivo = err.error?.error ? `: ${err.error.error}` : '';
+        this.notificacion.error(`Tarea guardada, pero falló la subida de archivos${motivo}`);
         this.archivosNuevos = [];
         this.cargarTareas();
       }
