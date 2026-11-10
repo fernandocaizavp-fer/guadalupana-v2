@@ -46,6 +46,26 @@ export const crearAnuncio = async (req: any, res: Response) => {
   }
 };
 
+// El nombre del autor se guardó como texto al publicar (autorNombre). Para que
+// un cambio de nombre del docente/admin se vea también en sus anuncios
+// antiguos, al listar se reemplaza por el nombre ACTUAL del usuario (autorId).
+// autorNombre queda solo como respaldo para anuncios sin autorId o de una
+// cuenta ya eliminada.
+const conAutorActual = async <T extends { autorId: number | null; autorNombre: string | null }>(
+  anuncios: T[]
+): Promise<T[]> => {
+  const ids = [...new Set(anuncios.map((a) => a.autorId).filter((id): id is number => id !== null))];
+  if (ids.length === 0) return anuncios;
+  const autores = await prisma.usuario.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, nombre: true, apellido: true }
+  });
+  const nombres = new Map(autores.map((u) => [u.id, `${u.nombre} ${u.apellido}`]));
+  return anuncios.map((a) => (a.autorId !== null && nombres.has(a.autorId)
+    ? { ...a, autorNombre: nombres.get(a.autorId)! }
+    : a));
+};
+
 export const listarAnuncios = async (req: any, res: Response) => {
   try {
     // Los estudiantes solo ven los anuncios de su curso + los generales (sin
@@ -65,7 +85,7 @@ export const listarAnuncios = async (req: any, res: Response) => {
       where,
       orderBy: { createdAt: 'desc' }
     });
-    res.json(anuncios);
+    res.json(await conAutorActual(anuncios));
   } catch (error) {
     console.error('[anuncio] listarAnuncios falló:', error);
     res.status(500).json({ error: 'Error al listar anuncios' });
@@ -77,7 +97,7 @@ export const listarTodosAnuncios = async (req: Request, res: Response) => {
     const anuncios = await prisma.anuncio.findMany({
       orderBy: { createdAt: 'desc' }
     });
-    res.json(anuncios);
+    res.json(await conAutorActual(anuncios));
   } catch (error) {
     console.error('[anuncio] listarTodosAnuncios falló:', error);
     res.status(500).json({ error: 'Error al listar anuncios' });

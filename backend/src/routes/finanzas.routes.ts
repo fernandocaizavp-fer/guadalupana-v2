@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import {
   getDeudasEstudiante,
   crearComprobante,
@@ -19,9 +19,17 @@ import { subirComprobante } from '../middlewares/upload.middleware';
 
 const router = Router();
 
-// Estudiante. El controlador verifica además que solo acceda a lo suyo.
-router.get('/estudiante/:id', verificarToken, soloRoles('ADMIN', 'ESTUDIANTE'), getDeudasEstudiante);
-router.post('/comprobante', verificarToken, soloRoles('ESTUDIANTE'), subirComprobante, crearComprobante);
+// FINANZAS DEL ESTUDIANTE DESACTIVADAS (pedido del propietario, 2026-11-10): el
+// módulo se rediseñará (periodo lectivo de 12 meses, rangos de pago...). Mientras
+// tanto el estudiante no puede ver deudas ni subir comprobantes; el ADMIN sigue
+// usando /estudiante/:id desde la pantalla Finanzas. Para reactivar:
+//   GET  → soloRoles('ADMIN', 'ESTUDIANTE')   (el controlador ya limita a lo propio)
+//   POST → soloRoles('ESTUDIANTE'), subirComprobante, crearComprobante
+const finanzasEstudianteDesactivadas = (_req: Request, res: Response) =>
+  res.status(403).json({ error: 'El módulo de pagos todavía no está disponible para estudiantes.' });
+
+router.get('/estudiante/:id', verificarToken, soloAdmin, getDeudasEstudiante);
+router.post('/comprobante', verificarToken, finanzasEstudianteDesactivadas);
 
 // Administrador: el dinero lo maneja solo el ADMIN (el profesor no interviene).
 router.get('/admin/conceptos', verificarToken, soloAdmin, listarConceptos);
