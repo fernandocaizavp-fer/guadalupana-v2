@@ -360,8 +360,9 @@ export const generarAL15 = async (req: Request, res: Response) => {
         calcularPfNum(ingles_n1, ingles_n2, ingles_sup),
         calcularPfNum(desarrollo_n1, desarrollo_n2, desarrollo_sup),
         calcularPfNum(legislacion_n1, legislacion_n2, legislacion_sup),
-        calcularPfNum(proy_n1, proy_n2, proy_sup),
-        disciplinaVal
+        calcularPfNum(proy_n1, proy_n2, proy_sup)
+        // La disciplina (disciplinaVal) se muestra en su columna pero NO entra
+        // en el promedio (regla del propietario, igual que en AL14, AL16 y AL23).
       ].filter(n => n !== null) as number[];
 
       const promedioNum = promediosPf.length > 0

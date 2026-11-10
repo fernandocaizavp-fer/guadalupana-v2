@@ -244,9 +244,10 @@ export const generarAL23 = async (req: Request, res: Response) => {
       const legislacion = getRapido(m, 'LEGISLACION') ?? (idLegislacion ? getExamen(m, idLegislacion) : '-');
       const disciplina = getRapido(m, 'DISCIPLINA') ?? getDisciplina(m);
 
-      // Promedio general
+      // Promedio general. La disciplina se muestra en su columna pero NO entra
+      // en el promedio (regla del propietario, igual que en AL14, AL15 y AL16).
       const valoresStr = [teoria, practica, administracion, contabilidad,
-                          tics, ingles, desarrollo, legislacion, disciplina];
+                          tics, ingles, desarrollo, legislacion];
       const valoresNum = valoresStr
         .filter(v => v !== '-')
         .map(v => Number(v));

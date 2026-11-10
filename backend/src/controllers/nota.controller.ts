@@ -139,8 +139,10 @@ export const descargarAL14 = async (req: Request, res: Response) => {
       const legislacion = getNotaRapida('Legislación') ?? getPromedioPorMateria('Legislación');
       const disciplina = getPromedioDisciplina();
 
+      // La disciplina se muestra en su columna pero NO entra en el promedio
+      // (regla del propietario, igual que en AL15, AL16 y AL23).
       const notasParaPromedio = [teoria, practica, administracion, contabilidad,
-        tics, ingles, desarrollo, proyect, legislacion, disciplina]
+        tics, ingles, desarrollo, proyect, legislacion]
         .filter(n => n !== '')
         .map(n => parseFloat(n));
 
