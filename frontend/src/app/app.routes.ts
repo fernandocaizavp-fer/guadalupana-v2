@@ -26,7 +26,9 @@ export const routes: Routes = [
   { path: 'estudiante/materia/:materiaId/:semestre', loadComponent: () => import('./components/estudiante/detalle-materia/detalle-materia').then(m => m.DetalleMateria), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
   { path: 'estudiante/tarea/:materiaId/:tareaId/:semestre', loadComponent: () => import('./components/estudiante/detalle-tarea-estudiante/detalle-tarea-estudiante').then(m => m.DetalleTareaEstudiante), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
   { path: 'estudiante/aula-virtual', loadComponent: () => import('./components/estudiante/aula-virtual/aula-virtual').then(m => m.AulaVirtual), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
-  { path: 'estudiante/finanzas', loadComponent: () => import('./components/estudiante/mis-finanzas/mis-finanzas').then(m => m.MisFinanzas), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
+  // Finanzas del estudiante desactivadas por ahora: el enlace directo vuelve a su panel.
+  // Para reactivar: loadComponent: () => import('./components/estudiante/mis-finanzas/mis-finanzas').then(m => m.MisFinanzas), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] }
+  { path: 'estudiante/finanzas', redirectTo: 'estudiante', pathMatch: 'full' },
   { path: 'estudiante/asistencias', loadComponent: () => import('./components/estudiante/mis-asistencias/mis-asistencias').then(m => m.MisAsistencias), canActivate: [AuthGuard], data: { roles: ['ESTUDIANTE'] } },
   { path: 'finanzas', loadComponent: () => import('./components/finanzas/gestionar-finanzas/gestionar-finanzas').then(m => m.GestionarFinanzas), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   // Gestión del Portal Web: lo que ve el público en la landing (solo ADMIN).

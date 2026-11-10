@@ -2,7 +2,8 @@
 
 .kpis {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  // auto-fit: con 2 indicadores (finanzas ocultas) ocupan cada uno la mitad.
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
   margin-bottom: 18px;
 }

@@ -23,6 +23,7 @@
   </div>
 
   <div class="graficos">
+    @if (mostrarFinanzas) {
     <section class="panel ancho">
       <header>
         <h3>Recaudación mensual</h3>
@@ -50,8 +51,9 @@
         <app-grafico-dona [datos]="r.estadoCartera" unidad="deudas" />
       }
     </section>
+    }
 
-    <section class="panel">
+    <section class="panel" [class.ancho]="!mostrarFinanzas">
       <header>
         <h3>Estudiantes por curso</h3>
         <span>Matrículas activas</span>

@@ -6,13 +6,13 @@ import { subirArchivo, eliminarArchivo } from '../lib/r2';
 export const crearDocente = async (req: Request, res: Response) => {
   const { nombre, apellido, correo, cedula } = req.body;
   try {
-    const hash = await bcrypt.hash(cedula, 10);
+    const hash = await bcrypt.hash(String(cedula).trim(), 10);
     const usuario = await prisma.usuario.create({
       data: {
-        nombre: nombre.toUpperCase(),
-        apellido: apellido.toUpperCase(),
-        correo: correo.toLowerCase(),
-        cedula,
+        nombre: String(nombre).trim().toUpperCase(),
+        apellido: String(apellido).trim().toUpperCase(),
+        correo: String(correo).trim().toLowerCase(),
+        cedula: String(cedula).trim(),
         password: hash,
         rol: 'PROFESOR'
       }
@@ -42,20 +42,45 @@ export const listarDocentes = async (req: Request, res: Response) => {
 export const actualizarDocente = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { nombre, apellido, correo, cedula } = req.body;
+  const texto = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+  if ((nombre !== undefined && !texto(nombre)) || (apellido !== undefined && !texto(apellido))) {
+    return res.status(400).json({ error: 'El nombre y el apellido no pueden quedar vacíos' });
+  }
+  if (correo !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(texto(correo))) {
+    return res.status(400).json({ error: 'El correo debe ser válido' });
+  }
   try {
+    const actual = await prisma.usuario.findUnique({
+      where: { id: Number(id) },
+      select: { rol: true, cedula: true, debeCambiarPassword: true }
+    });
+    if (!actual || actual.rol !== 'PROFESOR') return res.status(404).json({ error: 'Docente no encontrado' });
+
     const data: any = {
-      nombre: nombre?.toUpperCase(),
-      apellido: apellido?.toUpperCase(),
-      correo: correo?.toLowerCase(),
-      cedula
+      nombre: nombre !== undefined ? texto(nombre).toUpperCase() : undefined,
+      apellido: apellido !== undefined ? texto(apellido).toUpperCase() : undefined,
+      correo: correo !== undefined ? texto(correo).toLowerCase() : undefined,
+      cedula: cedula !== undefined ? texto(cedula) || null : undefined
     };
-    if (cedula) data.password = await bcrypt.hash(cedula, 10);
-    const usuario = await prisma.usuario.update({ where: { id: Number(id) }, data });
+    // Antes, CADA edición (aunque solo cambiara el nombre) reiniciaba la
+    // contraseña a la cédula, porque el formulario siempre envía la cédula.
+    // Ahora solo se toca si la cédula cambió de verdad y el docente aún usa la
+    // contraseña inicial; si ya puso la suya, se respeta.
+    const cedulaNueva = texto(cedula);
+    if (cedulaNueva && cedulaNueva !== actual.cedula && actual.debeCambiarPassword) {
+      data.password = await bcrypt.hash(cedulaNueva, 10);
+    }
+    const usuario = await prisma.usuario.update({
+      where: { id: Number(id) },
+      data,
+      select: { id: true, nombre: true, apellido: true, correo: true, cedula: true, rol: true }
+    });
     res.json({ message: 'Docente actualizado', usuario });
   } catch (error: any) {
     if (error.code === 'P2002') {
       return res.status(400).json({ error: 'El correo o cédula ya está registrado' });
     }
+    console.error(error);
     res.status(500).json({ error: 'Error al actualizar docente' });
   }
 };

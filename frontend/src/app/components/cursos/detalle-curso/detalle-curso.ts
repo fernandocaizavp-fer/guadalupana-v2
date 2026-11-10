@@ -322,6 +322,23 @@ export class EditarMatriculaDialog {
   }
 }
 
+// Une la matrícula y sus tablas satélite en un solo objeto con los nombres de
+// campo del formulario. El correo de acceso (Usuario.correo) tiene prioridad:
+// es el que el estudiante usa para iniciar sesión.
+export function aplanarMatricula(m: any): any {
+  const { datosPersonales, datosFamiliares, datosAcademicos, usuario, curso, ...base } = m || {};
+  const sinIds = (o: any) => {
+    if (!o) return {};
+    const { id, matriculaId, ...resto } = o;
+    return resto;
+  };
+  const datos: any = { ...base, ...sinIds(datosPersonales), ...sinIds(datosFamiliares), ...sinIds(datosAcademicos) };
+  datos.correoestudiante = usuario?.correo || datosFamiliares?.correoestudiante || datosPersonales?.correo || '';
+  // El input type="date" exige YYYY-MM-DD.
+  datos.fechaNacimiento = datosPersonales?.fechaNacimiento ? String(datosPersonales.fechaNacimiento).slice(0, 10) : '';
+  return datos;
+}
+
 // ===== COMPONENTE PRINCIPAL =====
 @Component({
   selector: 'app-detalle-curso',
@@ -384,11 +401,22 @@ export class DetalleCurso implements OnInit {
     this.router.navigate(['/supletorios', this.curso.id]);
   }
 
+  // La lista del curso solo trae los campos básicos de la matrícula: antes el
+  // diálogo se abría con correo, teléfono, fecha de nacimiento y dirección vacíos,
+  // y al guardar se borraba la fecha de nacimiento. Ahora se carga la matrícula
+  // completa y se aplanan sus tablas satélite en el formulario.
   editarMatricula(matricula: any) {
+    this.matriculaService.obtenerMatricula(matricula.id).subscribe({
+      next: (completa) => this.abrirEdicion(matricula, aplanarMatricula(completa)),
+      error: (err) => this.notificacion.error(err.error?.error || 'No se pudo cargar la matrícula')
+    });
+  }
+
+  private abrirEdicion(matricula: any, datos: any) {
     const dialogRef = this.dialog.open(EditarMatriculaDialog, {
       width: '1000px',
       maxHeight: '90vh',
-      data: { ...matricula }
+      data: datos
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -397,7 +425,8 @@ export class DetalleCurso implements OnInit {
             this.notificacion.exito('Estudiante actualizado');
             this.ngOnInit();
           },
-          error: () => this.notificacion.error('Error al actualizar')
+          // El backend explica el motivo (correo o cédula repetidos, fecha inválida...).
+          error: (err) => this.notificacion.error(err.error?.error || 'Error al actualizar')
         });
       }
     });

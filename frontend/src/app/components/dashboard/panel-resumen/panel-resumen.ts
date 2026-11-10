@@ -32,15 +32,24 @@ export class PanelResumen implements OnInit {
   protected resumen = signal<ResumenDashboard | null>(null);
   protected error = signal(false);
 
-  protected readonly kpis: Kpi[] = [
+  // Los indicadores financieros (total recaudado, mora, recaudación mensual y
+  // estado de la cartera) quedan ocultos a pedido del propietario hasta que el
+  // módulo de pagos entre en uso. Poner en true para volver a mostrarlos.
+  protected readonly mostrarFinanzas = false;
+
+  private readonly todosLosKpis: (Kpi & { financiero?: boolean })[] = [
     { clave: 'estudiantes', titulo: 'Estudiantes activos', icono: 'groups', ruta: '/cursos', tono: 'azul',
       detalle: (k) => `${k.cursos} cursos activos` },
     { clave: 'docentes', titulo: 'Docentes', icono: 'co_present', ruta: '/docentes', tono: 'dorado' },
     { clave: 'recaudado', titulo: 'Total recaudado', icono: 'payments', ruta: '/finanzas', moneda: true, tono: 'verde',
+      financiero: true,
       detalle: (k) => `$${k.porCobrar.toLocaleString('es-EC', { minimumFractionDigits: 2 })} por cobrar` },
     { clave: 'deudasEnMora', titulo: 'Deudas en mora', icono: 'warning_amber', ruta: '/finanzas', tono: 'rojo',
+      financiero: true,
       detalle: (k) => `$${k.montoEnMora.toLocaleString('es-EC', { minimumFractionDigits: 2 })} vencidos` }
   ];
+
+  protected readonly kpis: Kpi[] = this.todosLosKpis.filter((k) => this.mostrarFinanzas || !k.financiero);
 
   ngOnInit() {
     this.cargar();

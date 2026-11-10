@@ -45,6 +45,14 @@ export class MatriculaService {
     });
   }
 
+  // Matrícula completa (con datos personales, familiares, académicos y el correo
+  // de acceso), para editarla sin perder los campos que la lista del curso no trae.
+  obtenerMatricula(id: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/matriculas/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
   actualizarMatricula(id: number, datos: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/matriculas/${id}`, datos, {
       headers: this.getHeaders()

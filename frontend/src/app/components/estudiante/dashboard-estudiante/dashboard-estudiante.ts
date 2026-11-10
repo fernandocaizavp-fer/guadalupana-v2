@@ -50,7 +50,10 @@ export class DashboardEstudiante implements OnInit {
     { titulo: 'Aula Virtual / Materias', descripcion: 'Tus materias, docentes, tareas y calificaciones', icono: 'cast_for_education', ruta: '/estudiante/aula-virtual' },
     { titulo: 'Mis Horarios', descripcion: 'Días y horas de clase de cada materia', icono: 'calendar_month', ruta: null },
     { titulo: 'Mis Asistencias', descripcion: 'Registro de asistencias y faltas por materia', icono: 'how_to_reg', ruta: '/estudiante/asistencias' },
-    { titulo: 'Mis Finanzas', descripcion: 'Pagos, saldos y comprobantes', icono: 'account_balance_wallet', ruta: '/estudiante/finanzas' }
+    // Finanzas desactivadas para el estudiante a pedido del propietario: sale como
+    // "Próximamente". Para reactivar: ruta '/estudiante/finanzas', quitar la
+    // redirección de app.routes.ts y volver a mostrar el KPI de resumen-estudiante.
+    { titulo: 'Mis Finanzas', descripcion: 'Pagos, saldos y comprobantes', icono: 'account_balance_wallet', ruta: null }
   ];
 
   abrirImagen(url: string): void {

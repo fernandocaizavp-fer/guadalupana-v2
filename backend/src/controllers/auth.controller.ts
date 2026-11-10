@@ -15,7 +15,11 @@ const ROL_DEL_PERFIL: Record<string, { rol: string; nombre: string }> = {
 export const login = async (req: Request, res: Response) => {
   const { correo, password, perfil } = req.body;
   try {
-    const usuario = await prisma.usuario.findUnique({ where: { correo } });
+    // Sin distinguir mayúsculas ni espacios: el correo se guarda en minúsculas y
+    // un celular que pone la primera letra en mayúscula impedía entrar.
+    const usuario = await prisma.usuario.findFirst({
+      where: { correo: { equals: String(correo ?? '').trim(), mode: 'insensitive' } }
+    });
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     const valido = await bcrypt.compare(password, usuario.password);
