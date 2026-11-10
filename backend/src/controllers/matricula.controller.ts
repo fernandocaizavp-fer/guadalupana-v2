@@ -40,6 +40,11 @@ export const siguienteMatricula = async (req: Request, res: Response) => {
   }
 };
 
+// Las transacciones interactivas de Prisma se cortan a los 5 s por defecto. Con
+// Supabase lento (recién despertado, o desde una red lenta) matricular fallaba con
+// P2028 "Transaction not found". 20 s da margen sin afectar el caso normal (<1 s).
+const OPCIONES_TX = { maxWait: 20000, timeout: 20000 };
+
 export const crearMatricula = async (req: Request, res: Response) => {
   const {
     tomo, pagina, apellidos, nombres, cedula, sexo,
@@ -174,7 +179,7 @@ export const crearMatricula = async (req: Request, res: Response) => {
       await asignarConceptosFaltantes(tx, { id: usuario.id });
 
       return { usuario, matricula };
-    });
+    }, OPCIONES_TX);
 
     res.json({
       message: 'Matrícula creada exitosamente',
@@ -262,6 +267,12 @@ export const actualizarMatricula = async (req: Request, res: Response) => {
     if (!actual) return res.status(404).json({ error: 'Matrícula no encontrada' });
 
     const cedulaNueva = cedula !== undefined ? texto(cedula) : undefined;
+    // La contraseña inicial es la cédula: si se corrige la cédula y el estudiante
+    // aún no cambió su contraseña, la inicial pasa a ser la cédula corregida.
+    // Si ya la cambió, se respeta la suya. (Se cifra fuera de la transacción.)
+    const nuevaPassword = cedulaNueva && cedulaNueva !== actual.cedula && actual.usuario.debeCambiarPassword
+      ? await bcrypt.hash(cedulaNueva, 10)
+      : null;
 
     // Matrícula y cuenta de acceso se actualizan juntas: antes solo cambiaba la
     // ficha y el estudiante seguía entrando con el correo/nombre antiguos.
@@ -270,12 +281,7 @@ export const actualizarMatricula = async (req: Request, res: Response) => {
       if (nombres !== undefined) datosUsuario.nombre = texto(nombres).toUpperCase();
       if (apellidos !== undefined) datosUsuario.apellido = texto(apellidos).toUpperCase();
       if (correoestudiante !== undefined) datosUsuario.correo = correoNuevo;
-      // La contraseña inicial es la cédula: si se corrige la cédula y el estudiante
-      // aún no cambió su contraseña, la inicial pasa a ser la cédula corregida.
-      // Si ya la cambió, se respeta la suya.
-      if (cedulaNueva && cedulaNueva !== actual.cedula && actual.usuario.debeCambiarPassword) {
-        datosUsuario.password = await bcrypt.hash(cedulaNueva, 10);
-      }
+      if (nuevaPassword) datosUsuario.password = nuevaPassword;
       if (Object.keys(datosUsuario).length > 0) {
         await tx.usuario.update({ where: { id: actual.usuarioId }, data: datosUsuario });
       }
@@ -383,7 +389,7 @@ export const actualizarMatricula = async (req: Request, res: Response) => {
         datosAcademicos: true
       }
     });
-    });
+    }, OPCIONES_TX);
     res.json({ message: 'Matrícula actualizada', matricula });
   } catch (error: any) {
     if (error.code === 'P2002') {
@@ -421,7 +427,7 @@ export const eliminarMatricula = async (req: Request, res: Response) => {
         where: { id: matricula.usuarioId },
         data: { activo: false }
       });
-    });
+    }, OPCIONES_TX);
     res.json({ message: 'Matrícula eliminada' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar matrícula' });
@@ -556,7 +562,7 @@ export const reactivarMatricula = async (req: Request, res: Response) => {
       await tx.usuario.update({ where: { id: matricula.usuarioId }, data: { activo: true } });
       await asignarConceptosFaltantes(tx, { id: matricula.usuarioId });
       return actualizada;
-    });
+    }, OPCIONES_TX);
 
     res.json({
       message: `Matrícula reactivada en ${curso.ramaArtesanal} (N.º ${reactivada.matriculaNo})`,
