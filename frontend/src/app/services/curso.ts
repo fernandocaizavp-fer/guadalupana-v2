@@ -45,8 +45,9 @@ agregarSubmateria(cursoId: number, nombre: string): Observable<any> {
   });
 }
 
-    eliminarSubmateria(id: number): Observable<any> {
-      return this.http.delete(`${this.apiUrl}/cursos/submaterias/${id}`, {
+    // Elimina el par de gemelas. forzar=true confirma que se borren sus calificaciones.
+    eliminarSubmateria(id: number, forzar = false): Observable<any> {
+      return this.http.delete(`${this.apiUrl}/cursos/submaterias/${id}${forzar ? '?forzar=true' : ''}`, {
         headers: this.getHeaders()
       });
     }

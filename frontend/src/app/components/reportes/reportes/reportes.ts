@@ -146,7 +146,7 @@ export class Reportes implements OnInit {
       observacion: this.observaciones[matriculaId] || ''
     }).subscribe({
       next: () => this.notificacion.exito('Observación guardada'),
-      error: () => this.notificacion.error('Error al guardar')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al guardar')
     });
   }
 
@@ -165,7 +165,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL18')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL18')
     });
   }
 
@@ -278,7 +278,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL14')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL14')
     });
   }
 
@@ -298,7 +298,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL15')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL15')
     });
   }
 
@@ -323,7 +323,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL9')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL9')
     });
   }
 
@@ -409,7 +409,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL23')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL23')
     });
   }
 
@@ -433,7 +433,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL19')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL19')
     });
   }
 
@@ -474,9 +474,9 @@ export class Reportes implements OnInit {
         this.descargandoAL16 = null;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.descargandoAL16 = null;
-        this.notificacion.error('Error al generar AL16');
+        this.notificacion.error(err.error?.error || 'Error al generar AL16');
         this.cdr.detectChanges();
       }
     });
@@ -503,7 +503,7 @@ export class Reportes implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL22')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL22')
     });
   }
 

@@ -111,7 +111,7 @@ export class NotasCurso implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al descargar AL14')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al descargar AL14')
     });
   }
 

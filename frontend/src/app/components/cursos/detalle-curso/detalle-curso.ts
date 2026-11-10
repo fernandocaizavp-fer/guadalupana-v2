@@ -445,7 +445,7 @@ export class DetalleCurso implements OnInit {
         this.notificacion.exito('Estudiante eliminado correctamente');
         this.ngOnInit();
       },
-      error: () => this.notificacion.error('Error al eliminar el estudiante')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al eliminar el estudiante')
     });
   }
 
@@ -461,9 +461,9 @@ export class DetalleCurso implements OnInit {
         window.URL.revokeObjectURL(url);
         this.descargando = null;
       },
-      error: () => {
+      error: (err) => {
         this.descargando = null;
-        this.notificacion.error('Error al descargar matrícula');
+        this.notificacion.error(err.error?.error || 'Error al descargar matrícula');
       }
     });
   }
@@ -480,9 +480,9 @@ export class DetalleCurso implements OnInit {
         window.URL.revokeObjectURL(url);
         this.descargando = null;
       },
-      error: () => {
+      error: (err) => {
         this.descargando = null;
-        this.notificacion.error('Error al descargar certificado');
+        this.notificacion.error(err.error?.error || 'Error al descargar certificado');
       }
     });
   }
@@ -533,7 +533,7 @@ agregarSubmateriaDoble() {
       this.nuevaSubmateriaUnica = '';
       this.ngOnInit();
     },
-    error: () => this.notificacion.error('Error al agregar submateria')
+    error: (err) => this.notificacion.error(err.error?.error || 'Error al agregar submateria')
   });
 }
 
@@ -544,19 +544,35 @@ async eliminarSubmateriaDoble(nombre: string) {
     peligro: true
   });
   if (!ok) return;
-  const subs = this.curso?.materias?.filter((m: any) => m.esSubmateria && m.nombre === nombre) || [];
-  const deletes = subs.map((s: any) => this.cursoService.eliminarSubmateria(s.id));
-  let completados = 0;
-  deletes.forEach((d: any) => d.subscribe({
+  // El servidor elimina las dos gemelas (Práctica y Teoría) en una sola operación.
+  const sub = this.curso?.materias?.find((m: any) => m.esSubmateria && m.nombre === nombre);
+  if (!sub) return;
+  this.borrarSubmateria(sub.id, false);
+}
+
+// Si la submateria ya tiene calificaciones, el servidor responde 409 con el detalle
+// de lo que se perderá: se pide una segunda confirmación y se reintenta con forzar.
+private borrarSubmateria(id: number, forzar: boolean) {
+  this.cursoService.eliminarSubmateria(id, forzar).subscribe({
     next: () => {
-      completados++;
-      if (completados === deletes.length) {
-        this.notificacion.exito('Submateria eliminada correctamente');
-        this.ngOnInit();
-      }
+      this.notificacion.exito('Submateria eliminada correctamente');
+      this.ngOnInit();
     },
-    error: () => this.notificacion.error('Error al eliminar la submateria')
-  }));
+    error: async (err: any) => {
+      const cuerpo = err?.error;
+      if (cuerpo?.requiereConfirmacion && !forzar) {
+        const ok = await this.dialogService.confirm({
+          titulo: 'La submateria tiene calificaciones',
+          mensaje: `${cuerpo.error}\n\n¿Eliminarla de todos modos?`,
+          confirmText: 'Sí, eliminar todo',
+          peligro: true
+        });
+        if (ok) this.borrarSubmateria(id, true);
+        return;
+      }
+      this.notificacion.error(cuerpo?.error || 'Error al eliminar la submateria');
+    }
+  });
 }
 
   volver() {

@@ -151,9 +151,9 @@ export class IngresarDisciplina implements OnInit, ConCambiosSinGuardar {
         this.notificacion.exito('Notas de disciplina guardadas');
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.guardando = false;
-        this.notificacion.error('Error al guardar');
+        this.notificacion.error(err.error?.error || 'Error al guardar');
         this.cdr.detectChanges();
       }
     });

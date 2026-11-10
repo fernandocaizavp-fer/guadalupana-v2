@@ -79,9 +79,9 @@ export class RegistrarAsistencia implements OnInit, ConCambiosSinGuardar {
         this.instantanea.fijar(this.presentes);
         this.cargarAsistencias();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.notificacion.error('Error al cargar los estudiantes de la materia');
+        this.notificacion.error(err.error?.error || 'Error al cargar los estudiantes de la materia');
         this.cdr.detectChanges();
       }
     });
@@ -158,9 +158,9 @@ export class RegistrarAsistencia implements OnInit, ConCambiosSinGuardar {
           this.cargarAsistencias();
           this.cdr.detectChanges();
         },
-        error: () => {
+        error: (err) => {
           this.guardando = false;
-          this.notificacion.error('Error al actualizar asistencia');
+          this.notificacion.error(err.error?.error || 'Error al actualizar asistencia');
           this.cdr.detectChanges();
         }
       });
@@ -224,7 +224,7 @@ export class RegistrarAsistencia implements OnInit, ConCambiosSinGuardar {
         this.notificacion.exito('Registro de asistencia eliminado');
         this.cargarAsistencias();
       },
-      error: () => this.notificacion.error('Error al eliminar el registro')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al eliminar el registro')
     });
   }
 

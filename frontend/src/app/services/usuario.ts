@@ -48,11 +48,6 @@ export class UsuarioService {
     });
   }
 
-  asignarProfesorPrincipal(cursoId: number, profesorId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/usuarios/asignar-profesor-principal`, { cursoId, profesorId }, {
-      headers: this.getHeaders()
-    });
-  }
 
   asignarProfesorPrincipalMateria(materiaId: number, profesorId: number): Observable<any> {
   return this.http.post(`${this.apiUrl}/usuarios/asignar-profesor-principal-materia`, { materiaId, profesorId }, {

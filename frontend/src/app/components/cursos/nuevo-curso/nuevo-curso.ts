@@ -58,7 +58,7 @@ export class NuevoCurso implements OnInit {
           fechaFin: this.formatearFecha(curso.fechaFin)
         };
       },
-      error: () => this.notificacion.error('Error al cargar el curso')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al cargar el curso')
     });
   }
 

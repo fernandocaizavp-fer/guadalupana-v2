@@ -215,17 +215,64 @@ export const agregarSubmateria = async (req: Request, res: Response) => {
 };
 
 // Eliminar submateria
+// Una submateria es un PAR de filas gemelas (mismo nombre y curso, una bajo
+// 'Práctica' y otra bajo 'Teoría'), así que se eliminan las dos juntas en una
+// sola transacción. Antes se borraban con dos peticiones sueltas (podía quedar
+// una a medias) y fallaba SIEMPRE que la submateria tuviera disciplina, porque
+// NotaDisciplina.materia es Restrict: esas filas se borran aquí primero.
+// Si la submateria ya tiene calificaciones, responde 409 con el detalle y
+// requiereConfirmacion; el cliente reintenta con ?forzar=true (mismo patrón que
+// eliminarCurso). Tareas, notas, asistencias, supletorios y exámenes se borran
+// en cascada con la materia.
 export const eliminarSubmateria = async (req: Request, res: Response) => {
   try {
     const materia = await prisma.materia.findUnique({
-      where: { id: Number(req.params.id) }
+      where: { id: Number(req.params.id) },
+      select: { id: true, nombre: true, cursoId: true, esSubmateria: true }
     });
-    if (!materia?.esSubmateria) {
+    if (!materia) return res.status(404).json({ error: 'La submateria ya no existe' });
+    if (!materia.esSubmateria) {
       return res.status(400).json({ error: 'Solo se pueden eliminar submaterias' });
     }
-    await prisma.materia.delete({ where: { id: Number(req.params.id) } });
-    res.json({ message: 'Submateria eliminada' });
-  } catch (error) {
+
+    const gemelas = await prisma.materia.findMany({
+      where: { cursoId: materia.cursoId, nombre: materia.nombre, esSubmateria: true },
+      select: { id: true }
+    });
+    const ids = gemelas.map((g) => g.id);
+
+    const [tareas, asistencias, disciplina, supletorios, examenes] = await Promise.all([
+      prisma.tarea.count({ where: { materiaId: { in: ids } } }),
+      prisma.asistencia.count({ where: { materiaId: { in: ids } } }),
+      prisma.notaDisciplina.count({ where: { materiaId: { in: ids } } }),
+      prisma.supletorio.count({ where: { materiaId: { in: ids } } }),
+      prisma.examenGrado.count({ where: { materiaId: { in: ids } } })
+    ]);
+    const partes = [
+      tareas && `${tareas} tarea(s) con sus notas`,
+      asistencias && `${asistencias} registro(s) de asistencia`,
+      disciplina && `${disciplina} nota(s) de disciplina`,
+      supletorios && `${supletorios} supletorio(s)`,
+      examenes && `${examenes} examen(es) de grado`
+    ].filter(Boolean);
+
+    if (partes.length > 0 && req.query.forzar !== 'true') {
+      return res.status(409).json({
+        error: `"${materia.nombre}" tiene ${partes.join(', ')}. Si la eliminas, todo eso se borrará y no se puede recuperar.`,
+        requiereConfirmacion: true
+      });
+    }
+
+    await prisma.$transaction([
+      prisma.notaDisciplina.deleteMany({ where: { materiaId: { in: ids } } }),
+      prisma.materia.deleteMany({ where: { id: { in: ids } } })
+    ]);
+    res.json({ message: 'Submateria eliminada', eliminadas: ids.length });
+  } catch (error: any) {
+    if (error?.code === 'P2003') {
+      return res.status(409).json({ error: 'La submateria tiene datos relacionados que impiden eliminarla' });
+    }
+    console.error('[curso] eliminarSubmateria falló:', error);
     res.status(500).json({ error: 'Error al eliminar submateria' });
   }
 };

@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { formularioValido } from '../../../shared/validacion';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -218,7 +219,7 @@ async quitarMateria(item: any) {
       this.notificacion.exito('Materia liberada');
       this.cargarDocentes();
     },
-    error: () => this.notificacion.error('Error al quitar la materia')
+    error: (err) => this.notificacion.error(err.error?.error || 'Error al quitar la materia')
   });
 }
 
@@ -241,10 +242,10 @@ async quitarSubmateriaGrupo(item: any) {
         this.cargarDocentes();
       }
     },
-    error: () => {
+    error: (err) => {
       if (!huboError) {
         huboError = true;
-        this.notificacion.error('Error al quitar las submaterias');
+        this.notificacion.error(err.error?.error || 'Error al quitar las submaterias');
       }
     }
   }));
@@ -263,7 +264,7 @@ async quitarPrincipal(item: any) {
       this.notificacion.exito('Rol de docente principal quitado');
       this.cargarDocentes();
     },
-    error: () => this.notificacion.error('Error al quitar el rol principal')
+    error: (err) => this.notificacion.error(err.error?.error || 'Error al quitar el rol principal')
   });
 }
 
@@ -279,7 +280,7 @@ async quitarPrincipal(item: any) {
         this.notificacion.exito('Docente eliminado correctamente');
         this.cargarDocentes();
       },
-      error: () => this.notificacion.error('Error al eliminar el docente')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al eliminar el docente')
     });
   }
 
@@ -316,9 +317,10 @@ onCursoChange() {
         this.notificacion.exito('Profesor asignado exitosamente');
         this.asignacion = { cursoId: '', materiaId: '', profesorId: '' };
         this.materiasCurso = [];
+        this.cargarDocentes(); // antes no se recargaba y la asignación no se veía
         this.cdr.detectChanges();
       },
-      error: () => this.notificacion.error('Error al asignar')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al asignar')
     });
   }
 
@@ -359,53 +361,66 @@ onCursoSubChange() {
         const gemelas = curso.materias.filter((m: any) =>
           m.esSubmateria && m.nombre === this.asignacionSub.submateriaNombre
         );
-        let completados = 0;
-        gemelas.forEach((m: any) => {
-          this.usuarioService.asignarProfesor(m.id, Number(this.asignacionSub.profesorId)).subscribe({
-            next: () => {
-              completados++;
-              if (completados === gemelas.length) {
-                this.notificacion.exito('Profesor asignado a Práctica y Teoría');
-                this.asignacionSub = { cursoId: '', submateriaNombre: '', profesorId: '' };
-                this.submateriasCurso = [];
-                this.cdr.detectChanges();
-              }
-            },
-            error: () => this.notificacion.error('Error al asignar')
-          });
+        if (gemelas.length === 0) {
+          this.notificacion.error('La submateria ya no existe en este curso');
+          return;
+        }
+        // Ambas gemelas a la vez; al terminar se recarga la lista para que se vea.
+        forkJoin(gemelas.map((m: any) =>
+          this.usuarioService.asignarProfesor(m.id, Number(this.asignacionSub.profesorId))
+        )).subscribe({
+          next: () => {
+            this.notificacion.exito('Profesor asignado a Práctica y Teoría');
+            this.asignacionSub = { cursoId: '', submateriaNombre: '', profesorId: '' };
+            this.submateriasCurso = [];
+            this.cargarDocentes();
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.notificacion.error(err.error?.error || 'Error al asignar');
+            this.cargarDocentes();
+          }
         });
-      }
+      },
+      error: (err) => this.notificacion.error(err.error?.error || 'No se pudo cargar el curso')
     });
   }
 
   // PROFESOR PRINCIPAL
+  // Asigna el docente principal a Práctica y Teoría del curso. Antes no recargaba
+  // la lista (parecía que no se había guardado) y, si el curso no tenía Práctica
+  // ni Teoría, no hacía nada y no avisaba.
   asignarProfesorPrincipal() {
     if (!this.asignacionPrincipal.cursoId || !this.asignacionPrincipal.profesorId) {
       this.notificacion.info('Selecciona curso y docente');
       return;
     }
+    const profesorId = Number(this.asignacionPrincipal.profesorId);
     this.cursoService.obtenerCurso(Number(this.asignacionPrincipal.cursoId)).subscribe({
       next: (curso) => {
-        const materiasPT = curso.materias.filter((m: any) =>
-          m.nombre === 'Práctica' || m.nombre === 'Teoría'
+        const materiasPT = (curso.materias || []).filter((m: any) =>
+          !m.esSubmateria && (m.nombre === 'Práctica' || m.nombre === 'Teoría')
         );
-        let completados = 0;
-        materiasPT.forEach((m: any) => {
-          this.usuarioService.asignarProfesorPrincipalMateria(
-            m.id, Number(this.asignacionPrincipal.profesorId)
-          ).subscribe({
-            next: () => {
-              completados++;
-              if (completados === materiasPT.length) {
-                this.notificacion.exito('Profesor principal asignado');
-                this.asignacionPrincipal = { cursoId: '', profesorId: '' };
-                this.cdr.detectChanges();
-              }
-            },
-            error: () => this.notificacion.error('Error al asignar')
-          });
+        if (materiasPT.length === 0) {
+          this.notificacion.error('Este curso no tiene las materias Práctica y Teoría');
+          return;
+        }
+        forkJoin(materiasPT.map((m: any) =>
+          this.usuarioService.asignarProfesorPrincipalMateria(m.id, profesorId)
+        )).subscribe({
+          next: () => {
+            this.notificacion.exito('Docente principal asignado');
+            this.asignacionPrincipal = { cursoId: '', profesorId: '' };
+            this.cargarDocentes();
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.notificacion.error(err.error?.error || 'Error al asignar el docente principal');
+            this.cargarDocentes();
+          }
         });
-      }
+      },
+      error: (err) => this.notificacion.error(err.error?.error || 'No se pudo cargar el curso')
     });
   }
 

@@ -111,9 +111,9 @@ export class IngresarSupletorios implements OnInit, ConCambiosSinGuardar {
         this.notificacion.exito('Supletorios guardados');
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.guardando = false;
-        this.notificacion.error('Error al guardar');
+        this.notificacion.error(err.error?.error || 'Error al guardar');
         this.cdr.detectChanges();
       }
     });
@@ -133,7 +133,7 @@ export class IngresarSupletorios implements OnInit, ConCambiosSinGuardar {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.notificacion.error('Error al generar AL15')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL15')
     });
   }
 

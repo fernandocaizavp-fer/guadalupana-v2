@@ -112,9 +112,9 @@ export class ArchivadosDialog implements OnInit {
         this.cargando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.cargando = false;
-        this.notificacion.error('No se pudo cargar la lista de archivados');
+        this.notificacion.error(err.error?.error || 'No se pudo cargar la lista de archivados');
         this.cdr.detectChanges();
       }
     });

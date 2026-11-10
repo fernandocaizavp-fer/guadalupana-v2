@@ -87,9 +87,20 @@ export const actualizarDocente = async (req: Request, res: Response) => {
 
 export const eliminarDocente = async (req: Request, res: Response) => {
   try {
-    await prisma.usuario.delete({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+    // Antes borraba CUALQUIER cuenta con ese id (también un admin o un estudiante).
+    const docente = await prisma.usuario.findUnique({ where: { id }, select: { rol: true } });
+    if (!docente || docente.rol !== 'PROFESOR') {
+      return res.status(404).json({ error: 'Docente no encontrado' });
+    }
+    // Sus materias quedan sin docente asignado (las relaciones son SetNull).
+    await prisma.usuario.delete({ where: { id } });
     res.json({ message: 'Docente eliminado' });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === 'P2003') {
+      return res.status(409).json({ error: 'No se puede eliminar: el docente tiene registros asociados' });
+    }
+    console.error('[usuario] eliminarDocente falló:', error);
     res.status(500).json({ error: 'Error al eliminar docente' });
   }
 };

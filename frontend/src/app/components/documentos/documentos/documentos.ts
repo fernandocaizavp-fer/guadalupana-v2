@@ -116,9 +116,9 @@ export class Documentos implements OnInit {
         this.descargando = null;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.descargando = null;
-        this.notificacion.error('Error al descargar matrícula');
+        this.notificacion.error(err.error?.error || 'Error al descargar matrícula');
         this.cdr.detectChanges();
       }
     });
@@ -137,9 +137,9 @@ export class Documentos implements OnInit {
         this.descargando = null;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.descargando = null;
-        this.notificacion.error('Error al descargar certificado');
+        this.notificacion.error(err.error?.error || 'Error al descargar certificado');
         this.cdr.detectChanges();
       }
     });

@@ -347,9 +347,9 @@ export class ConfiguracionComponent implements OnInit {
         const fragmento = this.route.snapshot.fragment;
         if (fragmento) setTimeout(() => this.irA(fragmento));
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.notificacion.error('Error al cargar la configuración');
+        this.notificacion.error(err.error?.error || 'Error al cargar la configuración');
         this.cdr.detectChanges();
       }
     });
@@ -398,9 +398,9 @@ export class ConfiguracionComponent implements OnInit {
         this.buscando = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.buscando = false;
-        this.notificacion.error('Error al buscar');
+        this.notificacion.error(err.error?.error || 'Error al buscar');
         this.cdr.detectChanges();
       }
     });
@@ -424,8 +424,8 @@ export class ConfiguracionComponent implements OnInit {
         this.cargarPermisos();
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.notificacion.error('Error al habilitar el permiso');
+      error: (err) => {
+        this.notificacion.error(err.error?.error || 'Error al habilitar el permiso');
         this.cdr.detectChanges();
       }
     });
@@ -439,8 +439,8 @@ export class ConfiguracionComponent implements OnInit {
         this.cargarPermisos();
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.notificacion.error('Error al revocar');
+      error: (err) => {
+        this.notificacion.error(err.error?.error || 'Error al revocar');
         this.cdr.detectChanges();
       }
     });
@@ -457,9 +457,9 @@ export class ConfiguracionComponent implements OnInit {
         this.buscandoExamen = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.buscandoExamen = false;
-        this.notificacion.error('Error al buscar');
+        this.notificacion.error(err.error?.error || 'Error al buscar');
         this.cdr.detectChanges();
       }
     });
@@ -485,8 +485,8 @@ export class ConfiguracionComponent implements OnInit {
         this.cargarPermisosExamen();
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.notificacion.error('Error al habilitar la recalificación');
+      error: (err) => {
+        this.notificacion.error(err.error?.error || 'Error al habilitar la recalificación');
         this.cdr.detectChanges();
       }
     });
@@ -500,8 +500,8 @@ export class ConfiguracionComponent implements OnInit {
         this.cargarPermisosExamen();
         this.cdr.detectChanges();
       },
-      error: () => {
-        this.notificacion.error('Error al revocar');
+      error: (err) => {
+        this.notificacion.error(err.error?.error || 'Error al revocar');
         this.cdr.detectChanges();
       }
     });

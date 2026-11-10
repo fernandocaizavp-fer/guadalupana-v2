@@ -163,7 +163,7 @@ export class NuevaMatricula implements OnInit {
           this.onCursoChange();
         }
       },
-      error: () => this.notificacion.error('Error al cargar cursos')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al cargar cursos')
     });
   }
 
@@ -180,7 +180,7 @@ export class NuevaMatricula implements OnInit {
         // App zoneless: forzar el refresco de la vista al llegar la respuesta.
         this.cdr.markForCheck();
       },
-      error: () => this.notificacion.error('No se pudo calcular el número de matrícula')
+      error: (err) => this.notificacion.error(err.error?.error || 'No se pudo calcular el número de matrícula')
     });
   }
 
@@ -395,10 +395,10 @@ export class NuevaMatricula implements OnInit {
         this.loading = false;
         this.cdr.markForCheck();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
         this.cdr.markForCheck();
-        this.notificacion.error('Error al descargar documento');
+        this.notificacion.error(err.error?.error || 'Error al descargar documento');
       }
     });
   }
@@ -413,8 +413,8 @@ export class NuevaMatricula implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => {
-        this.notificacion.error('Error al descargar certificado');
+      error: (err) => {
+        this.notificacion.error(err.error?.error || 'Error al descargar certificado');
       }
     });
   }

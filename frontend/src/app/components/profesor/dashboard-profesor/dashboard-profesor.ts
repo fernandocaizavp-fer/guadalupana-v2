@@ -108,10 +108,10 @@ export class DashboardProfesor implements OnInit {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
         this.cdr.detectChanges();
-        this.notificacion.error('Error al cargar materias');
+        this.notificacion.error(err.error?.error || 'Error al cargar materias');
       }
     });
 

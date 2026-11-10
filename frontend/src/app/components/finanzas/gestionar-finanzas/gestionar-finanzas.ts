@@ -76,7 +76,7 @@ export class GestionarFinanzas implements OnInit {
         this.cursos = cursos;
         this.cdr.detectChanges();
       },
-      error: () => this.notificacion.error('Error al cargar los cursos')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al cargar los cursos')
     });
   }
 

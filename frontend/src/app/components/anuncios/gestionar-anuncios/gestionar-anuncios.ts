@@ -198,7 +198,7 @@ export class GestionarAnuncios implements OnInit {
         this.notificacion.exito('Anuncio eliminado correctamente');
         this.cargarAnuncios();
       },
-      error: () => this.notificacion.error('Error al eliminar el anuncio')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al eliminar el anuncio')
     });
   }
 

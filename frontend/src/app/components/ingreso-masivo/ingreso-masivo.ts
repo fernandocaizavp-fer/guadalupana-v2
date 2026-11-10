@@ -88,7 +88,7 @@ export class IngresoMasivo implements OnInit, ConCambiosSinGuardar {
   ngOnInit() {
     this.cursoService.listarCursos().subscribe({
       next: (cursos) => { this.cursos = cursos; this.cdr.detectChanges(); },
-      error: () => this.notificacion.error('Error al cargar los cursos')
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al cargar los cursos')
     });
     this.configuracionService.obtener().subscribe({
       next: (config) => {
