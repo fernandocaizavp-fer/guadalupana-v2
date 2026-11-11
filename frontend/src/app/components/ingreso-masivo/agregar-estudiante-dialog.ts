@@ -10,6 +10,7 @@ import { finalize } from 'rxjs';
 import { MatriculaService } from '../../services/matricula';
 import { EstudianteRapido } from '../../services/ingreso-rapido';
 import { lugarFechaHoy } from '../../shared/lugar-fecha/lugar-fecha';
+import { DocumentoIdentidad, PATRON_DOCUMENTO, normalizarDocumento } from '../../shared/documento-identidad';
 
 export interface AgregarEstudianteData {
   cursoId: number;
@@ -23,7 +24,7 @@ export interface AgregarEstudianteData {
 @Component({
   selector: 'app-agregar-estudiante-dialog',
   imports: [ReactiveFormsModule, MatDialogModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule],
+    MatFormFieldModule, MatInputModule, MatSelectModule, DocumentoIdentidad],
   template: `
     <div class="ae">
       @if (!creado) {
@@ -41,8 +42,11 @@ export interface AgregarEstudianteData {
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Cédula / pasaporte</mat-label>
-              <input matInput formControlName="cedula" maxlength="10" autocomplete="off">
+              <input matInput formControlName="cedula" appDocumentoIdentidad maxlength="10" autocomplete="off">
               <mat-hint>También será su contraseña inicial</mat-hint>
+              @if (form.controls.cedula.hasError('pattern')) {
+                <mat-error>Solo letras y números, sin guiones ni símbolos</mat-error>
+              }
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Sexo</mat-label>
@@ -107,7 +111,7 @@ export class AgregarEstudianteDialog {
   form = inject(FormBuilder).nonNullable.group({
     apellidos: ['', [Validators.required, Validators.maxLength(100)]],
     nombres: ['', [Validators.required, Validators.maxLength(100)]],
-    cedula: ['', [Validators.required, Validators.maxLength(10)]],
+    cedula: ['', [Validators.required, Validators.maxLength(10), Validators.pattern(PATRON_DOCUMENTO)]],
     sexo: ['', Validators.required],
     correo: ['', [Validators.required, Validators.email, Validators.maxLength(100)]]
   });
@@ -135,7 +139,7 @@ export class AgregarEstudianteDialog {
       cursoId: this.data.cursoId,
       apellidos: v.apellidos.trim(),
       nombres: v.nombres.trim(),
-      cedula: v.cedula.trim(),
+      cedula: normalizarDocumento(v.cedula),
       sexo: v.sexo,
       correoestudiante: v.correo.trim(),
       lugarfechamatricula: lugarFechaHoy()

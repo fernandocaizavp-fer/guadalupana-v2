@@ -77,7 +77,7 @@
         <div class="row-grid-4">
           <mat-form-field appearance="outline">
             <mat-label>Cédula / Pasaporte</mat-label>
-            <input matInput formControlName="cedula"
+            <input matInput formControlName="cedula" appDocumentoIdentidad
               (keyup.enter)="buscarPorCedula()" maxlength="10">
             @if (consultandoCedula) {
               <mat-spinner matSuffix diameter="20"></mat-spinner>
@@ -87,7 +87,11 @@
                 <mat-icon>search</mat-icon>
               </button>
             }
-            <mat-error>Escribe la cédula o pasaporte</mat-error>
+            @if (form.controls.cedula.hasError('pattern')) {
+              <mat-error>Solo letras y números, sin guiones ni símbolos</mat-error>
+            } @else {
+              <mat-error>Escribe la cédula o pasaporte</mat-error>
+            }
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Apellidos</mat-label>

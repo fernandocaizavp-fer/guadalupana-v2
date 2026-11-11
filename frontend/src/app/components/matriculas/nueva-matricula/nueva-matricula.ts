@@ -23,13 +23,14 @@ import { NotificacionService } from '../../../services/notificacion';
 import { DialogService } from '../../../services/dialog';
 import { formularioValido } from '../../../shared/validacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DocumentoIdentidad, PATRON_DOCUMENTO, esCedulaEcuatoriana, normalizarDocumento } from '../../../shared/documento-identidad';
 
 @Component({
   selector: 'app-nueva-matricula',
   imports: [MatTooltipModule, 
     ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule,
     MatIconModule, MatCardModule, MatSelectModule, MatDividerModule,
-    MatSnackBarModule, MatProgressSpinnerModule, MatToolbarModule, BotonCalendario
+    MatSnackBarModule, MatProgressSpinnerModule, MatToolbarModule, BotonCalendario, DocumentoIdentidad
   ],
   templateUrl: './nueva-matricula.html',
   styleUrl: './nueva-matricula.scss'
@@ -58,7 +59,7 @@ export class NuevaMatricula implements OnInit {
     cursoId: [DATOS_MATRICULA_INICIALES.cursoId, Validators.required],
     nombres: ['', [Validators.required, Validators.maxLength(100)]],
     apellidos: ['', [Validators.required, Validators.maxLength(100)]],
-    cedula: ['', [Validators.required, Validators.maxLength(10)]],
+    cedula: ['', [Validators.required, Validators.maxLength(10), Validators.pattern(PATRON_DOCUMENTO)]],
     correoestudiante: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
   });
 
@@ -125,7 +126,9 @@ export class NuevaMatricula implements OnInit {
 
     return Object.fromEntries(Object.entries(cambios).map(([campo, texto]) => {
       let valor = texto.replace(/\s+/gu, ' ').trim();
-      if (nombresPropios.has(campo)) {
+      if (campo === 'cedula') {
+        valor = normalizarDocumento(valor);
+      } else if (nombresPropios.has(campo)) {
         valor = valor.toLocaleLowerCase('es').split(' ').map((palabra, indice) => {
           if (indice > 0 && enlaces.has(palabra)) return palabra;
           return palabra.replace(/(^|[-'’])\p{L}/gu, inicio => inicio.toLocaleUpperCase('es'));
@@ -199,10 +202,13 @@ export class NuevaMatricula implements OnInit {
     if (!formularioValido(this.form, this.notificacion)) return;
     this.loading = true;
     this.matriculaService.crearMatricula(this.datos).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.loading = false;
         this.cdr.markForCheck();
-        this.notificacion.exito('Matrícula guardada exitosamente');
+        const documento = res?.matricula?.cedula;
+        this.notificacion.exito(documento
+          ? `Matrícula guardada. Contraseña inicial del estudiante: ${documento}`
+          : 'Matrícula guardada exitosamente');
         // Vuelve al detalle del curso, donde ya aparece el nuevo estudiante.
         // La matrícula se puede descargar después desde ahí.
         this.router.navigate(['/cursos', this.datos.cursoId]);
@@ -250,8 +256,11 @@ export class NuevaMatricula implements OnInit {
   // "Consultar" o con Enter; nunca de forma automática al escribir.
   buscarPorCedula() {
     if (this.consultandoCedula) return;
-    if (!this.datos.cedula || this.datos.cedula.length !== 10) {
-      this.notificacion.info('Ingrese una cédula de 10 dígitos');
+    if (!esCedulaEcuatoriana(this.datos.cedula)) {
+      // La consulta del Registro Civil solo existe para cédulas ecuatorianas.
+      this.notificacion.info(this.datos.cedula
+        ? 'La consulta automática solo funciona con cédulas ecuatorianas de 10 dígitos. Para un pasaporte, llene los datos a mano.'
+        : 'Ingrese una cédula de 10 dígitos');
       return;
     }
     if (this.datos.cedula === this.ultimaCedulaConsultada) {

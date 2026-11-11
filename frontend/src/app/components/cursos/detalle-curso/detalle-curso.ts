@@ -22,12 +22,13 @@ import { NotificacionService } from '../../../services/notificacion';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 import { ArchivadosDialog, ArchivadosData } from './archivados-dialog';
+import { DocumentoIdentidad } from '../../../shared/documento-identidad';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
 @Component({
   selector: 'app-editar-matricula-dialog',
   imports: [FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule,
-    MatDialogModule, MatDividerModule, MatIconModule, MatSelectModule, BotonCalendario],
+    MatDialogModule, MatDividerModule, MatIconModule, MatSelectModule, BotonCalendario, DocumentoIdentidad],
   template: `
     <div class="dialog-container">
       <div class="dialog-header">
@@ -59,8 +60,8 @@ import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
           </div>
           <div class="row row-3">
             <mat-form-field appearance="outline">
-              <mat-label>Cédula</mat-label>
-              <input matInput [(ngModel)]="datos.cedula">
+              <mat-label>Cédula / Pasaporte</mat-label>
+              <input matInput [(ngModel)]="datos.cedula" appDocumentoIdentidad maxlength="10">
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Sexo</mat-label>

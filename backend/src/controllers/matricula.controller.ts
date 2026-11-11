@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma';
 import { asignarConceptosFaltantes } from './finanzas.controller';
+import { normalizarDocumento, errorDeDocumento } from '../lib/documento-identidad';
 
 // Fuente única de verdad para la numeración de una matrícula dentro de un curso:
 // el correlativo es max(matriculaNo)+1 (no un count, para no reutilizar números
@@ -68,9 +69,10 @@ export const crearMatricula = async (req: Request, res: Response) => {
   if (!texto(apellidos) || !texto(nombres)) {
     return res.status(400).json({ error: 'Los apellidos y los nombres son obligatorios' });
   }
-  if (!texto(cedula) || texto(cedula).length > 10) {
-    return res.status(400).json({ error: 'La cédula o pasaporte es obligatoria (máximo 10 caracteres)' });
-  }
+  // Cédula o pasaporte sin espacios y en mayúsculas: es también la contraseña inicial.
+  const documento = normalizarDocumento(cedula);
+  const errorDocumento = errorDeDocumento(documento);
+  if (errorDocumento) return res.status(400).json({ error: errorDocumento });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoFinal)) {
     return res.status(400).json({ error: 'El correo del estudiante es obligatorio y debe ser válido' });
   }
@@ -82,7 +84,7 @@ export const crearMatricula = async (req: Request, res: Response) => {
     const curso = await prisma.curso.findUnique({ where: { id: Number(cursoId) }, select: { id: true } });
     if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
 
-    const hash = await bcrypt.hash(cedula, 10);
+    const hash = await bcrypt.hash(documento, 10);
 
     // Numeración (correlativo, tomo, página) desde la fuente única de verdad.
     const { matriculaNo, tomo: tomoFinal, pagina: paginaCalculada } =
@@ -106,7 +108,7 @@ export const crearMatricula = async (req: Request, res: Response) => {
           pagina: paginaCalculada,
           apellidos: apellidos.toUpperCase(),
           nombres: nombres.toUpperCase(),
-          cedula,
+          cedula: documento,
           sexo,
           nivelEstudio,
           lugarfechamatricula: lugarfechamatricula?.toUpperCase(),
@@ -186,7 +188,7 @@ export const crearMatricula = async (req: Request, res: Response) => {
       matricula: resultado.matricula,
       credenciales: {
         correo: resultado.usuario.correo,
-        passwordDefault: `Su cédula: ${cedula}`
+        passwordDefault: `Su cédula o pasaporte: ${documento}`
       }
     });
   } catch (error: any) {
@@ -197,7 +199,7 @@ export const crearMatricula = async (req: Request, res: Response) => {
       // para que la pantalla ofrezca reactivarlo en lugar de un simple "duplicado".
       if (campos.includes('cedula') || campos.includes('correo')) {
         const archivada = await prisma.matricula.findFirst({
-          where: { activo: false, OR: [{ cedula: texto(cedula) }, { usuario: { correo: correoFinal.toLowerCase() } }] },
+          where: { activo: false, OR: [{ cedula: documento }, { usuario: { correo: correoFinal.toLowerCase() } }] },
           select: { id: true, nombres: true, apellidos: true, curso: { select: { ramaArtesanal: true } } }
         }).catch(() => null);
         if (archivada) {
@@ -246,8 +248,10 @@ export const actualizarMatricula = async (req: Request, res: Response) => {
   if ((apellidos !== undefined && !texto(apellidos)) || (nombres !== undefined && !texto(nombres))) {
     return res.status(400).json({ error: 'Los apellidos y los nombres no pueden quedar vacíos' });
   }
-  if (cedula !== undefined && (!texto(cedula) || texto(cedula).length > 10)) {
-    return res.status(400).json({ error: 'La cédula o pasaporte es obligatoria (máximo 10 caracteres)' });
+  const cedulaNueva = cedula !== undefined ? normalizarDocumento(cedula) : undefined;
+  if (cedulaNueva !== undefined) {
+    const errorDocumento = errorDeDocumento(cedulaNueva);
+    if (errorDocumento) return res.status(400).json({ error: errorDocumento });
   }
   // El correo del estudiante es también su usuario de acceso (Usuario.correo).
   const correoNuevo = texto(correoestudiante).toLowerCase();
@@ -266,7 +270,6 @@ export const actualizarMatricula = async (req: Request, res: Response) => {
     });
     if (!actual) return res.status(404).json({ error: 'Matrícula no encontrada' });
 
-    const cedulaNueva = cedula !== undefined ? texto(cedula) : undefined;
     // La contraseña inicial es la cédula: si se corrige la cédula y el estudiante
     // aún no cambió su contraseña, la inicial pasa a ser la cédula corregida.
     // Si ya la cambió, se respeta la suya. (Se cifra fuera de la transacción.)
@@ -443,7 +446,7 @@ export const buscarEstudiante = async (req: Request, res: Response) => {
         OR: [
           { nombres: { contains: String(q), mode: 'insensitive' } },
           { apellidos: { contains: String(q), mode: 'insensitive' } },
-          { cedula: { contains: String(q) } }
+          { cedula: { contains: String(q), mode: 'insensitive' } }
         ]
       },
       include: {
@@ -490,7 +493,7 @@ export const listarArchivadas = async (req: Request, res: Response) => {
           OR: [
             { nombres: { contains: q, mode: 'insensitive' } },
             { apellidos: { contains: q, mode: 'insensitive' } },
-            { cedula: { contains: q } }
+            { cedula: { contains: q, mode: 'insensitive' } }
           ]
         })
       },
