@@ -2,15 +2,15 @@
   <div class="dialog-header">
     <div class="header-titles">
       <mat-icon class="badge-icon">badge</mat-icon>
-      <h2>Carnet Digital Guadalupana</h2>
+      <h2>Credencial Estudiantil Guadalupana</h2>
     </div>
-    <button mat-icon-button mat-dialog-close class="btn-close" matTooltip="Cerrar">
+    <button mat-icon-button mat-dialog-close class="btn-close" matTooltip="Cerrar ventana" aria-label="Cerrar ventana">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
   <p class="dialog-instructions">
-    Credencial oficial de identificación artesanal. Pulsa <strong>Girar Carnet</strong> para ver el reverso.
+    Credencial oficial de identificación artesanal. Haz clic en la tarjeta o en <strong>Girar Credencial</strong> para ver el reverso.
   </p>
 
   <!-- CONTENEDOR 3D FLIP -->
@@ -46,29 +46,29 @@
 
           <div class="columna-datos">
             <div class="dato-bloque">
-              <span class="dato-label">ESTUDIANTE</span>
+              <span class="dato-label">PARTICIPANTE / ESTUDIANTE</span>
               <span class="dato-nombre">{{ matricula.apellidos }} {{ matricula.nombres }}</span>
             </div>
 
             <div class="dato-bloque">
-              <span class="dato-label">RAMA ARTESANAL</span>
+              <span class="dato-label">ESPECIALIDAD ARTESANAL</span>
               <span class="dato-rama">{{ matricula.curso?.ramaArtesanal || 'FORMACIÓN ARTESANAL' }}</span>
             </div>
 
             <div class="fila-doble">
               <div class="dato-bloque">
-                <span class="dato-label">CÉDULA</span>
+                <span class="dato-label">CÉDULA DE CIUDADANÍA</span>
                 <span class="dato-valor">{{ matricula.cedula }}</span>
               </div>
               <div class="dato-bloque">
-                <span class="dato-label">MATRÍCULA</span>
+                <span class="dato-label">N.º MATRÍCULA</span>
                 <span class="dato-valor matricula-num">{{ matricula.matriculaNo }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- CÓDIGO DE BARRAS DECORATIVO -->
+        <!-- CÓDIGO DE BARRAS INSTITUCIONAL -->
         <div class="pie-anverso">
           <div class="codigo-barras">
             <div class="barras-svg">
@@ -80,17 +80,18 @@
               <span class="barra b3"></span><span class="barra b2"></span><span class="barra b1"></span>
               <span class="barra b4"></span><span class="barra b2"></span><span class="barra b3"></span>
               <span class="barra b1"></span><span class="barra b2"></span><span class="barra b4"></span>
+              <span class="barra b2"></span><span class="barra b1"></span><span class="barra b3"></span>
             </div>
             <span class="num-serie">CFG-{{ matricula.cedula }}-{{ matricula.matriculaNo }}</span>
           </div>
-          <span class="chip-rol">ESTUDIANTE</span>
+          <span class="chip-rol">ESTUDIANTE REGULAR</span>
         </div>
       </div>
 
       <!-- ==================== REVERSO (DORSO) ==================== -->
       <div class="carnet-face reverso">
         <div class="banda-superior-reverso">
-          <span class="titulo-reverso">INFORMACIÓN COMPLEMENTARIA Y REGLAMENTO</span>
+          <span class="titulo-reverso">INFORMACIÓN COMPLEMENTARIA Y NORMATIVA</span>
         </div>
 
         <div class="cuerpo-reverso">
@@ -108,24 +109,32 @@
               <span class="val">{{ matricula.datosPersonales?.nacionalidad || 'ECUATORIANA' }}</span>
             </div>
             <div class="info-item">
-              <span class="lbl">Sede Institucional:</span>
+              <span class="lbl">Sede:</span>
               <span class="val">Riobamba, Chimborazo</span>
             </div>
           </div>
 
           <div class="clausula-texto">
-            Este carnet es un documento personal e intransferible que acredita la condición de participante regular en el Centro de Formación Artesanal Guadalupana. Debe portarse obligatoriamente para el ingreso a aulas y talleres prácticos.
+            Este carnet es un documento personal e intransferible que acredita la condición de participante regular en el Centro de Formación Artesanal Guadalupana. Debe portarse obligatoriamente para el ingreso a aulas, laboratorios y talleres prácticos.
           </div>
 
           <div class="firma-bloque">
             <div class="linea-firma"></div>
-            <span class="firma-cargo">DIRECCIÓN GENERAL / SECRETARÍA</span>
+            <span class="firma-cargo">DIRECCIÓN GENERAL / SECRETARÍA ACADÉMICA</span>
             <span class="firma-institucion">C.F.A. Guadalupana · Riobamba</span>
           </div>
         </div>
 
+        <!-- PIE REVERSO AMPLIADO CON DIRECCIÓN COMPLETA -->
         <div class="pie-reverso">
-          <span>Av. Diego de Rodríguez e Isidoro Barriga · Tel: 096 149 3337</span>
+          <div class="pie-fila">
+            <mat-icon>location_on</mat-icon>
+            <span>Av. Diego de Rodríguez e Isidoro Barriga</span>
+          </div>
+          <div class="pie-fila">
+            <mat-icon>phone</mat-icon>
+            <span>096 149 3337 · Riobamba, Ecuador</span>
+          </div>
         </div>
       </div>
 
@@ -135,7 +144,7 @@
   <!-- ACCIONES INFERIORES -->
   <div class="dialog-actions">
     <button mat-flat-button class="btn-girar" (click)="girar()">
-      <mat-icon>sync</mat-icon> Girar Carnet ({{ estaGirado ? 'Ver Frente' : 'Ver Reverso' }})
+      <mat-icon>sync</mat-icon> Girar Credencial ({{ estaGirado ? 'Ver Frente' : 'Ver Reverso' }})
     </button>
     <button mat-stroked-button mat-dialog-close class="btn-cerrar">
       Cerrar

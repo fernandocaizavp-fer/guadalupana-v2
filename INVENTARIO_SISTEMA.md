@@ -37,15 +37,16 @@
 ### Funcionalidades NUEVAS / RECIENTES (a destacar)
 
 - **Buscador Global Rápido (`Ctrl + K`)** — Diálogo accesible por atajo de teclado o botón en la cabecera que busca en tiempo real estudiantes activos (por apellido, nombre, cédula o N.º matrícula) y especialidades de taller, permitiendo abrir directamente el Carnet Digital 3D o navegar al curso.
-- **Semáforo de Riesgo Académico y de Asistencia** — Indicador en tiempo real que evalúa la permanencia y titulación artesanal:
+- **Semáforo de Riesgo Académico y de Asistencia (Diseño Institucional Armónico)** — Indicador en tiempo real que evalúa la permanencia y titulación artesanal con diseño sobrio y profesional (tarjetas métricas con referencias normativas y diagnóstico institucional):
   - 🟢 **Verde (Rendimiento Óptimo)**: Asistencia $\ge 85\%$ y promedio general $\ge 7.00$.
   - 🟡 **Amarillo (En Observación)**: Asistencia $80\% - 84\%$ (margen legal estrecho) o promedio en zona de supletorio ($5.00 - 6.99$).
   - 🔴 **Rojo (Riesgo Crítico)**: Asistencia $< 80\%$ (reprobación automática por inasistencia según normativa) o promedio insuficiente ($< 5.00$).
 - **Repositorio de Recursos y Guías Didácticas de Taller** — Espacio centralizado para compartir material técnico de taller clasificado en: Guías prácticas en PDF, Listas de materiales e insumos, Videos tutoriales/demostraciones y Documentos de normativa, integrado en el Aula Virtual y en la gestión de cursos.
+- **Segmentación de Anuncios y Avisos (Centro vs. Docentes)** — Clasificación automática y pestañas de filtrado en paneles de Estudiante, Profesor y Gestor de Anuncios (`Todos`, `🏛️ Comunicados del Centro`, `👨‍🏫 Avisos de Docentes por Materia`) para una comunicación institucional clara y ordenada.
 - **Gestión Segura de Base de Datos y Migraciones Versionadas** — La base de datos vive en PostgreSQL (Supabase). No se ejecutan comandos destructivos locales (`db push` ni `migrate reset`). Los cambios de esquema (`MensajeInterno`, `RecursoDidactico`) se gestionan mediante migraciones SQL idempotentes versionadas en `backend/prisma/migrations/`, desplegadas automáticamente en el servidor con `prisma migrate deploy`.
 - **Módulo de Chat y Mensajería Institucional Guadalupana** — Comunicación directa Estudiante ↔ Docente ↔ Administrador con diseño corporativo institucional, badges de mensajes no leídos y filtros por rol.
 - **Campana de Notificaciones y Avisos** en las cabeceras de todos los dashboards con alertas en vivo de mensajes, anuncios y tareas.
-- **Carnet Digital Estudiantil Visual** con simulación de credencial física y rotación 3D interactiva (frente y reverso con foto, datos y código de barras).
+- **Carnet Digital Estudiantil Visual Ampliado** con simulación de credencial física y rotación 3D interactiva (frente y reverso con foto, tipografía institucional ampliada, dirección institucional completa sin recortes, vigencia y código de barras).
 - **Reporte Oficial AL20** (listado de participantes a titularse, exclusivo para alumnos aprobados $\ge 7.00$) con plantilla Word oficial de la Junta Nacional de Defensa del Artesano.
 - **Reportes AL16** (certificado de promoción, por estudiante) y **AL22** (cuadro de aprobados/no aprobados, por curso).
 - **Autocompletado de matrícula por cédula** (integración con API ApiConsult).

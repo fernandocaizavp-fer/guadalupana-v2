@@ -47,6 +47,34 @@ export class GestionarAnuncios implements OnInit {
   // materias del usuario (label visible + curso al que pertenece)
   materiasOpciones: { label: string; cursoId: number }[] = [];
 
+  filtroAnuncios: 'TODOS' | 'CENTRO' | 'DOCENTES' = 'TODOS';
+
+  get anunciosFiltrados(): any[] {
+    if (this.filtroAnuncios === 'CENTRO') {
+      return this.anuncios.filter(a => this.esDelCentro(a));
+    }
+    if (this.filtroAnuncios === 'DOCENTES') {
+      return this.anuncios.filter(a => !this.esDelCentro(a));
+    }
+    return this.anuncios;
+  }
+
+  esDelCentro(anuncio: any): boolean {
+    return anuncio.autorRol === 'ADMIN' || !anuncio.materiaNombre;
+  }
+
+  conteoTodos(): number {
+    return this.anuncios.length;
+  }
+
+  conteoCentro(): number {
+    return this.anuncios.filter(a => this.esDelCentro(a)).length;
+  }
+
+  conteoDocentes(): number {
+    return this.anuncios.filter(a => !this.esDelCentro(a)).length;
+  }
+
   nuevo = {
     titulo: '',
     contenido: '',

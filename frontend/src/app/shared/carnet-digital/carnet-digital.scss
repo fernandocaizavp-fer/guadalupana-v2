@@ -6,8 +6,8 @@ $gold-light: #f3df95;
 $gold-dark: #967422;
 
 .carnet-dialog-container {
-  padding: 20px 24px;
-  max-width: 500px;
+  padding: 24px 28px;
+  max-width: 580px;
   background: #f8fafc;
   display: flex;
   flex-direction: column;
@@ -48,21 +48,21 @@ $gold-dark: #967422;
 
 .dialog-instructions {
   margin: 0 0 20px 0;
-  font-size: 12px;
+  font-size: 13px;
   color: #64748b;
   text-align: center;
 }
 
-/* PERSPECTIVA 3D */
+/* PERSPECTIVA 3D AMPLIADA */
 .carnet-perspective {
   perspective: 1200px;
-  width: 420px;
-  height: 265px;
+  width: 490px;
+  height: 315px;
   margin: 0 auto 24px auto;
 
-  @media (max-width: 480px) {
-    width: 320px;
-    height: 210px;
+  @media (max-width: 540px) {
+    width: 330px;
+    height: 220px;
   }
 }
 
@@ -86,7 +86,7 @@ $gold-dark: #967422;
   top: 0;
   left: 0;
   border-radius: 16px;
-  box-shadow: 0 16px 36px rgba(12, 22, 48, 0.25), 0 0 0 1px rgba(200, 168, 75, 0.35);
+  box-shadow: 0 16px 36px rgba(12, 22, 48, 0.22), 0 0 0 1px rgba(200, 168, 75, 0.35);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
@@ -98,45 +98,64 @@ $gold-dark: #967422;
 .anverso {
   background: linear-gradient(135deg, $navy 0%, $navy-dark 100%);
   color: #ffffff;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200, 168, 75, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
 
   .banda-superior {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
-    background: rgba(12, 22, 48, 0.6);
+    padding: 12px 18px;
+    background: rgba(12, 22, 48, 0.7);
     border-bottom: 2px solid $gold;
 
     .logo-carnet {
-      width: 38px;
-      height: 38px;
-      border-radius: 6px;
-      border: 1px solid $gold;
-      object-fit: cover;
-      background: #ffffff;
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: white;
+      padding: 2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
     .texto-institucion {
+      display: flex;
+      flex-direction: column;
+
       h4 {
         margin: 0;
-        font-size: 8px;
-        letter-spacing: 1px;
-        color: rgba(255, 255, 255, 0.8);
-        font-weight: 600;
+        font-size: 8.5px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: $gold-light;
+        text-transform: uppercase;
       }
 
       h3 {
-        margin: 0;
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.8px;
-        color: $gold-light;
+        margin: 1px 0;
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
       }
 
       .sub-jnda {
-        font-size: 7.5px;
-        color: rgba(255, 255, 255, 0.65);
-        display: block;
+        font-size: 8px;
+        color: #cbd5e1;
+        letter-spacing: 0.3px;
       }
     }
   }
@@ -144,9 +163,8 @@ $gold-dark: #967422;
   .cuerpo-carnet {
     flex: 1;
     display: flex;
-    padding: 10px 14px;
-    gap: 14px;
-    align-items: center;
+    padding: 14px 18px;
+    gap: 16px;
 
     .columna-foto {
       display: flex;
@@ -155,13 +173,13 @@ $gold-dark: #967422;
       gap: 6px;
 
       .marco-foto {
-        width: 82px;
-        height: 100px;
+        width: 88px;
+        height: 110px;
         border-radius: 8px;
         border: 2px solid $gold;
         overflow: hidden;
-        background: #0d172e;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        background: #ffffff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 
         .foto-img {
           width: 100%;
@@ -175,32 +193,33 @@ $gold-dark: #967422;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: rgba(200, 168, 75, 0.6);
+          background: #e2e8f0;
+          color: #94a3b8;
 
           mat-icon {
-            font-size: 54px;
-            width: 54px;
-            height: 54px;
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
           }
         }
       }
 
       .chip-estado {
-        font-size: 8.5px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+        background: rgba(16, 185, 129, 0.2);
+        border: 1px solid #10b981;
+        color: #34d399;
+        font-size: 8px;
+        font-weight: 800;
         padding: 2px 8px;
         border-radius: 12px;
-        background: rgba(16, 185, 129, 0.15);
-        color: #34d399;
-        border: 1px solid rgba(16, 185, 129, 0.3);
+        letter-spacing: 1px;
         display: flex;
         align-items: center;
         gap: 4px;
 
         .punto-verde {
-          font-size: 9px;
           color: #10b981;
+          font-size: 9px;
         }
       }
     }
@@ -209,7 +228,8 @@ $gold-dark: #967422;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      justify-content: space-around;
+      gap: 5px;
 
       .dato-bloque {
         display: flex;
@@ -217,118 +237,125 @@ $gold-dark: #967422;
 
         .dato-label {
           font-size: 8px;
-          font-weight: 700;
-          color: $gold;
-          letter-spacing: 0.6px;
+          font-weight: 800;
+          letter-spacing: 1px;
+          color: $gold-light;
+          text-transform: uppercase;
         }
 
         .dato-nombre {
           font-size: 13px;
           font-weight: 800;
           color: #ffffff;
-          line-height: 1.2;
-          text-transform: uppercase;
+          line-height: 1.25;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.4);
         }
 
         .dato-rama {
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 700;
-          color: #f1f5f9;
+          color: #fef08a;
           text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
         .dato-valor {
-          font-size: 11px;
-          font-weight: 600;
-          color: #cbd5e1;
+          font-size: 12px;
+          font-weight: 700;
+          color: #f1f5f9;
 
           &.matricula-num {
-            font-weight: 800;
             color: $gold-light;
+            font-family: monospace;
+            font-size: 13px;
           }
         }
       }
 
       .fila-doble {
         display: flex;
-        gap: 16px;
+        gap: 20px;
       }
     }
   }
 
   .pie-anverso {
+    background: rgba(12, 22, 48, 0.85);
+    padding: 8px 18px;
+    border-top: 1px solid rgba(200, 168, 75, 0.3);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 14px;
-    background: rgba(8, 14, 30, 0.85);
-    border-top: 1px solid rgba(200, 168, 75, 0.3);
 
     .codigo-barras {
       display: flex;
       flex-direction: column;
+      align-items: flex-start;
       gap: 2px;
 
       .barras-svg {
         display: flex;
-        gap: 2px;
-        height: 14px;
-        align-items: flex-end;
+        align-items: stretch;
+        height: 18px;
+        gap: 1.5px;
 
         .barra {
           background: #ffffff;
           display: inline-block;
 
-          &.b1 { width: 1.5px; height: 100%; }
-          &.b2 { width: 3px; height: 100%; }
-          &.b3 { width: 1px; height: 100%; }
-          &.b4 { width: 4.5px; height: 100%; }
+          &.b1 { width: 1.5px; }
+          &.b2 { width: 2.5px; }
+          &.b3 { width: 1px; }
+          &.b4 { width: 3.5px; }
         }
       }
 
       .num-serie {
-        font-size: 7.5px;
-        letter-spacing: 1px;
-        color: rgba(255, 255, 255, 0.6);
         font-family: monospace;
+        font-size: 7.5px;
+        color: #94a3b8;
+        letter-spacing: 1px;
       }
     }
 
     .chip-rol {
+      background: linear-gradient(135deg, $gold, $gold-dark);
+      color: #0c1630;
       font-size: 9px;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: 0.8px;
-      color: $navy-dark;
-      background: $gold;
-      padding: 3px 8px;
+      padding: 3px 10px;
       border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
   }
 }
 
 /* ==================== REVERSO ==================== */
 .reverso {
-  transform: rotateY(180deg);
   background: #ffffff;
   color: #1e293b;
+  transform: rotateY(180deg);
+  border: 1px solid #e2e8f0;
 
   .banda-superior-reverso {
-    background: linear-gradient(135deg, $navy, $navy-dark);
-    padding: 8px 14px;
+    background: linear-gradient(135deg, $navy 0%, $navy-dark 100%);
+    padding: 8px 16px;
     text-align: center;
     border-bottom: 2px solid $gold;
 
     .titulo-reverso {
       font-size: 9px;
       font-weight: 800;
+      letter-spacing: 1.2px;
       color: $gold-light;
-      letter-spacing: 0.8px;
+      text-transform: uppercase;
     }
   }
 
   .cuerpo-reverso {
     flex: 1;
-    padding: 10px 16px;
+    padding: 12px 18px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -336,21 +363,23 @@ $gold-dark: #967422;
     .filas-info-reverso {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px 12px;
+      gap: 6px 14px;
 
       .info-item {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px dotted #e2e8f0;
+        padding-bottom: 2px;
 
         .lbl {
-          font-size: 8px;
-          font-weight: 700;
+          font-size: 9.5px;
+          font-weight: 600;
           color: #64748b;
-          text-transform: uppercase;
         }
 
         .val {
-          font-size: 10px;
+          font-size: 10.5px;
           font-weight: 700;
           color: $navy;
         }
@@ -358,14 +387,15 @@ $gold-dark: #967422;
     }
 
     .clausula-texto {
-      font-size: 8px;
-      line-height: 1.35;
-      color: #64748b;
+      font-size: 9px;
+      line-height: 1.45;
+      color: #475569;
       background: #f8fafc;
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-radius: 6px;
-      border-left: 2px solid $gold;
+      border-left: 3px solid $gold;
       text-align: justify;
+      margin: 4px 0;
     }
 
     .firma-bloque {
@@ -375,21 +405,21 @@ $gold-dark: #967422;
       margin-top: 2px;
 
       .linea-firma {
-        width: 130px;
+        width: 150px;
         height: 1px;
         background: #94a3b8;
-        margin-bottom: 2px;
+        margin-bottom: 3px;
       }
 
       .firma-cargo {
-        font-size: 8px;
+        font-size: 8.5px;
         font-weight: 800;
         color: $navy;
         letter-spacing: 0.5px;
       }
 
       .firma-institucion {
-        font-size: 7.5px;
+        font-size: 8px;
         color: #64748b;
       }
     }
@@ -397,12 +427,29 @@ $gold-dark: #967422;
 
   .pie-reverso {
     background: #f1f5f9;
-    padding: 5px 12px;
+    padding: 7px 16px;
     border-top: 1px solid #e2e8f0;
-    text-align: center;
-    font-size: 8px;
-    font-weight: 600;
-    color: #475569;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .pie-fila {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9.5px;
+      font-weight: 600;
+      color: #334155;
+
+      mat-icon {
+        font-size: 13px;
+        width: 13px;
+        height: 13px;
+        color: $gold-dark;
+      }
+    }
   }
 }
 
@@ -417,8 +464,9 @@ $gold-dark: #967422;
     background: linear-gradient(135deg, $navy, $navy-dark) !important;
     color: #ffffff !important;
     font-weight: 700;
-    padding: 0 20px;
+    padding: 0 22px;
     border: 1px solid $gold;
+    border-radius: 20px;
 
     mat-icon {
       margin-right: 6px;
@@ -429,5 +477,6 @@ $gold-dark: #967422;
   .btn-cerrar {
     font-weight: 600;
     color: #475569;
+    border-radius: 20px;
   }
 }

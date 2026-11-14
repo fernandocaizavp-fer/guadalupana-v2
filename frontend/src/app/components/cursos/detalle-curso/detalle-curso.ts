@@ -410,8 +410,8 @@ export class DetalleCurso implements OnInit {
     this.matriculaService.obtenerMatricula(m.id).subscribe({
       next: (completa) => {
         this.dialog.open(CarnetDigitalDialog, {
-          width: '480px',
-          maxWidth: '95vw',
+          width: '560px',
+          maxWidth: '96vw',
           data: {
             matricula: completa || { ...m, curso: this.curso },
             fotoUrl: completa?.usuario?.fotoUrl || m.usuario?.fotoUrl
@@ -420,8 +420,8 @@ export class DetalleCurso implements OnInit {
       },
       error: () => {
         this.dialog.open(CarnetDigitalDialog, {
-          width: '480px',
-          maxWidth: '95vw',
+          width: '560px',
+          maxWidth: '96vw',
           data: {
             matricula: { ...m, curso: this.curso },
             fotoUrl: m.usuario?.fotoUrl

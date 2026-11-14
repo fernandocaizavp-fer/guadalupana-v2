@@ -90,20 +90,49 @@
     </div>
   </div>
 
-  <h2 class="section-title">Anuncios Publicados ({{ anuncios.length }})</h2>
+  <div class="section-header-row">
+    <h2 class="section-title">Anuncios Publicados ({{ anuncios.length }})</h2>
+
+    <div class="tabs-anuncios-gestor">
+      <button
+        type="button"
+        class="tab-pill-gestor"
+        [class.active]="filtroAnuncios === 'TODOS'"
+        (click)="filtroAnuncios = 'TODOS'"
+      >
+        Todos ({{ conteoTodos() }})
+      </button>
+      <button
+        type="button"
+        class="tab-pill-gestor"
+        [class.active]="filtroAnuncios === 'CENTRO'"
+        (click)="filtroAnuncios = 'CENTRO'"
+      >
+        <mat-icon>account_balance</mat-icon> Centro ({{ conteoCentro() }})
+      </button>
+      <button
+        type="button"
+        class="tab-pill-gestor"
+        [class.active]="filtroAnuncios === 'DOCENTES'"
+        (click)="filtroAnuncios = 'DOCENTES'"
+      >
+        <mat-icon>school</mat-icon> Docentes ({{ conteoDocentes() }})
+      </button>
+    </div>
+  </div>
 
   @if (loading) {
     <app-esqueleto variante="tarjetas" [filas]="3" />
   }
 
-  @if (!loading && anuncios.length === 0) {
-    <app-estado-vacio icono="campaign" titulo="No hay anuncios publicados"
-                      mensaje="Los anuncios que publiques aparecerán en los paneles de docentes y estudiantes." />
+  @if (!loading && anunciosFiltrados.length === 0) {
+    <app-estado-vacio icono="campaign" titulo="No hay anuncios en esta sección"
+                      mensaje="Cambia de pestaña o crea un nuevo anuncio para publicar en este canal." />
   }
 
-  @if (!loading && anuncios.length > 0) {
+  @if (!loading && anunciosFiltrados.length > 0) {
     <div class="anuncios-grid">
-      @for (anuncio of anuncios; track anuncio.id) {
+      @for (anuncio of anunciosFiltrados; track anuncio.id) {
         <div class="anuncio-card" [class.inactivo]="!anuncio.activo">
           @if (anuncio.imagen) {
             <div class="anuncio-imagen">
@@ -116,11 +145,24 @@
           }
           <div class="anuncio-body">
             <div class="anuncio-meta">
-              <mat-icon>calendar_today</mat-icon>
-              <span>{{ anuncio.createdAt | date:'dd/MM/yyyy' }}</span>
-              @if (!anuncio.activo) {
-                <span class="badge-inactivo">Inactivo</span>
-              }
+              <div class="meta-tag-wrapper">
+                @if (esDelCentro(anuncio)) {
+                  <span class="badge-tipo-anuncio centro-tag">
+                    <mat-icon>account_balance</mat-icon> COMUNICADO DEL CENTRO
+                  </span>
+                } @else {
+                  <span class="badge-tipo-anuncio docente-tag">
+                    <mat-icon>school</mat-icon> AVISO DE DOCENTE
+                  </span>
+                }
+              </div>
+              <div class="meta-fecha-wrapper">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ anuncio.createdAt | date:'dd/MM/yyyy' }}</span>
+                @if (!anuncio.activo) {
+                  <span class="badge-inactivo">Inactivo</span>
+                }
+              </div>
             </div>
             <h3>{{ anuncio.titulo }}</h3>
             @if (anuncio.materiaNombre) {

@@ -111,8 +111,8 @@ export class BuscadorGlobalDialog implements OnInit, OnDestroy {
     this.matriculaService.obtenerMatricula(est.id).subscribe({
       next: (completa) => {
         this.dialog.open(CarnetDigitalDialog, {
-          width: '480px',
-          maxWidth: '95vw',
+          width: '560px',
+          maxWidth: '96vw',
           data: {
             matricula: completa || { ...est, curso: est.curso },
             fotoUrl: completa?.usuario?.fotoUrl || est.usuario?.fotoUrl
@@ -121,8 +121,8 @@ export class BuscadorGlobalDialog implements OnInit, OnDestroy {
       },
       error: () => {
         this.dialog.open(CarnetDigitalDialog, {
-          width: '480px',
-          maxWidth: '95vw',
+          width: '560px',
+          maxWidth: '96vw',
           data: {
             matricula: { ...est, curso: est.curso },
             fotoUrl: est.usuario?.fotoUrl

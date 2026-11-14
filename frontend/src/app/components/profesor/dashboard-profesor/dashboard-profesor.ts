@@ -43,7 +43,30 @@ export class DashboardProfesor implements OnInit {
   anuncios: any[] = [];
   loading = true;
   etiquetaAutor = etiquetaAutorAnuncio;
+  filtroAnuncios: 'TODOS' | 'CENTRO' | 'DOCENTES' = 'TODOS';
   imagenAmpliada: string | null = null;
+
+  get anunciosFiltrados(): any[] {
+    if (this.filtroAnuncios === 'CENTRO') {
+      return this.anuncios.filter(a => a.autorRol === 'ADMIN' || !a.autorRol || (!a.materiaNombre && a.autorRol !== 'PROFESOR'));
+    }
+    if (this.filtroAnuncios === 'DOCENTES') {
+      return this.anuncios.filter(a => a.autorRol === 'PROFESOR' || !!a.materiaNombre);
+    }
+    return this.anuncios;
+  }
+
+  conteoCentro(): number {
+    return this.anuncios.filter(a => a.autorRol === 'ADMIN' || !a.autorRol || (!a.materiaNombre && a.autorRol !== 'PROFESOR')).length;
+  }
+
+  conteoDocentes(): number {
+    return this.anuncios.filter(a => a.autorRol === 'PROFESOR' || !!a.materiaNombre).length;
+  }
+
+  esDelCentro(anuncio: any): boolean {
+    return anuncio.autorRol === 'ADMIN' || !anuncio.autorRol || (!anuncio.materiaNombre && anuncio.autorRol !== 'PROFESOR');
+  }
 
   abrirImagen(url: string): void {
     if (url) this.imagenAmpliada = url;

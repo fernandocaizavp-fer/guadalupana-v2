@@ -4,7 +4,21 @@ Actualizado: **14 de noviembre de 2026**. La sección 1 resume el estado actual.
 
 ## 1. Leer esto primero al retomar
 
-### Cambios más recientes (14 de noviembre de 2026): Buscador Global, Semáforo de Riesgo, Repositorio de Recursos, Carnet 3D y Chat
+### Cambios más recientes (14 de noviembre de 2026): Buscador Global, Semáforo de Riesgo, Repositorio de Recursos, Carnet 3D, Anuncios Segmentados y Chat
+
+- **Carnet Digital Estudiantil Visual Ampliado:**
+  - Dimensiones del carnet aumentadas a 490px × 315px (con modal ampliado a 560px) para visualización holgada y cómoda en pantalla.
+  - Dirección institucional (`Av. Diego de Rodríguez e Isidoro Barriga`) y contacto telefónico (`096 149 3337 · Riobamba, Ecuador`) distribuidos en filas con iconos dedicados (`location_on`, `phone`), eliminando por completo cualquier truncamiento o solapamiento con la firma.
+  - Accesible desde el Dashboard de Estudiante, el Detalle del Curso (docentes/admin) y el Buscador Global (`Ctrl + K`).
+
+- **Rediseño Armónico del Semáforo de Titulación y Permanencia Artesanal:**
+  - Sustitución del elemento circular brillante por una cabecera de evaluación académica sobria e institucional.
+  - Métrica de asistencia y promedio general dispuestas en tarjetas amplias con referencias visuales normativas (80% asistencia mínima legal y 7.00 nota mínima de aprobación según normativa de la Junta Nacional de Defensa del Artesano).
+  - Insignia de estado profesional en la esquina superior (`Rendimiento Óptimo`, `En Observación`, `Riesgo Crítico`) y notas de recomendación académica redactadas en tono pedagógico institucional.
+
+- **Segmentación de Anuncios Institucionales vs. Avisos Docentes:**
+  - Sistema de clasificación automática: comunicados creados por administradores o sin materia asignada se catalogan como `🏛️ COMUNICADO DEL CENTRO`, mientras que avisos específicos de aula o materia se catalogan como `👨‍🏫 AVISO DE DOCENTE`.
+  - Pestañas de filtrado rápido (`Todos`, `Centro`, `Docentes`) y badges distintivos implementados de manera uniforme en `Dashboard Estudiante`, `Dashboard Profesor` y el gestor `Gestionar Anuncios`.
 
 - **Buscador Global Rápido (`Ctrl + K`)**:
   - Endpoint `GET /api/matriculas/buscar-global?q=...` protegido por `soloRoles('ADMIN', 'PROFESOR')` en `matricula.controller.ts`.

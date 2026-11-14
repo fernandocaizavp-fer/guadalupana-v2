@@ -299,6 +299,98 @@
   h2 { color: white; margin: 0; font-size: 15px; font-weight: 700; }
 }
 
+.tabs-anuncios {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #fdfdfd;
+  border-bottom: 1px solid #f0f2f8;
+  overflow-x: auto;
+
+  .tab-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s ease;
+
+    mat-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+    }
+
+    &:hover {
+      background: #e2e8f0;
+      color: #1a2a5e;
+    }
+
+    &.active {
+      background: #1a2a5e;
+      color: #ffffff;
+      border-color: #1a2a5e;
+
+      mat-icon {
+        color: #c8a84b;
+      }
+    }
+  }
+}
+
+.anuncio-meta-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+
+  .badge-tipo-anuncio {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 4px;
+
+    mat-icon {
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
+    }
+
+    &.centro-tag {
+      background: #eff6ff;
+      color: #1a2a5e;
+      border: 1px solid #bfdbfe;
+
+      mat-icon {
+        color: #c8a84b;
+      }
+    }
+
+    &.docente-tag {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+
+      mat-icon {
+        color: #16a34a;
+      }
+    }
+  }
+}
+
 .sin-anuncios {
   display: flex;
   flex-direction: column;

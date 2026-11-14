@@ -304,7 +304,35 @@
 
         </div>
 
-        @if (anuncios.length === 0) {
+        <!-- PESTAÑAS DE SEGMENTACIÓN: CENTRO VS DOCENTES -->
+        <div class="tabs-anuncios-prof">
+          <button
+            type="button"
+            class="tab-pill-prof"
+            [class.active]="filtroAnuncios === 'TODOS'"
+            (click)="filtroAnuncios = 'TODOS'"
+          >
+            Todos ({{ anuncios.length }})
+          </button>
+          <button
+            type="button"
+            class="tab-pill-prof"
+            [class.active]="filtroAnuncios === 'CENTRO'"
+            (click)="filtroAnuncios = 'CENTRO'"
+          >
+            <mat-icon>account_balance</mat-icon> Centro ({{ conteoCentro() }})
+          </button>
+          <button
+            type="button"
+            class="tab-pill-prof"
+            [class.active]="filtroAnuncios === 'DOCENTES'"
+            (click)="filtroAnuncios = 'DOCENTES'"
+          >
+            <mat-icon>school</mat-icon> Docentes ({{ conteoDocentes() }})
+          </button>
+        </div>
+
+        @if (anunciosFiltrados.length === 0) {
 
           <div class="empty-announcements">
 
@@ -312,7 +340,7 @@
               <mat-icon>campaign</mat-icon>
             </div>
 
-            <p>Aún no hay anuncios</p>
+            <p>No hay avisos en esta categoría</p>
 
             <span>Crea uno con el botón “Gestionar”</span>
 
@@ -320,11 +348,11 @@
 
         }
 
-        @if (anuncios.length > 0) {
+        @if (anunciosFiltrados.length > 0) {
 
           <div class="announcement-list">
 
-            @for (anuncio of anuncios; track anuncio.id) {
+            @for (anuncio of anunciosFiltrados; track anuncio.id) {
 
               <div class="announcement-card">
 
@@ -341,9 +369,20 @@
 
                 <div class="announcement-body">
 
-                  <span class="announcement-date">
-                    {{ anuncio.createdAt | date:'dd/MM/yyyy' }}
-                  </span>
+                  <div class="anuncio-meta-top">
+                    @if (esDelCentro(anuncio)) {
+                      <span class="badge-tipo-anuncio centro-tag">
+                        <mat-icon>account_balance</mat-icon> COMUNICADO DEL CENTRO
+                      </span>
+                    } @else {
+                      <span class="badge-tipo-anuncio docente-tag">
+                        <mat-icon>school</mat-icon> AVISO DE DOCENTE
+                      </span>
+                    }
+                    <span class="announcement-date">
+                      {{ anuncio.createdAt | date:'dd/MM/yyyy' }}
+                    </span>
+                  </div>
 
                   <h4>{{ anuncio.titulo }}</h4>
 
