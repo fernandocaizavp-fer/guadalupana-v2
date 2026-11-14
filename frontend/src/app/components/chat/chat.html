@@ -1,0 +1,244 @@
+<div class="chat-page-wrapper">
+  <!-- Cabecera institucional estándar -->
+  <mat-toolbar class="page-toolbar">
+    <div class="toolbar-content">
+      <div class="nav-group">
+        <button mat-icon-button (click)="volver()" class="back-pill" matTooltip="Volver al panel" aria-label="Volver al panel">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="title-meta">
+          <h1>Mensajería Institucional</h1>
+          <span>Centro de Formación Artesanal Guadalupana</span>
+        </div>
+      </div>
+      <div class="flex-spacer"></div>
+      <div class="user-badge-header">
+        <span class="user-name">{{ usuarioActual?.nombre }} {{ usuarioActual?.apellido }}</span>
+        <span class="user-role-pill" [ngClass]="usuarioActual?.rol?.toLowerCase()">{{ obtenerEtiquetaRol(usuarioActual?.rol) }}</span>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Contenedor general del Chat -->
+  <div class="chat-main-container">
+    <!-- Panel Izquierdo: Lista de Contactos -->
+    <aside class="contactos-sidebar" [class.oculto-en-movil]="contactoActivo !== null">
+      <div class="sidebar-header">
+        <div class="search-input-box">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            [(ngModel)]="busqueda"
+            (ngModelChange)="filtrarContactos()"
+            placeholder="Buscar docente o estudiante..."
+          />
+          @if (busqueda) {
+            <button class="btn-clear-search" (click)="busqueda = ''; filtrarContactos()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
+
+        <!-- Filtros rápidos por rol -->
+        @if (usuarioActual?.rol === 'ADMIN') {
+          <div class="rol-filter-tabs">
+            <button [class.active]="filtroRol === 'TODOS'" (click)="cambiarFiltroRol('TODOS')">Todos</button>
+            <button [class.active]="filtroRol === 'PROFESOR'" (click)="cambiarFiltroRol('PROFESOR')">Docentes</button>
+            <button [class.active]="filtroRol === 'ESTUDIANTE'" (click)="cambiarFiltroRol('ESTUDIANTE')">Estudiantes</button>
+          </div>
+        }
+      </div>
+
+      <!-- Lista de contactos scrolleable -->
+      <div class="contactos-list">
+        @if (cargandoContactos) {
+          <div class="loading-state">
+            <mat-icon class="spin-icon">sync</mat-icon>
+            <span>Cargando contactos...</span>
+          </div>
+        } @else if (contactosFiltrados.length === 0) {
+          <div class="empty-contactos">
+            <mat-icon>person_search</mat-icon>
+            <p>No se encontraron contactos</p>
+          </div>
+        } @else {
+          @for (contacto of contactosFiltrados; track contacto.id) {
+            <div
+              class="contacto-item"
+              [class.activo]="contactoActivo?.id === contacto.id"
+              (click)="seleccionarContacto(contacto)"
+            >
+              <div class="avatar-wrapper">
+                @if (contacto.fotoUrl) {
+                  <img [src]="contacto.fotoUrl" alt="Avatar" class="avatar-img" />
+                } @else {
+                  <div class="avatar-initials" [ngClass]="contacto.rol.toLowerCase()">
+                    {{ obtenerIniciales(contacto.nombre, contacto.apellido) }}
+                  </div>
+                }
+              </div>
+
+              <div class="contacto-info">
+                <div class="contacto-top-row">
+                  <span class="contacto-nombre">{{ contacto.nombre }} {{ contacto.apellido }}</span>
+                  @if (contacto.ultimoMensaje) {
+                    <span class="contacto-hora">{{ formatearFechaMensaje(contacto.ultimoMensaje.fecha) }}</span>
+                  }
+                </div>
+
+                <div class="contacto-sub-row">
+                  <span class="rol-tag" [ngClass]="contacto.rol.toLowerCase()">
+                    {{ obtenerEtiquetaRol(contacto.rol) }}
+                  </span>
+                  @if (contacto.detalleMateria) {
+                    <span class="materia-tag">{{ contacto.detalleMateria }}</span>
+                  }
+                </div>
+
+                <div class="contacto-bottom-row">
+                  <span class="ultimo-texto">
+                    @if (contacto.ultimoMensaje) {
+                      @if (contacto.ultimoMensaje.esMio) {
+                        <strong>Tú: </strong>
+                      }
+                      {{ contacto.ultimoMensaje.contenido }}
+                    } @else {
+                      <em>Haz clic para iniciar conversación</em>
+                    }
+                  </span>
+
+                  @if (contacto.noLeidos > 0) {
+                    <span class="badge-no-leidos">{{ contacto.noLeidos }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </aside>
+
+    <!-- Panel Derecho: Conversación Activa -->
+    <main class="chat-viewport" [class.mostrar-en-movil]="contactoActivo !== null">
+      @if (contactoActivo) {
+        <!-- Cabecera de la conversación activa -->
+        <header class="chat-header">
+          <button mat-icon-button (click)="cerrarChatActivo()" class="btn-volver-movil" matTooltip="Volver a contactos" aria-label="Volver a contactos">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
+          <div class="avatar-header">
+            @if (contactoActivo.fotoUrl) {
+              <img [src]="contactoActivo.fotoUrl" alt="Avatar" class="avatar-img-sm" />
+            } @else {
+              <div class="avatar-initials-sm" [ngClass]="contactoActivo.rol.toLowerCase()">
+                {{ obtenerIniciales(contactoActivo.nombre, contactoActivo.apellido) }}
+              </div>
+            }
+          </div>
+
+          <div class="header-contacto-info">
+            <h2>{{ contactoActivo.nombre }} {{ contactoActivo.apellido }}</h2>
+            <div class="header-contacto-meta">
+              <span class="rol-tag-sm" [ngClass]="contactoActivo.rol.toLowerCase()">
+                {{ obtenerEtiquetaRol(contactoActivo.rol) }}
+              </span>
+              @if (contactoActivo.detalleMateria) {
+                <span class="header-materia-text">{{ contactoActivo.detalleMateria }}</span>
+              }
+            </div>
+          </div>
+
+          <div class="flex-spacer"></div>
+
+          <div class="header-institucional-badge">
+            <mat-icon>verified</mat-icon>
+            <span>Canal Oficial</span>
+          </div>
+        </header>
+
+        <!-- Área de mensajes -->
+        <div class="chat-mensajes-container" #scrollMensajes>
+          @if (cargandoMensajes) {
+            <div class="loading-state-mensajes">
+              <mat-icon class="spin-icon">sync</mat-icon>
+              <span>Cargando conversación...</span>
+            </div>
+          } @else if (mensajes.length === 0) {
+            <div class="chat-empty-mensajes">
+              <div class="empty-icon-circle">
+                <mat-icon>chat_bubble_outline</mat-icon>
+              </div>
+              <h3>Comienza la conversación</h3>
+              <p>Envía tu primer mensaje institucional a {{ contactoActivo.nombre }}.</p>
+            </div>
+          } @else {
+            <div class="mensajes-wrapper">
+              @for (msg of mensajes; track msg.id) {
+                <div class="mensaje-bubble-row" [class.mio]="msg.esMio">
+                  <div class="mensaje-bubble" [class.mio]="msg.esMio">
+                    @if (!msg.esMio) {
+                      <span class="remitente-label">{{ contactoActivo.nombre }}</span>
+                    }
+
+                    <p class="mensaje-texto">{{ msg.contenido }}</p>
+
+                    <div class="mensaje-meta">
+                      <span class="mensaje-hora">{{ formatearHora(msg.fecha) }}</span>
+                      @if (msg.esMio) {
+                        <mat-icon class="check-icon" [class.leido]="msg.leido">done_all</mat-icon>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Barra inferior para enviar mensaje -->
+        <footer class="chat-input-area">
+          <form class="chat-form" (ngSubmit)="enviar()">
+            <input
+              type="text"
+              class="chat-text-input"
+              [(ngModel)]="nuevoMensaje"
+              name="mensajeInput"
+              placeholder="Escribe un mensaje institucional aquí..."
+              autocomplete="off"
+              [disabled]="enviando"
+            />
+
+            <button
+              type="submit"
+              mat-icon-button
+              class="btn-enviar-dorado"
+              [disabled]="!nuevoMensaje.trim() || enviando"
+              matTooltip="Enviar mensaje"
+              aria-label="Enviar mensaje"
+            >
+              <mat-icon>send</mat-icon>
+            </button>
+          </form>
+        </footer>
+      } @else {
+        <!-- Estado inicial: ninguna conversación seleccionada -->
+        <div class="empty-chat-hero">
+          <div class="hero-brand-circle">
+            <mat-icon>school</mat-icon>
+          </div>
+          <h2>Centro de Formación Artesanal "Guadalupana"</h2>
+          <h3>Mensajería Institucional y Soporte Académico</h3>
+          <p>
+            Selecciona un contacto en el panel izquierdo para consultar tareas, calificaciones o coordinar con tus docentes y dirección académica.
+          </p>
+
+          <div class="hero-security-note">
+            <mat-icon>lock</mat-icon>
+            <span>Canal seguro y formal con trazabilidad académica institucional.</span>
+          </div>
+        </div>
+      }
+    </main>
+  </div>
+</div>

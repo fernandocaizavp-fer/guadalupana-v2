@@ -102,6 +102,10 @@ export class Dashboard implements OnInit {
     this.router.navigate(['/auditoria']);
   }
 
+  irAChat() {
+    this.router.navigate(['/chat']);
+  }
+
   irACursos() {
     this.router.navigate(['/cursos']);
   }

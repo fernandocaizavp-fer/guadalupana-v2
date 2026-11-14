@@ -49,6 +49,7 @@ export const routes: Routes = [
   { path: 'configuracion', loadComponent: () => import('./components/configuracion/configuracion').then(m => m.ConfiguracionComponent), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
   { path: 'ingreso-masivo', loadComponent: () => import('./components/ingreso-masivo/ingreso-masivo').then(m => m.IngresoMasivo), canActivate: [AuthGuard], canDeactivate: [cambiosSinGuardarGuard], data: { roles: ['ADMIN'] } },
   { path: 'auditoria', loadComponent: () => import('./components/auditoria/historial-auditoria').then(m => m.HistorialAuditoria), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },
+  { path: 'chat', loadComponent: () => import('./components/chat/chat').then(m => m.ChatComponent), canActivate: [AuthGuard] },
   { path: 'cambiar-password', loadComponent: () => import('./components/cambiar-password/cambiar-password').then(m => m.CambiarPassword), canActivate: [AuthGuard] },
   { path: 'recuperar-password', loadComponent: () => import('./components/recuperar-password/recuperar-password').then(m => m.RecuperarPassword) },
   // Siempre la última: cualquier ruta no declarada muestra la página 404.

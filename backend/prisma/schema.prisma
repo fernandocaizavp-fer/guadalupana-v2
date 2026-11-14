@@ -35,6 +35,8 @@ model Usuario {
   matricula                     Matricula?
   materias                      Materia[]
   deudas                        Deuda[]
+  mensajesEnviados              MensajeInterno[] @relation("MensajesEnviados")
+  mensajesRecibidos             MensajeInterno[] @relation("MensajesRecibidos")
 }
 
 model Curso {
@@ -78,6 +80,7 @@ model Materia {
   asistencias     Asistencia[]
   notasDisciplina NotaDisciplina[]
   examenesGrado   ExamenGrado[]
+  mensajes        MensajeInterno[]
 }
 
 model Matricula {
@@ -625,3 +628,23 @@ model Auditoria {
   @@index([entidad, entidadId])
   @@index([usuarioId])
 }
+
+// Mensajería institucional y chat interno (Estudiante ↔ Docente ↔ Administrador)
+model MensajeInterno {
+  id             Int       @id @default(autoincrement())
+  remitenteId    Int
+  remitente      Usuario   @relation("MensajesEnviados", fields: [remitenteId], references: [id], onDelete: Cascade)
+  destinatarioId Int
+  destinatario   Usuario   @relation("MensajesRecibidos", fields: [destinatarioId], references: [id], onDelete: Cascade)
+  contenido      String    @db.Text
+  leido          Boolean   @default(false)
+  fechaLectura   DateTime?
+  materiaId      Int?
+  materia        Materia?  @relation(fields: [materiaId], references: [id], onDelete: SetNull)
+  creadoEn       DateTime  @default(now())
+
+  @@index([remitenteId, destinatarioId])
+  @@index([destinatarioId, leido])
+  @@index([creadoEn])
+}
+

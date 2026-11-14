@@ -2,6 +2,9 @@
   <img src="logo.jpg" alt="Logo" class="nav-logo">
   <span class="nav-title">Centro de Formación Artesanal Guadalupana</span>
   <span class="spacer"></span>
+  <button mat-button class="nav-chat-btn" (click)="irAChat()" matTooltip="Mensajería y Chat">
+    <mat-icon>forum</mat-icon> Mensajes
+  </button>
   <span class="nav-user"><mat-icon>account_circle</mat-icon> {{ usuario?.nombre }}</span>
   <button mat-icon-button (click)="logout()" matTooltip="Cerrar sesión" aria-label="Cerrar sesión">
     <mat-icon>logout</mat-icon>
@@ -48,6 +51,17 @@
       <div class="card-info">
         <h3>Anuncios</h3>
         <p>Publicar noticias y eventos para docentes y estudiantes</p>
+      </div>
+      <span class="card-status active">● Activo</span>
+    </div>
+
+    <div class="menu-card active-card" (click)="irAChat()">
+      <div class="card-icon-wrap" style="background: linear-gradient(135deg, #1a2a5e, #2a4f9f);">
+        <mat-icon style="color: #c8a84b;">forum</mat-icon>
+      </div>
+      <div class="card-info">
+        <h3>Mensajería y Chat</h3>
+        <p>Comunicación directa con docentes y estudiantes</p>
       </div>
       <span class="card-status active">● Activo</span>
     </div>

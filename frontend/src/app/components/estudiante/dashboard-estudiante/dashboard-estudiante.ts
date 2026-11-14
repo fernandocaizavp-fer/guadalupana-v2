@@ -48,6 +48,7 @@ export class DashboardEstudiante implements OnInit {
   imagenAmpliada: string | null = null;
 
   accesos: Acceso[] = [
+    { titulo: 'Mensajería y Chat', descripcion: 'Comunícate directamente con tus docentes y secretaría', icono: 'forum', ruta: '/chat' },
     { titulo: 'Aula Virtual / Materias', descripcion: 'Tus materias, docentes, tareas y calificaciones', icono: 'cast_for_education', ruta: '/estudiante/aula-virtual' },
     { titulo: 'Mis Horarios', descripcion: 'Días y horas de clase de cada materia', icono: 'calendar_month', ruta: null },
     { titulo: 'Mis Asistencias', descripcion: 'Registro de asistencias y faltas por materia', icono: 'how_to_reg', ruta: '/estudiante/asistencias' },
@@ -135,6 +136,10 @@ export class DashboardEstudiante implements OnInit {
 
   irATarea(tarea: TareaPendiente) {
     this.router.navigate(['/estudiante/tarea', tarea.materiaId, tarea.id, tarea.semestre]);
+  }
+
+  irAChat() {
+    this.router.navigate(['/chat']);
   }
 
   logout() {

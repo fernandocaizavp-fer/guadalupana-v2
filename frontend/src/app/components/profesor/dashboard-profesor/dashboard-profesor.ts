@@ -151,6 +151,10 @@ export class DashboardProfesor implements OnInit {
     this.router.navigate(['/anuncios']);
   }
 
+  irAChat() {
+    this.router.navigate(['/chat']);
+  }
+
   logout() {
     this.dialog.open(ConfirmDialog, {
       width: '380px',

@@ -9,6 +9,15 @@
 
   .nav-logo { height: 40px; margin-right: 12px; }
   .nav-title { font-size: 16px; font-weight: 600; }
+  .nav-chat-btn {
+    color: #c8a84b !important;
+    font-weight: 700;
+    margin-right: 12px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 0 14px;
+    mat-icon { margin-right: 6px; }
+  }
   .nav-user {
     display: flex; align-items: center; gap: 6px;
     font-size: 14px; color: #c8a84b; margin-right: 8px;
