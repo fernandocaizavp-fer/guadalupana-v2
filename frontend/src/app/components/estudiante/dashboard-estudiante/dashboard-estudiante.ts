@@ -21,6 +21,9 @@ import { ResumenEstudiante } from '../resumen-estudiante/resumen-estudiante';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 
+import { CampanaNotificaciones } from '../../../shared/notificaciones/campana-notificaciones';
+import { CarnetDigitalDialog } from '../../../shared/carnet-digital/carnet-digital';
+
 interface Acceso {
   titulo: string;
   descripcion: string;
@@ -31,7 +34,7 @@ interface Acceso {
 @Component({
   selector: 'app-dashboard-estudiante',
   imports: [EstadoVacio, MatTooltipModule, ResumenEstudiante, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule,
-    MatDialogModule, DatePipe, VisorImagen, FotoPerfil],
+    MatDialogModule, DatePipe, VisorImagen, FotoPerfil, CampanaNotificaciones],
   templateUrl: './dashboard-estudiante.html',
   styleUrl: './dashboard-estudiante.scss'
 })
@@ -48,6 +51,7 @@ export class DashboardEstudiante implements OnInit {
   imagenAmpliada: string | null = null;
 
   accesos: Acceso[] = [
+    { titulo: 'Mi Carnet Digital', descripcion: 'Visualiza tu credencial oficial artesanal con fotografía y código', icono: 'badge', ruta: 'carnet' },
     { titulo: 'Mensajería y Chat', descripcion: 'Comunícate directamente con tus docentes y secretaría', icono: 'forum', ruta: '/chat' },
     { titulo: 'Aula Virtual / Materias', descripcion: 'Tus materias, docentes, tareas y calificaciones', icono: 'cast_for_education', ruta: '/estudiante/aula-virtual' },
     { titulo: 'Mis Horarios', descripcion: 'Días y horas de clase de cada materia', icono: 'calendar_month', ruta: null },
@@ -127,11 +131,28 @@ export class DashboardEstudiante implements OnInit {
   }
 
   abrirAcceso(acceso: Acceso) {
+    if (acceso.ruta === 'carnet') {
+      this.verCarnetDigital();
+      return;
+    }
     if (acceso.ruta) {
       this.router.navigate([acceso.ruta]);
     } else {
       this.notificacion.info(`${acceso.titulo}: disponible próximamente`);
     }
+  }
+
+  verCarnetDigital() {
+    if (!this.matricula) return;
+    this.dialog.open(CarnetDigitalDialog, {
+      width: '480px',
+      maxWidth: '95vw',
+      panelClass: 'dialog-carnet-custom',
+      data: {
+        matricula: this.matricula,
+        fotoUrl: this.matricula.usuario?.fotoUrl || this.usuario?.fotoUrl
+      }
+    });
   }
 
   irATarea(tarea: TareaPendiente) {

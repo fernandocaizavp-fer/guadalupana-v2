@@ -24,6 +24,7 @@ import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 import { ArchivadosDialog, ArchivadosData } from './archivados-dialog';
 import { DocumentoIdentidad } from '../../../shared/documento-identidad';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { CarnetDigitalDialog } from '../../../shared/carnet-digital/carnet-digital';
 
 @Component({
   selector: 'app-editar-matricula-dialog',
@@ -401,6 +402,31 @@ export class DetalleCurso implements OnInit {
 
   irACuadroFinal() {
     this.router.navigate(['/supletorios', this.curso.id]);
+  }
+
+  verCarnetEstudiante(m: any) {
+    this.matriculaService.obtenerMatricula(m.id).subscribe({
+      next: (completa) => {
+        this.dialog.open(CarnetDigitalDialog, {
+          width: '480px',
+          maxWidth: '95vw',
+          data: {
+            matricula: completa || { ...m, curso: this.curso },
+            fotoUrl: completa?.usuario?.fotoUrl || m.usuario?.fotoUrl
+          }
+        });
+      },
+      error: () => {
+        this.dialog.open(CarnetDigitalDialog, {
+          width: '480px',
+          maxWidth: '95vw',
+          data: {
+            matricula: { ...m, curso: this.curso },
+            fotoUrl: m.usuario?.fotoUrl
+          }
+        });
+      }
+    });
   }
 
   // La lista del curso solo trae los campos básicos de la matrícula: antes el

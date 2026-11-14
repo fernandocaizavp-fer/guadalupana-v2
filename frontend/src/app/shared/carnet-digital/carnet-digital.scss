@@ -1,0 +1,433 @@
+$navy: #1a2a5e;
+$navy-dark: #0c1630;
+$navy-light: #2c3e75;
+$gold: #c8a84b;
+$gold-light: #f3df95;
+$gold-dark: #967422;
+
+.carnet-dialog-container {
+  padding: 20px 24px;
+  max-width: 500px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dialog-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+
+  .header-titles {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .badge-icon {
+      color: $navy;
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: $navy;
+    }
+  }
+
+  .btn-close {
+    color: #64748b;
+  }
+}
+
+.dialog-instructions {
+  margin: 0 0 20px 0;
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* PERSPECTIVA 3D */
+.carnet-perspective {
+  perspective: 1200px;
+  width: 420px;
+  height: 265px;
+  margin: 0 auto 24px auto;
+
+  @media (max-width: 480px) {
+    width: 320px;
+    height: 210px;
+  }
+}
+
+.carnet-card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+
+  &.girado {
+    transform: rotateY(180deg);
+  }
+}
+
+.carnet-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 16px;
+  box-shadow: 0 16px 36px rgba(12, 22, 48, 0.25), 0 0 0 1px rgba(200, 168, 75, 0.35);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==================== ANVERSO ==================== */
+.anverso {
+  background: linear-gradient(135deg, $navy 0%, $navy-dark 100%);
+  color: #ffffff;
+
+  .banda-superior {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(12, 22, 48, 0.6);
+    border-bottom: 2px solid $gold;
+
+    .logo-carnet {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      border: 1px solid $gold;
+      object-fit: cover;
+      background: #ffffff;
+    }
+
+    .texto-institucion {
+      h4 {
+        margin: 0;
+        font-size: 8px;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 600;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        color: $gold-light;
+      }
+
+      .sub-jnda {
+        font-size: 7.5px;
+        color: rgba(255, 255, 255, 0.65);
+        display: block;
+      }
+    }
+  }
+
+  .cuerpo-carnet {
+    flex: 1;
+    display: flex;
+    padding: 10px 14px;
+    gap: 14px;
+    align-items: center;
+
+    .columna-foto {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+
+      .marco-foto {
+        width: 82px;
+        height: 100px;
+        border-radius: 8px;
+        border: 2px solid $gold;
+        overflow: hidden;
+        background: #0d172e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+        .foto-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .foto-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: rgba(200, 168, 75, 0.6);
+
+          mat-icon {
+            font-size: 54px;
+            width: 54px;
+            height: 54px;
+          }
+        }
+      }
+
+      .chip-estado {
+        font-size: 8.5px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        .punto-verde {
+          font-size: 9px;
+          color: #10b981;
+        }
+      }
+    }
+
+    .columna-datos {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+
+      .dato-bloque {
+        display: flex;
+        flex-direction: column;
+
+        .dato-label {
+          font-size: 8px;
+          font-weight: 700;
+          color: $gold;
+          letter-spacing: 0.6px;
+        }
+
+        .dato-nombre {
+          font-size: 13px;
+          font-weight: 800;
+          color: #ffffff;
+          line-height: 1.2;
+          text-transform: uppercase;
+        }
+
+        .dato-rama {
+          font-size: 11px;
+          font-weight: 700;
+          color: #f1f5f9;
+          text-transform: uppercase;
+        }
+
+        .dato-valor {
+          font-size: 11px;
+          font-weight: 600;
+          color: #cbd5e1;
+
+          &.matricula-num {
+            font-weight: 800;
+            color: $gold-light;
+          }
+        }
+      }
+
+      .fila-doble {
+        display: flex;
+        gap: 16px;
+      }
+    }
+  }
+
+  .pie-anverso {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    background: rgba(8, 14, 30, 0.85);
+    border-top: 1px solid rgba(200, 168, 75, 0.3);
+
+    .codigo-barras {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .barras-svg {
+        display: flex;
+        gap: 2px;
+        height: 14px;
+        align-items: flex-end;
+
+        .barra {
+          background: #ffffff;
+          display: inline-block;
+
+          &.b1 { width: 1.5px; height: 100%; }
+          &.b2 { width: 3px; height: 100%; }
+          &.b3 { width: 1px; height: 100%; }
+          &.b4 { width: 4.5px; height: 100%; }
+        }
+      }
+
+      .num-serie {
+        font-size: 7.5px;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.6);
+        font-family: monospace;
+      }
+    }
+
+    .chip-rol {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: $navy-dark;
+      background: $gold;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+  }
+}
+
+/* ==================== REVERSO ==================== */
+.reverso {
+  transform: rotateY(180deg);
+  background: #ffffff;
+  color: #1e293b;
+
+  .banda-superior-reverso {
+    background: linear-gradient(135deg, $navy, $navy-dark);
+    padding: 8px 14px;
+    text-align: center;
+    border-bottom: 2px solid $gold;
+
+    .titulo-reverso {
+      font-size: 9px;
+      font-weight: 800;
+      color: $gold-light;
+      letter-spacing: 0.8px;
+    }
+  }
+
+  .cuerpo-reverso {
+    flex: 1;
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .filas-info-reverso {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+
+      .info-item {
+        display: flex;
+        flex-direction: column;
+
+        .lbl {
+          font-size: 8px;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+        }
+
+        .val {
+          font-size: 10px;
+          font-weight: 700;
+          color: $navy;
+        }
+      }
+    }
+
+    .clausula-texto {
+      font-size: 8px;
+      line-height: 1.35;
+      color: #64748b;
+      background: #f8fafc;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border-left: 2px solid $gold;
+      text-align: justify;
+    }
+
+    .firma-bloque {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 2px;
+
+      .linea-firma {
+        width: 130px;
+        height: 1px;
+        background: #94a3b8;
+        margin-bottom: 2px;
+      }
+
+      .firma-cargo {
+        font-size: 8px;
+        font-weight: 800;
+        color: $navy;
+        letter-spacing: 0.5px;
+      }
+
+      .firma-institucion {
+        font-size: 7.5px;
+        color: #64748b;
+      }
+    }
+  }
+
+  .pie-reverso {
+    background: #f1f5f9;
+    padding: 5px 12px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 8px;
+    font-weight: 600;
+    color: #475569;
+  }
+}
+
+/* ACCIONES */
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+
+  .btn-girar {
+    background: linear-gradient(135deg, $navy, $navy-dark) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    padding: 0 20px;
+    border: 1px solid $gold;
+
+    mat-icon {
+      margin-right: 6px;
+      color: $gold-light;
+    }
+  }
+
+  .btn-cerrar {
+    font-weight: 600;
+    color: #475569;
+  }
+}

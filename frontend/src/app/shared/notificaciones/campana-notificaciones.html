@@ -1,0 +1,57 @@
+<button mat-icon-button [matMenuTriggerFor]="menuNotif" class="campana-btn" matTooltip="Notificaciones y Avisos" aria-label="Notificaciones">
+  <mat-icon [matBadge]="servicio.conteoTotal()" [matBadgeHidden]="servicio.conteoTotal() === 0" matBadgeColor="warn" matBadgeSize="small">
+    notifications
+  </mat-icon>
+</button>
+
+<mat-menu #menuNotif="matMenu" xPosition="before" class="menu-notificaciones-panel">
+  <div class="notif-header" (click)="$event.stopPropagation()">
+    <div class="notif-header-left">
+      <mat-icon class="header-icon">notifications_active</mat-icon>
+      <span class="header-title">Avisos y Notificaciones</span>
+      @if (servicio.conteoTotal() > 0) {
+        <span class="badge-count">{{ servicio.conteoTotal() }}</span>
+      }
+    </div>
+    <button mat-icon-button class="btn-refresh" (click)="servicio.cargarResumen()" matTooltip="Actualizar">
+      <mat-icon [class.girando]="servicio.cargando()">refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="notif-body">
+    @if (servicio.items().length === 0) {
+      <div class="notif-empty" (click)="$event.stopPropagation()">
+        <mat-icon>done_all</mat-icon>
+        <p>No tienes notificaciones pendientes</p>
+        <small>Todo se encuentra al día</small>
+      </div>
+    }
+
+    @for (item of servicio.items(); track item.id) {
+      <button mat-menu-item class="notif-item" [class.no-leido]="!item.leido" (click)="servicio.navegarA(item)">
+        <div class="item-icon-box" [class]="'tipo-' + item.tipo.toLowerCase()">
+          <mat-icon>{{ item.icono }}</mat-icon>
+        </div>
+        <div class="item-content">
+          <div class="item-top">
+            <span class="item-title">{{ item.titulo }}</span>
+            @if (!item.leido) {
+              <span class="dot-unread">●</span>
+            }
+          </div>
+          <span class="item-sub">{{ item.subtitulo }}</span>
+          @if (item.detalle) {
+            <span class="item-detail">{{ item.detalle }}</span>
+          }
+          <span class="item-time">{{ item.fecha | date:'d/MM, h:mm a' }}</span>
+        </div>
+      </button>
+    }
+  </div>
+
+  <div class="notif-footer" (click)="$event.stopPropagation()">
+    <button mat-button class="footer-chat-btn" (click)="irAChat()">
+      <mat-icon>forum</mat-icon> Abrir Mensajería Guadalupana
+    </button>
+  </div>
+</mat-menu>

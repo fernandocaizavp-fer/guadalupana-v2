@@ -21,6 +21,7 @@ import { ResumenProfesorComponent } from '../resumen-profesor/resumen-profesor';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Esqueleto } from '../../../shared/esqueleto/esqueleto';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
+import { CampanaNotificaciones } from '../../../shared/notificaciones/campana-notificaciones';
 
 @Component({
   selector: 'app-dashboard-profesor',
@@ -28,7 +29,7 @@ import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
   imports: [EstadoVacio, Esqueleto, MatTooltipModule, ResumenProfesorComponent,
     MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatMenuModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, DatePipe,
-    VisorImagen, FotoPerfil
+    VisorImagen, FotoPerfil, CampanaNotificaciones
   ],
   templateUrl: './dashboard-profesor.html',
   styleUrl: './dashboard-profesor.scss'

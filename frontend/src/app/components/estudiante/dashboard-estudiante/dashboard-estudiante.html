@@ -2,6 +2,7 @@
   <img src="logo.jpg" alt="Logo" style="height: 40px; margin-right: 12px;">
   <span class="est-titulo">Portal Estudiantil</span>
   <span class="spacer"></span>
+  <app-campana-notificaciones />
   <button mat-button style="color: #c8a84b; margin-right: 8px; font-weight: 700;" (click)="irAChat()" matTooltip="Mensajería y Chat">
     <mat-icon style="vertical-align: middle; margin-right: 4px;">forum</mat-icon> Mensajes
   </button>
@@ -31,6 +32,11 @@
             <h1>{{ matricula.apellidos }} {{ matricula.nombres }}</h1>
             <p>{{ matricula.curso?.ramaArtesanal }} — {{ matricula.curso?.anioFormativo }}</p>
             <span class="cedula">CI: {{ matricula.cedula }}</span>
+          </div>
+          <div class="header-carnet-box">
+            <button mat-flat-button class="btn-carnet-estudiante" (click)="verCarnetDigital()" matTooltip="Ver mi Carnet Digital Guadalupana">
+              <mat-icon>badge</mat-icon> Mi Carnet Digital
+            </button>
           </div>
         </div>
 

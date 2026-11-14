@@ -64,6 +64,35 @@
   border-radius: 20px;
 }
 
+.header-carnet-box {
+  margin-left: auto;
+
+  .btn-carnet-estudiante {
+    background: linear-gradient(135deg, #1a2a5e, #0c1630) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 6px 16px;
+    border-radius: 10px;
+    border: 1px solid #c8a84b;
+    box-shadow: 0 4px 12px rgba(26, 42, 94, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    mat-icon {
+      color: #e5c158;
+      margin-right: 6px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(26, 42, 94, 0.3);
+    }
+  }
+}
+
 /* ===== TÍTULO ===== */
 .section-title {
   font-size: 13px;

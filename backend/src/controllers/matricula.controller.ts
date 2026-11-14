@@ -471,8 +471,8 @@ export const obtenerMatricula = async (req: Request, res: Response) => {
         datosPersonales: true,
         datosFamiliares: true,
         datosAcademicos: true,
-        // Correo de acceso, para que el diálogo de edición muestre el real.
-        usuario: { select: { correo: true } }
+        // Correo de acceso, para que el diálogo de edición muestre el real, y foto para el carnet.
+        usuario: { select: { correo: true, fotoUrl: true } }
       }
     });
     if (!matricula) return res.status(404).json({ error: 'Matrícula no encontrada' });

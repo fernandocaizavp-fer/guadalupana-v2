@@ -11,10 +11,11 @@ import { PortalService } from '../../services/portal';
 import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { PanelResumen } from './panel-resumen/panel-resumen';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CampanaNotificaciones } from '../../shared/notificaciones/campana-notificaciones';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, PanelResumen],
+  imports: [MatTooltipModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, MatDialogModule, PanelResumen, CampanaNotificaciones],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

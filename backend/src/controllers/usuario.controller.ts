@@ -282,6 +282,10 @@ export const getPerfilEstudiante = async (req: Request, res: Response) => {
       where: { usuarioId: Number(usuarioId) },
       include: {
         curso: { include: { materias: true } },
+        datosPersonales: true,
+        datosFamiliares: true,
+        datosAcademicos: true,
+        usuario: { select: { id: true, nombre: true, apellido: true, correo: true, fotoUrl: true, rol: true } },
         notasTarea: {
           include: { tarea: { include: { materia: true } } }
         },
