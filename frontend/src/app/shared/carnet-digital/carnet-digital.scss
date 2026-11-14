@@ -387,15 +387,15 @@ $gold-dark: #967422;
     }
 
     .clausula-texto {
-      font-size: 9px;
-      line-height: 1.45;
+      font-size: 8.5px;
+      line-height: 1.4;
       color: #475569;
       background: #f8fafc;
-      padding: 8px 10px;
+      padding: 6px 10px;
       border-radius: 6px;
       border-left: 3px solid $gold;
       text-align: justify;
-      margin: 4px 0;
+      margin: 2px 0 4px;
     }
 
     .firma-bloque {
@@ -403,12 +403,56 @@ $gold-dark: #967422;
       flex-direction: column;
       align-items: center;
       margin-top: 2px;
+      position: relative;
+
+      .firma-contenedor {
+        position: relative;
+        width: 175px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: -4px;
+
+        .sello-digital {
+          position: absolute;
+          right: -10px;
+          top: -12px;
+          width: 58px;
+          height: 58px;
+          opacity: 0.85;
+          pointer-events: none;
+          z-index: 1;
+
+          .sello-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.08));
+          }
+        }
+
+        .firma-svg {
+          width: 140px;
+          height: 42px;
+          z-index: 2;
+          filter: drop-shadow(0 1px 1px rgba(15, 43, 102, 0.2));
+        }
+
+        .firma-img {
+          max-width: 140px;
+          max-height: 42px;
+          object-fit: contain;
+          z-index: 2;
+          filter: drop-shadow(0 1px 2px rgba(0,0,0,0.12));
+        }
+      }
 
       .linea-firma {
-        width: 150px;
-        height: 1px;
+        width: 165px;
+        height: 1.5px;
         background: #94a3b8;
-        margin-bottom: 3px;
+        margin-bottom: 2px;
+        z-index: 3;
       }
 
       .firma-cargo {
@@ -421,6 +465,28 @@ $gold-dark: #967422;
       .firma-institucion {
         font-size: 8px;
         color: #64748b;
+      }
+
+      .badge-firma-segura {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        margin-top: 2px;
+        padding: 1.5px 7px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        font-size: 7px;
+        font-weight: 800;
+        color: #166534;
+        letter-spacing: 0.4px;
+
+        mat-icon {
+          font-size: 10px;
+          width: 10px;
+          height: 10px;
+          color: #16a34a;
+        }
       }
     }
   }
@@ -456,15 +522,18 @@ $gold-dark: #967422;
 /* ACCIONES */
 .dialog-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 
   .btn-girar {
     background: linear-gradient(135deg, $navy, $navy-dark) !important;
     color: #ffffff !important;
     font-weight: 700;
-    padding: 0 22px;
+    padding: 0 20px;
+    height: 38px;
     border: 1px solid $gold;
     border-radius: 20px;
 
@@ -474,9 +543,57 @@ $gold-dark: #967422;
     }
   }
 
+  .btn-subir-firma {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 38px;
+    border-radius: 20px;
+    border: 1px dashed $gold;
+    background: #fffdf5;
+    color: $navy;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: $gold-dark;
+    }
+
+    &:hover {
+      background: #fef9c3;
+      border-style: solid;
+      transform: translateY(-1px);
+    }
+  }
+
+  .btn-reset-firma {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    color: #dc2626;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      background: #fee2e2;
+    }
+  }
+
   .btn-cerrar {
     font-weight: 600;
     color: #475569;
     border-radius: 20px;
+    height: 38px;
   }
 }

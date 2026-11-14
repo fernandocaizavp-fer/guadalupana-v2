@@ -119,9 +119,57 @@
           </div>
 
           <div class="firma-bloque">
+            <div class="firma-contenedor">
+              <!-- Sello Institucional Circular Oficial -->
+              <div class="sello-digital">
+                <svg viewBox="0 0 100 100" class="sello-svg" aria-hidden="true">
+                  <circle cx="50" cy="50" r="46" stroke="#c8a84b" stroke-width="1.8" fill="none" stroke-dasharray="3 2" />
+                  <circle cx="50" cy="50" r="41" stroke="#1a2a5e" stroke-width="1.2" fill="rgba(200, 168, 75, 0.05)" />
+                  <circle cx="50" cy="50" r="28" stroke="#c8a84b" stroke-width="0.8" fill="none" />
+                  
+                  <path id="txt-arc-up" d="M 17 50 A 33 33 0 1 1 83 50" fill="none" />
+                  <text font-size="6.8" font-weight="800" fill="#1a2a5e" letter-spacing="1">
+                    <textPath href="#txt-arc-up" startOffset="50%" text-anchor="middle">
+                      C.F.A. GUADALUPANA
+                    </textPath>
+                  </text>
+
+                  <path id="txt-arc-down" d="M 83 50 A 33 33 0 0 1 17 50" fill="none" />
+                  <text font-size="6.2" font-weight="700" fill="#997b28" letter-spacing="0.8">
+                    <textPath href="#txt-arc-down" startOffset="50%" text-anchor="middle">
+                      ★ DIRECCIÓN GENERAL ★
+                    </textPath>
+                  </text>
+
+                  <polygon points="50,39 52.5,44.5 58.5,45.2 54,49.2 55.3,55.1 50,52 44.7,55.1 46,49.2 41.5,45.2 47.5,44.5" fill="#c8a84b" />
+                </svg>
+              </div>
+
+              <!-- Rúbrica / Trazo Caligráfico Oficial o Imagen Personalizada -->
+              @if (firmaUrl) {
+                <img [src]="firmaUrl" alt="Firma Digital" class="firma-img">
+              } @else {
+                <svg viewBox="0 0 220 70" class="firma-svg" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M 22 48 C 32 24, 46 12, 58 20 C 68 28, 52 58, 42 50 C 32 42, 60 22, 82 28 C 98 32, 92 46, 106 38 C 118 31, 134 24, 152 30 C 168 36, 184 20, 202 36" 
+                        stroke="#0f2b66" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M 44 32 C 78 14, 142 16, 192 42" 
+                        stroke="#0f2b66" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M 28 52 C 72 56, 132 52, 198 47" 
+                        stroke="#0f2b66" stroke-width="2.2" stroke-linecap="round" />
+                  <path d="M 132 24 C 135 40, 139 52, 143 40" 
+                        stroke="#0f2b66" stroke-width="1.6" stroke-linecap="round" />
+                </svg>
+              }
+            </div>
+
             <div class="linea-firma"></div>
             <span class="firma-cargo">DIRECCIÓN GENERAL / SECRETARÍA ACADÉMICA</span>
             <span class="firma-institucion">C.F.A. Guadalupana · Riobamba</span>
+
+            <div class="badge-firma-segura">
+              <mat-icon>verified_user</mat-icon>
+              <span>FIRMADO DIGITALMENTE · RESOLUCIÓN J.N.D.A.</span>
+            </div>
           </div>
         </div>
 
@@ -146,6 +194,18 @@
     <button mat-flat-button class="btn-girar" (click)="girar()">
       <mat-icon>sync</mat-icon> Girar Credencial ({{ estaGirado ? 'Ver Frente' : 'Ver Reverso' }})
     </button>
+
+    <label class="btn-subir-firma" matTooltip="Subir imagen de firma personalizada (PNG o JPG con fondo transparente)">
+      <mat-icon>stylus</mat-icon> {{ firmaUrl ? 'Cambiar Firma' : 'Cargar Firma Real' }}
+      <input type="file" accept="image/*" (change)="onFirmaSeleccionada($event)" style="display: none;">
+    </label>
+
+    @if (firmaUrl) {
+      <button mat-icon-button class="btn-reset-firma" (click)="restablecerFirmaDefault($event)" matTooltip="Restablecer a firma digital institucional">
+        <mat-icon>restart_alt</mat-icon>
+      </button>
+    }
+
     <button mat-stroked-button mat-dialog-close class="btn-cerrar">
       Cerrar
     </button>

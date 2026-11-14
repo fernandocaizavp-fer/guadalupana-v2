@@ -26,6 +26,7 @@ export interface CarnetDialogData {
 export class CarnetDigitalDialog implements OnInit {
   matricula: any;
   fotoEstudiante: string | null = null;
+  firmaUrl: string | null = null;
   estaGirado = false;
 
   constructor(
@@ -41,6 +42,30 @@ export class CarnetDigitalDialog implements OnInit {
     if (!this.fotoEstudiante && this.matricula?.fotoUrl) {
       this.fotoEstudiante = this.matricula.fotoUrl;
     }
+
+    // Cargar firma digital personalizada si se configuró previamente en el navegador
+    const firmaGuardada = localStorage.getItem('cfg_firma_digital');
+    if (firmaGuardada) {
+      this.firmaUrl = firmaGuardada;
+    }
+  }
+
+  onFirmaSeleccionada(event: any): void {
+    const file = event.target?.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.firmaUrl = e.target.result;
+        localStorage.setItem('cfg_firma_digital', this.firmaUrl as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  restablecerFirmaDefault(event: Event): void {
+    event.stopPropagation();
+    this.firmaUrl = null;
+    localStorage.removeItem('cfg_firma_digital');
   }
 
   girar(): void {

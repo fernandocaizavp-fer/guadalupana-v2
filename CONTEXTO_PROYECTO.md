@@ -6,9 +6,11 @@ Actualizado: **14 de noviembre de 2026**. La sección 1 resume el estado actual.
 
 ### Cambios más recientes (14 de noviembre de 2026): Buscador Global, Semáforo de Riesgo, Repositorio de Recursos, Carnet 3D, Anuncios Segmentados y Chat
 
-- **Carnet Digital Estudiantil Visual Ampliado:**
+- **Carnet Digital Estudiantil Visual con Firma Digital y Sello Oficial:**
   - Dimensiones del carnet aumentadas a 490px × 315px (con modal ampliado a 560px) para visualización holgada y cómoda en pantalla.
   - Dirección institucional (`Av. Diego de Rodríguez e Isidoro Barriga`) y contacto telefónico (`096 149 3337 · Riobamba, Ecuador`) distribuidos en filas con iconos dedicados (`location_on`, `phone`), eliminando por completo cualquier truncamiento o solapamiento con la firma.
+  - **Firma Digitalizada y Sello de Certificación:** En el reverso se incorporó la rúbrica oficial de la Dirección General en tinta azul marina, sello circular institucional concéntrico (`C.F.A. GUADALUPANA · DIRECCIÓN GENERAL`) y distintivo de seguridad electrónica (`FIRMADO DIGITALMENTE · RESOLUCIÓN J.N.D.A.`).
+  - **Soporte de Firma Personalizada:** Se añadió la opción de cargar una imagen de firma real (PNG/JPG) con persistencia en `localStorage`, o restablecer a la firma institucional predeterminada.
   - Accesible desde el Dashboard de Estudiante, el Detalle del Curso (docentes/admin) y el Buscador Global (`Ctrl + K`).
 
 - **Rediseño Armónico del Semáforo de Titulación y Permanencia Artesanal:**
