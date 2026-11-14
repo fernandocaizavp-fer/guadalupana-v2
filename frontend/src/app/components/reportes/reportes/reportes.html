@@ -82,6 +82,16 @@
         <mat-icon class="arrow">chevron_right</mat-icon>
       </div>
 
+      <div class="reporte-card-modern" (click)="abrirSeccion('titularse')">
+        <div class="card-accent titularse"></div>
+        <div class="icon-box titularse"><mat-icon>school</mat-icon></div>
+        <div class="info">
+          <h3>Participantes a Titularse</h3>
+          <p>Nómina oficial de participantes aprobados para titulación. Documento oficial <strong>AL20</strong></p>
+        </div>
+        <mat-icon class="arrow">chevron_right</mat-icon>
+      </div>
+
       <div class="reporte-card-modern" (click)="abrirSeccion('aprobados')">
         <div class="card-accent aprobados"></div>
         <div class="icon-box aprobados"><mat-icon>fact_check</mat-icon></div>
@@ -628,6 +638,60 @@
       <app-estado-vacio icono="workspace_premium" titulo="Aún no hay estudiantes en este curso"
                           mensaje="Matricula estudiantes para generar sus certificados." [compacto]="true" />
     }
+  }
+
+  <!-- ── PARTICIPANTES A TITULARSE AL20 ──────────────── -->
+  @if (seccionActiva === 'titularse') {
+    <div class="seccion-header-detail">
+      <button mat-icon-button (click)="seccionActiva = null" class="back-pill-dark" matTooltip="Volver" aria-label="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h2>Listado Participantes a Titularse</h2>
+        <span class="badge titularse">OFICIAL AL20</span>
+      </div>
+    </div>
+
+    <div class="card-panel filter-panel">
+      <div class="filter-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Curso</mat-label>
+          <mat-select [(ngModel)]="cursoAL20">
+            @for (curso of cursos; track curso.id) {
+              <mat-option [value]="curso.id">{{ curso.ramaArtesanal }} — {{ curso.anioFormativo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Régimen</mat-label>
+          <mat-select [(ngModel)]="regimenAL20">
+            <mat-option value="SIERRA">Sierra</mat-option>
+            <mat-option value="COSTA">Costa</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Jornada</mat-label>
+          <input matInput [(ngModel)]="jornadaAL20">
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lugar y Fecha</mat-label>
+          <input matInput [(ngModel)]="lugarFechaAL20" placeholder="Riobamba, 25 de Septiembre de 2025">
+          <app-boton-calendario matSuffix [(valor)]="lugarFechaAL20" />
+        </mat-form-field>
+        <div class="action-btn">
+          @if (cursoAL20) {
+            <button mat-flat-button class="btn-download titularse" (click)="descargarAL20()">
+              <mat-icon>download</mat-icon> AL20
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="info-note-box titularse">
+      <mat-icon>info</mat-icon>
+      <span>El AL20 lista únicamente a los participantes APROBADOS (todas las materias con nota final mayor o igual a 7) para su proceso de titulación oficial.</span>
+    </div>
   }
 
   <!-- ── APROBADOS Y NO APROBADOS AL22 ──────────────── -->

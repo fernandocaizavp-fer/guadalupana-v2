@@ -745,3 +745,90 @@ export const generarAL19 = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error al generar AL19' });
   }
 };
+
+// AL20: Listado de participantes a titularse (por curso).
+// Solo incluye a los participantes APROBADOS (ninguna de las 9 materias con nota final < 7).
+// Columnas: No., Apellidos y Nombres, Nro. de Cédula de Ciudadanía, Nacionalidad.
+export const generarAL20 = async (req: Request, res: Response) => {
+  const { cursoId } = req.params;
+  const { lugarFecha, jornada, regimen } = req.query;
+
+  const MATERIAS = ['Teoría', 'Práctica', 'Administración', 'Contabilidad', 'TICs',
+    'Inglés', 'Desarrollo', 'Elaboración', 'Legislación'];
+
+  try {
+    const config = await getConfiguracion();
+    const aprob = config.notaAprobacion;
+    const curso = await prisma.curso.findUnique({
+      where: { id: Number(cursoId) },
+      include: {
+        matriculas: {
+          where: { activo: true },
+          orderBy: { apellidos: 'asc' },
+          include: {
+            datosPersonales: true,
+            notasTarea: { include: { tarea: { include: { materia: true } } } },
+            supletorios: { include: { materia: true } },
+            notasGlobales: true
+          }
+        }
+      }
+    });
+
+    if (!curso) return res.status(404).json({ error: 'Curso no encontrado' });
+
+    const AF1 = `${MESES_MAYUS[curso.fechaInicio.getMonth()]} ${curso.fechaInicio.getFullYear()}`;
+    const AF2 = `${MESES_MAYUS[curso.fechaFin.getMonth()]} ${curso.fechaFin.getFullYear()}`;
+
+    // Solo participantes aprobados (ninguna materia reprobada < notaAprobacion)
+    const aprobados = curso.matriculas.filter(m => {
+      const tieneReprobada = MATERIAS.some(nombre => {
+        const pf = calcularPfNum(getNota(m, nombre, 1), getNota(m, nombre, 2), getSupletorio(m, nombre));
+        return pf !== null && pf < aprob;
+      });
+      return !tieneReprobada;
+    });
+
+    const estudiantes = aprobados.map((m, index) => {
+      const apellidosNombres = `${(m.apellidos || '').toUpperCase()} ${(m.nombres || '').toUpperCase()}`.trim();
+      return {
+        num: String(index + 1),
+        apellidosnombres: apellidosNombres,
+        cedula: m.cedula || '',
+        nacionalidad: (m.datosPersonales?.nacionalidad || 'ECUATORIANA').toUpperCase()
+      };
+    });
+
+    const regimenStr = (String(regimen || 'SIERRA')).toUpperCase();
+
+    const datos = {
+      xC: regimenStr === 'COSTA' ? 'X' : '',
+      xS: regimenStr === 'SIERRA' ? 'X' : '',
+      jornada: (String(jornada || 'MATUTINA')).toUpperCase(),
+      AF1,
+      AF2,
+      ramaArtesanal: primeraPalabra(curso.ramaArtesanal).toUpperCase(),
+      lugarFecha: lugarFecha || '',
+      estudiantes
+    };
+
+    const templatePath = path.join(process.cwd(), 'templates', 'AL20LISTADOPARTICIPANTESTITULARSE.docx');
+    const content = fs.readFileSync(templatePath, 'binary');
+    const zip = new PizZip(content);
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+      delimiters: { start: '{', end: '}' }
+    });
+
+    doc.render(datos);
+
+    const buffer = doc.getZip().generate({ type: 'nodebuffer' });
+    res.setHeader('Content-Disposition', `attachment; filename=AL20_${curso.ramaArtesanal}.docx`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.send(buffer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al generar AL20' });
+  }
+};

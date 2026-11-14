@@ -53,6 +53,13 @@ export class SuplетorioService {
     );
   }
 
+  generarAL20(cursoId: number, lugarFecha: string, jornada: string, regimen: string): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/supletorios/al20/${cursoId}?lugarFecha=${encodeURIComponent(lugarFecha)}&jornada=${encodeURIComponent(jornada)}&regimen=${encodeURIComponent(regimen)}`,
+      { headers: this.getHeaders(), responseType: 'blob' }
+    );
+  }
+
   generarAL22(cursoId: number, lugarFecha: string, jornada: string, regimen: string): Observable<Blob> {
     return this.http.get(
       `${this.apiUrl}/supletorios/al22/${cursoId}?lugarFecha=${encodeURIComponent(lugarFecha)}&jornada=${encodeURIComponent(jornada)}&regimen=${encodeURIComponent(regimen)}`,

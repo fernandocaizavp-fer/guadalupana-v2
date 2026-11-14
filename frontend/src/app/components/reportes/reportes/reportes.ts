@@ -86,6 +86,12 @@ export class Reportes implements OnInit {
   loadingAL16 = false;
   descargandoAL16: number | null = null;
 
+  // Listado Participantes a Titularse AL20
+  cursoAL20: number | null = null;
+  lugarFechaAL20 = lugarFechaHoy();
+  jornadaAL20 = 'MATUTINA';
+  regimenAL20 = 'SIERRA';
+
   // Cuadro Aprobados y No Aprobados AL22
   cursoAL22: number | null = null;
   lugarFechaAL22 = lugarFechaHoy();
@@ -479,6 +485,31 @@ export class Reportes implements OnInit {
         this.notificacion.error(err.error?.error || 'Error al generar AL16');
         this.cdr.detectChanges();
       }
+    });
+  }
+
+  // ── LISTADO PARTICIPANTES A TITULARSE AL20 ─────────────
+  descargarAL20() {
+    if (!this.cursoAL20 || !this.lugarFechaAL20) {
+      this.notificacion.info('Selecciona curso y completa lugar y fecha');
+      return;
+    }
+    this.suplетorioService.generarAL20(
+      this.cursoAL20,
+      this.lugarFechaAL20,
+      this.jornadaAL20,
+      this.regimenAL20
+    ).subscribe({
+      next: (blob: Blob) => {
+        const curso = this.cursos.find(c => c.id === this.cursoAL20);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `AL20_${curso?.ramaArtesanal || 'titularse'}.docx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => this.notificacion.error(err.error?.error || 'Error al generar AL20')
     });
   }
 

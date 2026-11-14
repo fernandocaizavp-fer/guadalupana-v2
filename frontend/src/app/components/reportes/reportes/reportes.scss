@@ -55,6 +55,7 @@ $white: #ffffff;
     &.examen { background: #0277bd; }
     &.proyectos { background: #00838f; }
     &.certificado { background: #c62828; }
+    &.titularse { background: #00695c; }
     &.aprobados { background: #3949ab; }
   }
 
@@ -69,6 +70,7 @@ $white: #ffffff;
     &.examen { background: linear-gradient(135deg, #0277bd, #0288d1); }
     &.proyectos { background: linear-gradient(135deg, #00838f, #00acc1); }
     &.certificado { background: linear-gradient(135deg, #c62828, #e53935); }
+    &.titularse { background: linear-gradient(135deg, #00695c, #00897b); }
     &.aprobados { background: linear-gradient(135deg, #3949ab, #5c6bc0); }
   }
 
@@ -105,6 +107,7 @@ $white: #ffffff;
       &.examen { background: #0277bd; }
       &.proyectos { background: #00838f; }
       &.red { background: #c62828; }
+      &.titularse { background: #00695c; }
       &.indigo { background: #3949ab; }
     }
   }
@@ -134,6 +137,7 @@ $white: #ffffff;
   &.examen { background: #0277bd !important; color: white !important; }
   &.proyectos { background: #00838f !important; color: white !important; }
   &.red { background: #c62828 !important; color: white !important; }
+  &.titularse { background: #00695c !important; color: white !important; }
   &.indigo { background: #3949ab !important; color: white !important; }
 }
 
@@ -218,6 +222,7 @@ $white: #ffffff;
   &.orange { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
   &.proyectos { background: #e0f7fa; color: #00838f; border: 1px solid #80deea; }
   &.red { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+  &.titularse { background: #e0f2f1; color: #00695c; border: 1px solid #80cbc4; }
   &.indigo { background: #e8eaf6; color: #3949ab; border: 1px solid #9fa8da; }
 }
 
