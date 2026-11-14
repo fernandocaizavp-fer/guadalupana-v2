@@ -462,6 +462,74 @@ export const buscarEstudiante = async (req: Request, res: Response) => {
   }
 };
 
+// Búsqueda global rápida (Ctrl + K) para panel administrativo y docente.
+// Busca estudiantes (por nombres, apellidos, cédula, N.º matrícula) y cursos (por rama o año).
+export const buscarGlobal = async (req: Request, res: Response) => {
+  const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+  if (!q || q.length < 2) {
+    return res.json({ estudiantes: [], cursos: [] });
+  }
+
+  try {
+    const [estudiantes, cursos] = await Promise.all([
+      prisma.matricula.findMany({
+        where: {
+          activo: true,
+          OR: [
+            { nombres: { contains: q, mode: 'insensitive' } },
+            { apellidos: { contains: q, mode: 'insensitive' } },
+            { cedula: { contains: q, mode: 'insensitive' } },
+            { matriculaNo: { contains: q, mode: 'insensitive' } }
+          ]
+        },
+        select: {
+          id: true,
+          nombres: true,
+          apellidos: true,
+          cedula: true,
+          matriculaNo: true,
+          usuarioId: true,
+          cursoId: true,
+          curso: {
+            select: { id: true, ramaArtesanal: true, anioFormativo: true }
+          },
+          usuario: {
+            select: { id: true, correo: true, fotoUrl: true }
+          }
+        },
+        take: 12,
+        orderBy: { apellidos: 'asc' }
+      }),
+      prisma.curso.findMany({
+        where: {
+          activo: true,
+          OR: [
+            { ramaArtesanal: { contains: q, mode: 'insensitive' } },
+            { anioFormativo: { contains: q, mode: 'insensitive' } }
+          ]
+        },
+        select: {
+          id: true,
+          ramaArtesanal: true,
+          anioFormativo: true,
+          fechaInicio: true,
+          fechaFin: true,
+          _count: {
+            select: { matriculas: { where: { activo: true } }, materias: { where: { activo: true } } }
+          }
+        },
+        take: 6,
+        orderBy: { anioFormativo: 'desc' }
+      })
+    ]);
+
+    res.json({ estudiantes, cursos });
+  } catch (error) {
+    console.error('Error en búsqueda global:', error);
+    res.status(500).json({ error: 'Error al realizar la búsqueda' });
+  }
+};
+
 export const obtenerMatricula = async (req: Request, res: Response) => {
   try {
     const matricula = await prisma.matricula.findUnique({

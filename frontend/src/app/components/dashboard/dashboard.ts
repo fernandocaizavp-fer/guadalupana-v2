@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +12,7 @@ import { ConfirmDialog } from '../../shared/confirm-dialog/confirm-dialog';
 import { PanelResumen } from './panel-resumen/panel-resumen';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CampanaNotificaciones } from '../../shared/notificaciones/campana-notificaciones';
+import { BuscadorGlobalDialog } from '../../shared/buscador-global/buscador-global';
 
 @Component({
   selector: 'app-dashboard',
@@ -59,6 +60,21 @@ export class Dashboard implements OnInit {
         this.cdr.detectChanges();
       },
       error: () => { /* silencioso */ }
+    });
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      this.abrirBuscador();
+    }
+  }
+
+  abrirBuscador() {
+    this.dialog.open(BuscadorGlobalDialog, {
+      width: '680px',
+      maxWidth: '95vw'
     });
   }
 

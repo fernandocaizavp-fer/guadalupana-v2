@@ -24,9 +24,9 @@ function vacio(valor: unknown): boolean {
   return valor === null || valor === undefined || valor === '';
 }
 
-// Un estudiante solo consulta lo suyo; el administrador, lo de cualquiera.
+// Un estudiante solo consulta lo suyo; el administrador o docente, lo de cualquiera.
 function puedeVer(req: any, estudianteId: number): boolean {
-  return req.usuario.rol === 'ADMIN' || Number(req.usuario.id) === estudianteId;
+  return req.usuario.rol === 'ADMIN' || req.usuario.rol === 'PROFESOR' || Number(req.usuario.id) === estudianteId;
 }
 
 function porcentaje(presentes: number, total: number): number | null {
@@ -408,5 +408,134 @@ export const getTareasPendientes = async (req: any, res: Response) => {
   } catch (error) {
     console.error('Error al obtener tareas pendientes', estudianteId, error);
     res.status(500).json({ error: 'Error al obtener las tareas pendientes' });
+  }
+};
+
+// GET /api/academico/estudiante/:id/riesgo
+// Semáforo de riesgo académico y de asistencia (Normativa Artesanal: 80% asistencia mínima, 7.00/10 nota mínima).
+export const getRiesgoEstudiante = async (req: any, res: Response) => {
+  const estudianteId = Number(req.params.id);
+  if (!Number.isInteger(estudianteId)) {
+    return res.status(400).json({ error: 'Identificador de estudiante inválido' });
+  }
+  if (!puedeVer(req, estudianteId)) {
+    return res.status(403).json({ error: 'No autorizado para esta operación' });
+  }
+
+  try {
+    const matricula = await prisma.matricula.findUnique({
+      where: { usuarioId: estudianteId },
+      select: {
+        id: true,
+        activo: true,
+        cursoId: true,
+        curso: {
+          select: {
+            id: true,
+            ramaArtesanal: true,
+            anioFormativo: true
+          }
+        },
+        asistenciaGlobal: {
+          select: { porcentaje: true }
+        }
+      }
+    });
+
+    if (!matricula || !matricula.activo) {
+      return res.status(404).json({ error: 'El estudiante no tiene una matrícula activa' });
+    }
+
+    // 1. Asistencia
+    const asistencias = await prisma.asistenciaDetalle.findMany({
+      where: { matriculaId: matricula.id },
+      select: { presente: true }
+    });
+
+    const totalClases = asistencias.length;
+    const presentes = asistencias.filter(a => a.presente).length;
+    const faltas = totalClases - presentes;
+
+    let porcentajeAsistencia: number | null = totalClases > 0 ? Math.round((presentes / totalClases) * 100) : null;
+    if (porcentajeAsistencia === null && matricula.asistenciaGlobal) {
+      porcentajeAsistencia = Math.round(matricula.asistenciaGlobal.porcentaje);
+    }
+
+    // 2. Calificaciones
+    const notas = await prisma.notaTarea.findMany({
+      where: { matriculaId: matricula.id },
+      select: { valor: true }
+    });
+
+    const totalNotas = notas.length;
+    let promedioNotas: number | null = null;
+    if (totalNotas > 0) {
+      const suma = notas.reduce((acc, n) => acc + n.valor, 0);
+      promedioNotas = Number((suma / totalNotas).toFixed(2));
+    }
+
+    // 3. Evaluación del semáforo
+    let nivel: 'VERDE' | 'AMARILLO' | 'ROJO' | 'PENDIENTE' = 'PENDIENTE';
+    let motivo = 'Aún no se registran clases ni evaluaciones en el período activo.';
+    let asistenciaEstado: 'OPTIMA' | 'ALERTA' | 'CRITICA' | 'SIN_DATOS' = 'SIN_DATOS';
+    let academicoEstado: 'OPTIMO' | 'ALERTA' | 'CRITICO' | 'SIN_DATOS' = 'SIN_DATOS';
+
+    const motivos: string[] = [];
+
+    if (porcentajeAsistencia !== null) {
+      if (porcentajeAsistencia >= 85) {
+        asistenciaEstado = 'OPTIMA';
+      } else if (porcentajeAsistencia >= 80) {
+        asistenciaEstado = 'ALERTA';
+        motivos.push(`Asistencia al ${porcentajeAsistencia}%: margen estrecho sobre el mínimo reglamentario del 80%.`);
+      } else {
+        asistenciaEstado = 'CRITICA';
+        motivos.push(`Asistencia al ${porcentajeAsistencia}%: inferior al 80% legal (riesgo de reprobación por inasistencias).`);
+      }
+    }
+
+    if (promedioNotas !== null) {
+      if (promedioNotas >= 7.00) {
+        academicoEstado = 'OPTIMO';
+      } else if (promedioNotas >= 5.00) {
+        academicoEstado = 'ALERTA';
+        motivos.push(`Promedio en ${promedioNotas.toFixed(2)}/10: ubicado en zona de refuerzo pedagógico o supletorio.`);
+      } else {
+        academicoEstado = 'CRITICO';
+        motivos.push(`Promedio en ${promedioNotas.toFixed(2)}/10: insuficiente severo (inferior a 5.00).`);
+      }
+    }
+
+    if (asistenciaEstado === 'CRITICA' || academicoEstado === 'CRITICO') {
+      nivel = 'ROJO';
+      motivo = 'Atención urgente: Se detectaron indicadores en zona de riesgo crítico institucional.';
+    } else if (asistenciaEstado === 'ALERTA' || academicoEstado === 'ALERTA') {
+      nivel = 'AMARILLO';
+      motivo = 'Observación pedagógica: Requiere seguimiento para mantener los estándares de aprobación.';
+    } else if (asistenciaEstado === 'OPTIMA' && (academicoEstado === 'OPTIMO' || academicoEstado === 'SIN_DATOS')) {
+      nivel = 'VERDE';
+      motivo = 'Rendimiento favorable: Cumple con regularidad y estándares de aprobación artesanal.';
+    } else if (academicoEstado === 'OPTIMO' && asistenciaEstado === 'SIN_DATOS') {
+      nivel = 'VERDE';
+      motivo = 'Rendimiento académico óptimo.';
+    }
+
+    res.json({
+      nivel,
+      motivo,
+      motivos,
+      porcentajeAsistencia,
+      promedioNotas,
+      totalClases,
+      presentes,
+      faltas,
+      totalNotas,
+      asistenciaEstado,
+      academicoEstado,
+      curso: matricula.curso
+    });
+  } catch (error) {
+    console.error('Error al evaluar riesgo académico', error);
+    res.status(500).json({ error: 'Error al evaluar el riesgo del estudiante' });
   }
 };

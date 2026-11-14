@@ -28,11 +28,21 @@
 | **Examen de Grado** | *(Reciente)* Registro de exámenes de grado y generación de documentos AL19 y AL23. |
 | **Anuncios** | Publicación de anuncios con imagen para los paneles de profesor y estudiante. |
 | **Mensajería Interna / Chat** | Comunicación bidireccional entre Estudiantes, Docentes y Administradores con identidad institucional (Azul Marino `#1a2a5e` y Oro `#c8a84b`), directorio seguro de contactos, contador de no leídos y filtros por rol. |
+| **Buscador Global (`Ctrl + K`)** | *(Nuevo)* Búsqueda universal instantánea de estudiantes y especialidades con autocompletado y acceso directo a carnet digital y ficha del curso. |
+| **Semáforo de Riesgo Académico** | *(Nuevo)* Sistema de alerta temprana basado en la normativa legal artesanal (mínimo legal de 80% de asistencia y 7.00/10 en promedio general) con alertas visuales en panel estudiantil y tabla docente. |
+| **Repositorio de Recursos de Taller** | *(Nuevo)* Biblioteca digital didáctica organizada por tipo (Guías de taller en PDF, Listas de materiales e insumos, Videos tutoriales, Documentos técnicos) con permisos de publicación para docentes/administración y consulta/descarga para estudiantes. |
 | **Reportes y Documentos** | Generación de formularios oficiales en Word (.docx): AL9, AL12, AL13, AL14, AL15, **AL16**, AL18, AL19, **AL20**, **AL22**, AL23, certificados y ficha de matrícula. |
 | **Dashboards por rol** | Paneles diferenciados para Admin, Profesor y Estudiante. |
 
 ### Funcionalidades NUEVAS / RECIENTES (a destacar)
 
+- **Buscador Global Rápido (`Ctrl + K`)** — Diálogo accesible por atajo de teclado o botón en la cabecera que busca en tiempo real estudiantes activos (por apellido, nombre, cédula o N.º matrícula) y especialidades de taller, permitiendo abrir directamente el Carnet Digital 3D o navegar al curso.
+- **Semáforo de Riesgo Académico y de Asistencia** — Indicador en tiempo real que evalúa la permanencia y titulación artesanal:
+  - 🟢 **Verde (Rendimiento Óptimo)**: Asistencia $\ge 85\%$ y promedio general $\ge 7.00$.
+  - 🟡 **Amarillo (En Observación)**: Asistencia $80\% - 84\%$ (margen legal estrecho) o promedio en zona de supletorio ($5.00 - 6.99$).
+  - 🔴 **Rojo (Riesgo Crítico)**: Asistencia $< 80\%$ (reprobación automática por inasistencia según normativa) o promedio insuficiente ($< 5.00$).
+- **Repositorio de Recursos y Guías Didácticas de Taller** — Espacio centralizado para compartir material técnico de taller clasificado en: Guías prácticas en PDF, Listas de materiales e insumos, Videos tutoriales/demostraciones y Documentos de normativa, integrado en el Aula Virtual y en la gestión de cursos.
+- **Gestión Segura de Base de Datos y Migraciones Versionadas** — La base de datos vive en PostgreSQL (Supabase). No se ejecutan comandos destructivos locales (`db push` ni `migrate reset`). Los cambios de esquema (`MensajeInterno`, `RecursoDidactico`) se gestionan mediante migraciones SQL idempotentes versionadas en `backend/prisma/migrations/`, desplegadas automáticamente en el servidor con `prisma migrate deploy`.
 - **Módulo de Chat y Mensajería Institucional Guadalupana** — Comunicación directa Estudiante ↔ Docente ↔ Administrador con diseño corporativo institucional, badges de mensajes no leídos y filtros por rol.
 - **Campana de Notificaciones y Avisos** en las cabeceras de todos los dashboards con alertas en vivo de mensajes, anuncios y tareas.
 - **Carnet Digital Estudiantil Visual** con simulación de credencial física y rotación 3D interactiva (frente y reverso con foto, datos y código de barras).

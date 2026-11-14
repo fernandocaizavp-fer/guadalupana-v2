@@ -55,6 +55,21 @@ export interface TareaPendiente {
   fechaLimite: string;
 }
 
+export interface RiesgoAcademico {
+  nivel: 'VERDE' | 'AMARILLO' | 'ROJO' | 'PENDIENTE';
+  motivo: string;
+  motivos: string[];
+  porcentajeAsistencia: number | null;
+  promedioNotas: number | null;
+  totalClases: number;
+  presentes: number;
+  faltas: number;
+  totalNotas: number;
+  asistenciaEstado: 'OPTIMA' | 'ALERTA' | 'CRITICA' | 'SIN_DATOS';
+  academicoEstado: 'OPTIMO' | 'ALERTA' | 'CRITICO' | 'SIN_DATOS';
+  curso?: { id: number; ramaArtesanal: string; anioFormativo: string };
+}
+
 export interface MateriaProgramable {
   id: number;
   nombre: string;
@@ -105,6 +120,13 @@ export class AcademicoService {
 
   tareasPendientes(usuarioId: number): Observable<TareaPendiente[]> {
     return this.http.get<TareaPendiente[]>(`${this.apiUrl}/estudiante/${usuarioId}/tareas-pendientes`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  // Semáforo de riesgo académico y de asistencia (80% asistencia mínima, 7.00/10 nota mínima)
+  riesgoEstudiante(usuarioId: number): Observable<RiesgoAcademico> {
+    return this.http.get<RiesgoAcademico>(`${this.apiUrl}/estudiante/${usuarioId}/riesgo`, {
       headers: this.getHeaders()
     });
   }

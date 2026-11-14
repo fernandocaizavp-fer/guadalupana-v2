@@ -2,6 +2,11 @@
   <img src="logo.jpg" alt="Logo" class="nav-logo">
   <span class="nav-title">Centro de Formación Artesanal Guadalupana</span>
   <span class="spacer"></span>
+  <button type="button" class="nav-buscador-btn" (click)="abrirBuscador()" matTooltip="Búsqueda rápida de estudiantes y cursos (Ctrl + K)">
+    <mat-icon>search</mat-icon>
+    <span class="btn-texto">Buscar...</span>
+    <kbd class="kbd-badge">Ctrl K</kbd>
+  </button>
   <app-campana-notificaciones />
   <button mat-button class="nav-chat-btn" (click)="irAChat()" matTooltip="Mensajería y Chat">
     <mat-icon>forum</mat-icon> Mensajes

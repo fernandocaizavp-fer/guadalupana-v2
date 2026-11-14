@@ -109,5 +109,9 @@
         </div>
       </article>
     </div>
+
+    @if (curso?.id) {
+      <app-recursos-didacticos [cursoId]="curso!.id" />
+    }
   }
 </div>

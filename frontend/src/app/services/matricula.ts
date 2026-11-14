@@ -91,6 +91,14 @@ export class MatriculaService {
     });
   }
 
+  // Búsqueda global rápida (Ctrl + K) para estudiantes y cursos
+  buscarGlobal(q: string): Observable<{ estudiantes: any[]; cursos: any[] }> {
+    return this.http.get<{ estudiantes: any[]; cursos: any[] }>(`${this.apiUrl}/matriculas/buscar-global`, {
+      headers: this.getHeaders(),
+      params: { q }
+    });
+  }
+
   consultarCedula(cedula: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/cedula/${cedula}`, {
       headers: this.getHeaders()

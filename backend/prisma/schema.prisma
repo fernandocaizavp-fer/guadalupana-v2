@@ -37,6 +37,7 @@ model Usuario {
   deudas                        Deuda[]
   mensajesEnviados              MensajeInterno[] @relation("MensajesEnviados")
   mensajesRecibidos             MensajeInterno[] @relation("MensajesRecibidos")
+  recursosCreados               RecursoDidactico[] @relation("RecursosCreados")
 }
 
 model Curso {
@@ -52,6 +53,7 @@ model Curso {
   materias                Materia[]
   matriculas              Matricula[]
   observacionesAsistencia ObservacionAsistencia[]
+  recursos                RecursoDidactico[]
 }
 
 model Materia {
@@ -81,6 +83,7 @@ model Materia {
   notasDisciplina NotaDisciplina[]
   examenesGrado   ExamenGrado[]
   mensajes        MensajeInterno[]
+  recursos        RecursoDidactico[]
 }
 
 model Matricula {
@@ -647,4 +650,29 @@ model MensajeInterno {
   @@index([destinatarioId, leido])
   @@index([creadoEn])
 }
+
+// Repositorio de recursos y guías de taller (guías técnicas, listas de materiales, videos tutoriales y normativas)
+model RecursoDidactico {
+  id            Int      @id @default(autoincrement())
+  titulo        String   @db.VarChar(150)
+  descripcion   String?  @db.Text
+  tipo          String   @db.VarChar(50) // 'GUIA_TALLER' | 'LISTA_MATERIALES' | 'VIDEO_TUTORIAL' | 'DOCUMENTO'
+  urlRecurso    String   @db.Text
+  archivoNombre String?  @db.VarChar(255)
+  cursoId       Int?
+  curso         Curso?   @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  materiaId     Int?
+  materia       Materia? @relation(fields: [materiaId], references: [id], onDelete: Cascade)
+  autorId       Int
+  autor         Usuario  @relation("RecursosCreados", fields: [autorId], references: [id], onDelete: Cascade)
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([materiaId])
+  @@index([cursoId])
+  @@index([tipo])
+  @@index([autorId])
+}
+
 

@@ -1,0 +1,93 @@
+@if (modoCompacto()) {
+  <div class="semaforo-pill" [ngClass]="claseSemaforo()" [matTooltip]="riesgo()?.motivo || 'Evaluación de permanencia y titulación'">
+    <span class="luz-indicador"></span>
+    <span class="pill-text">{{ etiquetaNivel() }}</span>
+  </div>
+} @else {
+  <div class="semaforo-card" [ngClass]="claseSemaforo()">
+    <div class="semaforo-cabecera">
+      <div class="luz-grande-wrap">
+        <span class="luz-grande"></span>
+      </div>
+      <div class="info-principal">
+        <div class="subtitulo-norma">SEMAFORIZACIÓN DE TITULACIÓN ARTESANAL</div>
+        <div class="titulo-nivel">
+          <mat-icon>{{ iconoNivel() }}</mat-icon>
+          <span>{{ etiquetaNivel() }}</span>
+        </div>
+      </div>
+      <button mat-icon-button (click)="toggleDetalle()" [matTooltip]="mostrarDetalle() ? 'Ocultar desglose' : 'Ver desglose técnico'">
+        <mat-icon>{{ mostrarDetalle() ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+    </div>
+
+    <p class="motivo-resumen">{{ riesgo()?.motivo }}</p>
+
+    <!-- Métricas clave en dos columnas -->
+    <div class="metricas-grid">
+      <!-- Asistencia -->
+      <div class="metrica-item">
+        <div class="metrica-header">
+          <span class="metrica-nombre"><mat-icon>fact_check</mat-icon> Asistencia Obligatoria</span>
+          <span class="metrica-valor">
+            {{ riesgo()?.porcentajeAsistencia !== null ? riesgo()?.porcentajeAsistencia + '%' : '—' }}
+          </span>
+        </div>
+        <div class="progreso-bar">
+          <div
+            class="progreso-fill"
+            [style.width.%]="riesgo()?.porcentajeAsistencia || 0"
+            [ngClass]="{
+              'fill-verde': (riesgo()?.porcentajeAsistencia || 0) >= 85,
+              'fill-amarillo': (riesgo()?.porcentajeAsistencia || 0) >= 80 && (riesgo()?.porcentajeAsistencia || 0) < 85,
+              'fill-rojo': (riesgo()?.porcentajeAsistencia || 0) < 80
+            }"
+          ></div>
+          <div class="marca-norma legal-80" matTooltip="Mínimo legal para titulación: 80%"></div>
+        </div>
+        <div class="metrica-pie">
+          <small>Mínimo legal de asistencia: <strong>80%</strong></small>
+        </div>
+      </div>
+
+      <!-- Rendimiento Académico -->
+      <div class="metrica-item">
+        <div class="metrica-header">
+          <span class="metrica-nombre"><mat-icon>grade</mat-icon> Promedio Ponderado</span>
+          <span class="metrica-valor">
+            {{ riesgo()?.promedioNotas !== null ? riesgo()?.promedioNotas?.toFixed(2) + ' / 10' : '—' }}
+          </span>
+        </div>
+        <div class="progreso-bar">
+          <div
+            class="progreso-fill"
+            [style.width.%]="riesgo()?.promedioNotas ? (riesgo()!.promedioNotas! * 10) : 0"
+            [ngClass]="{
+              'fill-verde': (riesgo()?.promedioNotas || 0) >= 7.0,
+              'fill-amarillo': (riesgo()?.promedioNotas || 0) >= 5.0 && (riesgo()?.promedioNotas || 0) < 7.0,
+              'fill-rojo': (riesgo()?.promedioNotas || 0) < 5.0
+            }"
+          ></div>
+          <div class="marca-norma legal-70" matTooltip="Mínimo de aprobación directa: 7.00/10"></div>
+        </div>
+        <div class="metrica-pie">
+          <small>Mínimo de aprobación: <strong>7.00 / 10</strong></small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desglose expandible -->
+    @if (mostrarDetalle() && (riesgo()?.motivos?.length || 0) > 0) {
+      <div class="desglose-panel">
+        <div class="desglose-titulo">
+          <mat-icon>info</mat-icon> Recomendaciones y alertas normativas:
+        </div>
+        <ul>
+          @for (m of riesgo()?.motivos; track m) {
+            <li>{{ m }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+}

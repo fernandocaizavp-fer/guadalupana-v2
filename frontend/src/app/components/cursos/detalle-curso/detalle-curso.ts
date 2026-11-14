@@ -25,6 +25,8 @@ import { ArchivadosDialog, ArchivadosData } from './archivados-dialog';
 import { DocumentoIdentidad } from '../../../shared/documento-identidad';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 import { CarnetDigitalDialog } from '../../../shared/carnet-digital/carnet-digital';
+import { SemaforoRiesgoComponent } from '../../../shared/semaforo-riesgo/semaforo-riesgo';
+import { RecursosDidacticosComponent } from '../../../shared/recursos-didacticos/recursos-didacticos';
 
 @Component({
   selector: 'app-editar-matricula-dialog',
@@ -347,7 +349,7 @@ export function aplanarMatricula(m: any): any {
   selector: 'app-detalle-curso',
   imports: [EstadoVacio, Esqueleto, MatTooltipModule, FormsModule, MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule,
     MatTableModule, MatProgressSpinnerModule, MatSnackBarModule, MatDialogModule, 
-    MatFormFieldModule, MatInputModule, DatePipe],
+    MatFormFieldModule, MatInputModule, DatePipe, SemaforoRiesgoComponent, RecursosDidacticosComponent],
 
   templateUrl: './detalle-curso.html',
   styleUrl: './detalle-curso.scss'
@@ -359,7 +361,7 @@ export class DetalleCurso implements OnInit {
   curso: any = null;
   loading = true;
   descargando: number | null = null;
-  columnas = ['nombres', 'apellidos', 'cedula', 'telefono', 'acciones'];
+  columnas = ['nombres', 'apellidos', 'cedula', 'telefono', 'estado', 'acciones'];
 
   constructor(
     private route: ActivatedRoute,

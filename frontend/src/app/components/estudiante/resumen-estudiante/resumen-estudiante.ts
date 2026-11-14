@@ -3,18 +3,19 @@ import { Router } from '@angular/router';
 import { of, catchError } from 'rxjs';
 import { AcademicoService, AsistenciasRespuesta, TareaPendiente } from '../../../services/academico';
 import { TarjetaKpi, TonoKpi } from '../../../shared/graficos/tarjeta-kpi';
+import { SemaforoRiesgoComponent } from '../../../shared/semaforo-riesgo/semaforo-riesgo';
 
 const UMBRAL_ASISTENCIA_OK = 85;
-const UMBRAL_ASISTENCIA_ALERTA = 70;
+const UMBRAL_ASISTENCIA_ALERTA = 80;
 
-// Indicadores del panel del estudiante: asistencia (semáforo), tareas pendientes,
-// próxima entrega. El indicador de pagos se quitó mientras las finanzas del
-// estudiante están desactivadas (ver dashboard-estudiante). No se muestra un "promedio" porque el cálculo oficial
-// de notas vive en los reportes AL y aquí podría no coincidir.
+// Indicadores del panel del estudiante: semáforo de riesgo académico y asistencia,
+// tareas pendientes y próxima entrega conforme al reglamento artesanal (mínimo 80% asistencia, 7.00/10 nota).
 @Component({
   selector: 'app-resumen-estudiante',
-  imports: [TarjetaKpi],
+  imports: [TarjetaKpi, SemaforoRiesgoComponent],
   template: `
+    <app-semaforo-riesgo [usuarioId]="usuarioId()" />
+
     <div class="kpis">
       <app-tarjeta-kpi icono="fact_check" titulo="Asistencia" [valor]="textoAsistencia()"
                        [tono]="tonoAsistencia()" [detalle]="detalleAsistencia()"

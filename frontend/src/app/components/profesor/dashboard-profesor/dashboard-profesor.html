@@ -15,6 +15,12 @@
 
   <div class="topbar-right">
 
+    <button type="button" class="search-topbar-btn" (click)="abrirBuscador()" matTooltip="Búsqueda rápida de estudiantes y cursos (Ctrl + K)">
+      <mat-icon>search</mat-icon>
+      <span>Buscar...</span>
+      <kbd class="kbd-pill">Ctrl K</kbd>
+    </button>
+
     <app-campana-notificaciones />
 
     <button mat-button class="chat-topbar-btn" (click)="irAChat()" matTooltip="Mensajería y Chat">

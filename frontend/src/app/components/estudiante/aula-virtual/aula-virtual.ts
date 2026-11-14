@@ -11,13 +11,14 @@ import { LoadingService } from '../../../services/loading';
 import { FotoPerfil } from '../../../shared/foto-perfil/foto-perfil';
 import { EstadoVacio } from '../../../shared/estado-vacio/estado-vacio';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RecursosDidacticosComponent } from '../../../shared/recursos-didacticos/recursos-didacticos';
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const CLAVE_SEMESTRE = 'aulaVirtualSemestre';
 
 @Component({
   selector: 'app-aula-virtual',
-  imports: [MatTooltipModule, EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule, FotoPerfil],
+  imports: [MatTooltipModule, EstadoVacio, MatToolbarModule, MatButtonModule, MatIconModule, MatSnackBarModule, FotoPerfil, RecursosDidacticosComponent],
   templateUrl: './aula-virtual.html',
   styleUrl: './aula-virtual.scss'
 })
@@ -25,7 +26,7 @@ export class AulaVirtual implements OnInit {
   usuario: any;
   cargado = false;
   error = '';
-  curso: { ramaArtesanal: string; anioFormativo: string } | null = null;
+  curso: { id?: number; ramaArtesanal: string; anioFormativo: string } | null = null;
   materias: MateriaAula[] = [];
   disciplina: number | null = null;
   // Se recuerda el semestre elegido para que al volver de una materia no se pierda.

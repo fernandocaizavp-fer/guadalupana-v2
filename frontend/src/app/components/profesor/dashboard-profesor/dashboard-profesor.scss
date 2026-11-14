@@ -77,6 +77,37 @@ body {
   gap: 12px;
 }
 
+.search-topbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(200, 168, 75, 0.4);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: #c8a84b; }
+  span { font-size: 13px; font-weight: 600; }
+  .kbd-pill {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #e2e8f0;
+    font-family: inherit;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: #c8a84b;
+  }
+}
+
 .chat-topbar-btn {
   color: #c8a84b !important;
   font-weight: 700;

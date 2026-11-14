@@ -4,7 +4,8 @@ import {
   guardarProgramacion,
   getAulaVirtual,
   getAsistenciasEstudiante,
-  getTareasPendientes
+  getTareasPendientes,
+  getRiesgoEstudiante
 } from '../controllers/academico.controller';
 import { verificarToken, soloAdmin, soloRoles } from '../middlewares/auth.middleware';
 
@@ -18,5 +19,6 @@ const estudiante = [verificarToken, soloRoles('ADMIN', 'ESTUDIANTE')];
 router.get('/estudiante/:id/aula-virtual', estudiante, getAulaVirtual);
 router.get('/estudiante/:id/asistencias', estudiante, getAsistenciasEstudiante);
 router.get('/estudiante/:id/tareas-pendientes', estudiante, getTareasPendientes);
+router.get('/estudiante/:id/riesgo', [verificarToken, soloRoles('ADMIN', 'PROFESOR', 'ESTUDIANTE')], getRiesgoEstudiante);
 
 export default router;

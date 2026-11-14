@@ -1,0 +1,139 @@
+<div class="recursos-container">
+  @if (mostrarTitulo()) {
+    <div class="recursos-header">
+      <div class="header-titulos">
+        <div class="icono-wrap">
+          <mat-icon>auto_stories</mat-icon>
+        </div>
+        <div>
+          <h3>Guías de Taller y Recursos Didácticos</h3>
+          <p>Materiales paso a paso, manuales de bioseguridad, listas de insumos y tutoriales prácticos.</p>
+        </div>
+      </div>
+      @if (puedeCrear()) {
+        <button mat-raised-button class="btn-publicar" (click)="abrirCrear()">
+          <mat-icon>add</mat-icon> Publicar Recurso
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Filtro por tipo -->
+  <div class="filtros-bar">
+    <button
+      type="button"
+      class="filtro-pill"
+      [class.active]="filtroTipo() === 'TODOS'"
+      (click)="filtroTipo.set('TODOS')"
+    >
+      Todos ({{ recursos().length }})
+    </button>
+    <button
+      type="button"
+      class="filtro-pill"
+      [class.active]="filtroTipo() === 'GUIA_TALLER'"
+      (click)="filtroTipo.set('GUIA_TALLER')"
+    >
+      <mat-icon>picture_as_pdf</mat-icon> Guías de Taller
+    </button>
+    <button
+      type="button"
+      class="filtro-pill"
+      [class.active]="filtroTipo() === 'LISTA_MATERIALES'"
+      (click)="filtroTipo.set('LISTA_MATERIALES')"
+    >
+      <mat-icon>inventory_2</mat-icon> Listas de Materiales
+    </button>
+    <button
+      type="button"
+      class="filtro-pill"
+      [class.active]="filtroTipo() === 'VIDEO_TUTORIAL'"
+      (click)="filtroTipo.set('VIDEO_TUTORIAL')"
+    >
+      <mat-icon>smart_display</mat-icon> Videos y Demostraciones
+    </button>
+    <button
+      type="button"
+      class="filtro-pill"
+      [class.active]="filtroTipo() === 'DOCUMENTO'"
+      (click)="filtroTipo.set('DOCUMENTO')"
+    >
+      <mat-icon>description</mat-icon> Documentos Técnicos
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="cargando-box">
+      <mat-spinner diameter="32"></mat-spinner>
+      <span>Cargando recursos...</span>
+    </div>
+  } @else if (recursosFiltrados().length === 0) {
+    <app-estado-vacio
+      icono="folder_open"
+      titulo="No hay recursos en esta categoría"
+      mensaje="Los docentes publicarán aquí guías de taller, enlaces a tutoriales y listas de insumos requeridos."
+      [compacto]="true"
+    />
+  } @else {
+    <div class="recursos-grid">
+      @for (r of recursosFiltrados(); track r.id) {
+        <article class="recurso-card" [ngClass]="'tipo-' + r.tipo.toLowerCase()">
+          <div class="recurso-top">
+            <span class="tipo-badge">
+              <mat-icon>{{ iconoPorTipo(r.tipo) }}</mat-icon>
+              {{ etiquetaPorTipo(r.tipo) }}
+            </span>
+            <span class="recurso-fecha">{{ r.creadoEn | date:'d MMM y' }}</span>
+          </div>
+
+          <h4 class="recurso-titulo">{{ r.titulo }}</h4>
+
+          @if (r.descripcion) {
+            <p class="recurso-desc">{{ r.descripcion }}</p>
+          }
+
+          <div class="recurso-meta">
+            @if (r.materia) {
+              <span class="meta-tag materia-tag">
+                <mat-icon>book</mat-icon> {{ r.materia.nombre }}
+              </span>
+            }
+            @if (r.autor) {
+              <span class="meta-tag autor-tag">
+                <mat-icon>person</mat-icon> {{ r.autor.nombre }} {{ r.autor.apellido }}
+              </span>
+            }
+            @if (r.archivoNombre) {
+              <span class="meta-tag archivo-tag">
+                <mat-icon>attach_file</mat-icon> {{ r.archivoNombre }}
+              </span>
+            }
+          </div>
+
+          <div class="recurso-acciones">
+            <button
+              mat-raised-button
+              class="btn-abrir"
+              (click)="abrirEnlace(r.urlRecurso)"
+            >
+              <mat-icon>open_in_new</mat-icon> Abrir Recurso
+            </button>
+
+            @if (esAutor(r)) {
+              <button
+                mat-icon-button
+                color="warn"
+                class="btn-eliminar"
+                (click)="eliminar(r)"
+                matTooltip="Eliminar recurso"
+                aria-label="Eliminar recurso"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

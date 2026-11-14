@@ -24,6 +24,7 @@ import dashboardRoutes from './routes/dashboard.routes';
 import auditoriaRoutes from './routes/auditoria.routes';
 import chatRoutes from './routes/chat.routes';
 import notificacionRoutes from './routes/notificacion.routes';
+import recursoRoutes from './routes/recurso.routes';
 import helmet from 'helmet';
 import compression from 'compression';
 import { defensaDoS } from './middlewares/defensa.middleware';
@@ -70,6 +71,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/auditoria', auditoriaRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/notificaciones', notificacionRoutes);
+app.use('/api/recursos', recursoRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Backend CF Guadalupana funcionando' });

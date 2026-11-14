@@ -4,7 +4,29 @@ Actualizado: **14 de noviembre de 2026**. La sección 1 resume el estado actual.
 
 ## 1. Leer esto primero al retomar
 
-### Cambios más recientes (14 de noviembre de 2026): Reporte Oficial AL20 y Chat Guadalupana
+### Cambios más recientes (14 de noviembre de 2026): Buscador Global, Semáforo de Riesgo, Repositorio de Recursos, Carnet 3D y Chat
+
+- **Buscador Global Rápido (`Ctrl + K`)**:
+  - Endpoint `GET /api/matriculas/buscar-global?q=...` protegido por `soloRoles('ADMIN', 'PROFESOR')` en `matricula.controller.ts`.
+  - Búsqueda simultánea sobre estudiantes (nombres, apellidos, cédula, N.º matrícula) y cursos (rama artesanal, año lectivo).
+  - Componente modal `BuscadorGlobalDialog` (`frontend/src/app/shared/buscador-global/`) activable mediante hotkey global `Ctrl + K` / `Cmd + K` o botón en barra de navegación. Acciones directas para ver Carnet Digital 3D o ir a la ficha del curso.
+
+- **Semáforo de Riesgo Académico y de Asistencia**:
+  - Basado en los requisitos legales de titulación artesanal:
+    - **Asistencia Mínima Legal:** 80% (Art. 73 Reglamento Artesanal).
+    - **Nota Mínima de Aprobación:** 7.00/10.00.
+  - Endpoint `GET /api/academico/estudiante/:id/riesgo` que computa estado de permanencia (Verde: Óptimo, Amarillo: En Observación, Rojo: Riesgo Crítico).
+  - Componente visual `SemaforoRiesgoComponent` (`frontend/src/app/shared/semaforo-riesgo/`) con modo tarjeta y modo píldora compacta. Integrado en el resumen del panel de estudiante y en la tabla de alumnos de `detalle-curso`.
+
+- **Repositorio de Recursos y Guías de Taller**:
+  - Modelo Prisma `RecursoDidactico` (id, titulo, descripcion, tipo `GUIA_TALLER|LISTA_MATERIALES|VIDEO_TUTORIAL|DOCUMENTO`, urlRecurso, archivoNombre, cursoId, materiaId, autorId).
+  - Migración segura versionada: `backend/prisma/migrations/20261114130000_recursos_didacticos/migration.sql`.
+  - Controlador `recurso.controller.ts` y rutas `recurso.routes.ts` (`/api/recursos`) para crear, listar y eliminar recursos.
+  - Componente Angular `RecursosDidacticosComponent` (`frontend/src/app/shared/recursos-didacticos/`) con filtrado por categoría y diálogo de publicación para docentes/admin. Integrado en el Aula Virtual del estudiante y en el detalle del curso.
+
+- **Explicación sobre Migraciones y Estado de la Base de Datos:**
+  - ¿Se cambió la base de datos? Se añadieron de forma incremental y no destructiva las tablas `MensajeInterno` y `RecursoDidactico`.
+  - **Procedimiento Seguro de Despliegue:** La base de datos es PostgreSQL en Supabase (producción). Para garantizar cero pérdida de datos, **no** se ejecuta `prisma db push` ni `migrate dev` localmente. Los cambios se empaquetan en archivos `migration.sql` versionados en `backend/prisma/migrations/` y el servicio en la nube (Render) los aplica en el inicio con `npx prisma migrate deploy`.
 
 - **Reporte Oficial AL20 (`LISTADO PARTICIPANTES A TITULARSE`):**
   - Plantilla oficial en Word `backend/templates/AL20LISTADOPARTICIPANTESTITULARSE.docx` adaptada del formato oficial de la Junta Nacional de Defensa del Artesano.

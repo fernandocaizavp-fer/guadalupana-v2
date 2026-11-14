@@ -1,0 +1,135 @@
+<div class="buscador-modal">
+  <div class="buscador-header">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      type="text"
+      [(ngModel)]="textoBusqueda"
+      (ngModelChange)="alEscribir($event)"
+      placeholder="Buscar por apellido, nombre, cédula, N.º matrícula o curso..."
+      autocomplete="off"
+      autofocus
+      class="search-input"
+    />
+    @if (textoBusqueda) {
+      <button mat-icon-button (click)="limpiar()" class="btn-clear" matTooltip="Limpiar" aria-label="Limpiar">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+    <div class="tecla-esc" (click)="cerrar()" matTooltip="Cerrar diálogo">
+      <span>ESC</span>
+    </div>
+  </div>
+
+  <div class="buscador-body">
+    @if (cargando()) {
+      <div class="loading-state">
+        <mat-spinner diameter="36"></mat-spinner>
+        <span>Buscando en el padrón institucional...</span>
+      </div>
+    } @else if (busquedaRealizada() && estudiantes().length === 0 && cursos().length === 0) {
+      <div class="sin-resultados">
+        <mat-icon>search_off</mat-icon>
+        <h4>No se encontraron resultados</h4>
+        <p>No hay coincidencias para "<strong>{{ textoBusqueda }}</strong>". Verifica nombres, cédula o especialidad.</p>
+      </div>
+    } @else if (!busquedaRealizada()) {
+      <div class="estado-inicial">
+        <mat-icon>manage_search</mat-icon>
+        <p>Ingresa al menos <strong>2 caracteres</strong> para buscar estudiantes activos o especialidades de taller.</p>
+        <div class="atajos-ayuda">
+          <span class="atajo"><kbd>Ctrl</kbd> + <kbd>K</kbd> Abrir buscador</span>
+          <span class="atajo"><kbd>ESC</kbd> Cerrar</span>
+        </div>
+      </div>
+    } @else {
+      <div class="resultados-scroll">
+        <!-- ESTUDIANTES -->
+        @if (estudiantes().length > 0) {
+          <div class="seccion-resultados">
+            <div class="seccion-titulo">
+              <mat-icon>school</mat-icon>
+              <span>Estudiantes ({{ estudiantes().length }})</span>
+            </div>
+            <div class="items-grid">
+              @for (est of estudiantes(); track est.id) {
+                <div class="item-card estudiante-card" (click)="irACurso(est.cursoId)">
+                  <div class="avatar-col">
+                    @if (est.usuario?.fotoUrl) {
+                      <img [src]="est.usuario!.fotoUrl" alt="Foto" class="avatar-img" />
+                    } @else {
+                      <div class="avatar-monograma">
+                        {{ est.apellidos.charAt(0) }}{{ est.nombres.charAt(0) }}
+                      </div>
+                    }
+                  </div>
+                  <div class="info-col">
+                    <div class="nombre-est">{{ est.apellidos }} {{ est.nombres }}</div>
+                    <div class="meta-tags">
+                      <span class="badge-ci"><mat-icon>badge</mat-icon> C.I. {{ est.cedula }}</span>
+                      <span class="badge-mat">Mat. N.º {{ est.matriculaNo }}</span>
+                    </div>
+                    <div class="curso-tag">
+                      <mat-icon>class</mat-icon> {{ est.curso.ramaArtesanal }} ({{ est.curso.anioFormativo }})
+                    </div>
+                  </div>
+                  <div class="acciones-col" (click)="$event.stopPropagation()">
+                    <button
+                      mat-stroked-button
+                      class="btn-carnet"
+                      (click)="verCarnet(est, $event)"
+                      matTooltip="Visualizar Carnet Digital 3D"
+                    >
+                      <mat-icon>badge</mat-icon> Carnet
+                    </button>
+                    <button
+                      mat-icon-button
+                      class="btn-ir-curso"
+                      (click)="irACurso(est.cursoId)"
+                      matTooltip="Ver curso y ficha"
+                      aria-label="Ver curso y ficha"
+                    >
+                      <mat-icon>chevron_right</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- CURSOS -->
+        @if (cursos().length > 0) {
+          <div class="seccion-resultados">
+            <div class="seccion-titulo">
+              <mat-icon>auto_stories</mat-icon>
+              <span>Especialidades y Cursos ({{ cursos().length }})</span>
+            </div>
+            <div class="items-grid">
+              @for (c of cursos(); track c.id) {
+                <div class="item-card curso-card" (click)="irACurso(c.id)">
+                  <div class="icono-curso-box">
+                    <mat-icon>workspace_premium</mat-icon>
+                  </div>
+                  <div class="info-col">
+                    <div class="nombre-est">{{ c.ramaArtesanal }}</div>
+                    <div class="meta-tags">
+                      <span class="badge-anio">Año Lectivo: {{ c.anioFormativo }}</span>
+                      @if (c._count) {
+                        <span class="badge-count">{{ c._count.matriculas }} alumnos · {{ c._count.materias }} materias</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="acciones-col">
+                    <button mat-icon-button class="btn-ir-curso" matTooltip="Ir al curso" aria-label="Ir al curso">
+                      <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
