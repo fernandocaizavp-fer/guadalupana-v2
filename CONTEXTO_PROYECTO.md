@@ -1,10 +1,24 @@
 # Guadalupana — contexto para retomar el proyecto
 
-Actualizado: **28 de septiembre de 2026**. La sección 1 resume el estado actual. Las secciones históricas conservan decisiones anteriores; no deben usarse para volver a configurar Gemini ni repetir operaciones sobre la base.
+Actualizado: **14 de noviembre de 2026**. La sección 1 resume el estado actual. Las secciones históricas conservan decisiones anteriores; no deben usarse para volver a configurar Gemini ni repetir operaciones sobre la base.
 
 ## 1. Leer esto primero al retomar
 
-### Cambios locales más recientes: panel flotante y entrevistas
+### Cambios más recientes (14 de noviembre de 2026): Reporte Oficial AL20 y Chat Guadalupana
+
+- **Reporte Oficial AL20 (`LISTADO PARTICIPANTES A TITULARSE`):**
+  - Plantilla oficial en Word `backend/templates/AL20LISTADOPARTICIPANTESTITULARSE.docx` adaptada del formato oficial de la Junta Nacional de Defensa del Artesano.
+  - 4 columnas oficiales: `No.`, `APELLIDOS Y NOMBRES` (mayúsculas ordenadas alfabéticamente), `Nro. DE CÉDULA DE CIUDADANÍA`, `NACIONALIDAD`.
+  - Filtro de aprobación estricto: solo participantes con promedio $\ge 7.00$ en las 9 materias.
+  - Endpoint `GET /api/supletorios/al20/:cursoId` en el backend y servicio `descargarAL20()` en Angular con tarjeta de descarga en `components/reportes/reportes/`.
+  - Commit subido a GitHub: `2767b75`.
+
+- **Módulo de Mensajería Institucional y Chat Interno (Estudiante ↔ Docente ↔ Administrador):**
+  - **Base de Datos y Migraciones:** Nuevo modelo `MensajeInterno` en Prisma (`backend/prisma/schema.prisma`) con relaciones a `Usuario` (remitente, destinatario) y `Materia` opcional.
+  - **Manejo Seguro de Base de Datos:** Debido a que `backend/.env` apunta a Supabase (producción), **NUNCA** se ejecuta `prisma db push`, `migrate dev` ni `migrate reset` localmente. Se generó la migración SQL versionada `backend/prisma/migrations/20261114120000_mensajeria_institucional/migration.sql`, la cual se aplica automáticamente en Render mediante `npx prisma migrate deploy` durante el arranque.
+  - **Backend (`/api/chat`):** Controlador `backend/src/controllers/chat.controller.ts` con listado de contactos contextual y seguro según el rol, historial de mensajes con paginación y marcado automático de leídos, envío con validación y conteo global de no leídos.
+  - **Frontend:** Servicio `frontend/src/app/services/chat.ts`, componente standalone `frontend/src/app/components/chat/` en ruta `/chat` (`AuthGuard`) con diseño corporativo institucional (Azul Marino `#1a2a5e` y Oro Guadalupana `#c8a84b`), autoscroll, badges de no leídos y filtros rápidos. Accesos directos integrados en los tres dashboards principales.
+  - **Pruebas y Verificación:** 71 pruebas automatizadas del backend aprobadas (`npm test`), build de Angular (`ng build`) exitoso y commit `383027b`.
 
 - Se atendió la nueva versión de `leeyejecuta.txt`: el diálogo se abre a la derecha, sin backdrop, con `scrollStrategy: this.overlay.scrollStrategies.noop()`, ancho 420 px y altura máxima adaptada al viewport. Mantiene foco manual y evita abrir varias copias. Al salir del componente se cierra y se detiene el dictado.
 - Estilos: sombra y borde en `frontend/src/styles.scss`; contenido flexible con scroll y acciones visibles en `llenado-inteligente-dialog.scss`.
@@ -107,6 +121,9 @@ Las rutas siguientes son relativas a la raíz del repositorio.
 | `backend/prisma/migrations/` | Migraciones SQL existentes |
 | `backend/src/lib/prisma.ts` | Instancia de Prisma compartida |
 | `backend/src/routes/` | Endpoints y middlewares de autorización por módulo |
+| `backend/src/controllers/chat.controller.ts` | Lógica de mensajería interna, directorio contextual y conversaciones |
+| `backend/src/routes/chat.routes.ts` | Rutas de `/api/chat` protegidas por JWT |
+| `backend/tests/chat.test.cjs` | Pruebas unitarias de chat y autorización |
 | `backend/src/controllers/matricula-extraccion.controller.ts` | SDK Groq, modelo, clave y errores de extracción |
 | `backend/src/lib/matricula-extraccion.ts` | Prompt, esquema, campos permitidos y validadores |
 | `backend/tests/matricula-extraccion.test.cjs` | Pruebas de extracción, autenticación y SDK simulado |
@@ -122,7 +139,9 @@ Las rutas siguientes son relativas a la raíz del repositorio.
 | `frontend/src/app/app.routes.ts` | Rutas y restricciones por rol |
 | `frontend/src/app/app.config.ts` | Providers de router, HTTP, animaciones y notificaciones |
 | `frontend/src/app/services/` | Peticiones HTTP; consumen `environment.apiUrl` |
+| `frontend/src/app/services/chat.ts` | Servicio de mensajería interna y chat |
 | `frontend/src/app/components/` | Pantallas de cada módulo |
+| `frontend/src/app/components/chat/` | Componente de chat corporativo Guadalupana (lista y conversación) |
 | `frontend/src/app/components/matriculas/nueva-matricula/nueva-matricula.ts` | FormGroup, aplicación de datos y normalización de formato |
 | `frontend/src/app/components/matriculas/nueva-matricula/llenado-inteligente-dialog.*` | Modal de dictado, texto, vista previa y pruebas |
 | `frontend/src/app/services/matricula-datos.ts` | Los 41 controles y etiquetas de los 37 campos extraíbles |

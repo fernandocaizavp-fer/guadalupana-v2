@@ -27,12 +27,15 @@
 | **Supletorios** | Registro de notas de recuperación, individual y masivo. |
 | **Examen de Grado** | *(Reciente)* Registro de exámenes de grado y generación de documentos AL19 y AL23. |
 | **Anuncios** | Publicación de anuncios con imagen para los paneles de profesor y estudiante. |
-| **Reportes y Documentos** | Generación de formularios oficiales en Word (.docx): AL9, AL12, AL13, AL14, AL15, **AL16**, AL18, AL19, **AL22**, AL23, certificados y ficha de matrícula. |
+| **Mensajería Interna / Chat** | Comunicación bidireccional entre Estudiantes, Docentes y Administradores con identidad institucional (Azul Marino `#1a2a5e` y Oro `#c8a84b`), directorio seguro de contactos, contador de no leídos y filtros por rol. |
+| **Reportes y Documentos** | Generación de formularios oficiales en Word (.docx): AL9, AL12, AL13, AL14, AL15, **AL16**, AL18, AL19, **AL20**, **AL22**, AL23, certificados y ficha de matrícula. |
 | **Dashboards por rol** | Paneles diferenciados para Admin, Profesor y Estudiante. |
 
 ### Funcionalidades NUEVAS / RECIENTES (a destacar)
 
-- **Reportes AL16** (certificado de promoción, por estudiante) y **AL22** (cuadro de aprobados/no aprobados, por curso) — el cambio más reciente.
+- **Módulo de Chat y Mensajería Institucional Guadalupana** — Comunicación directa Estudiante ↔ Docente ↔ Administrador con diseño corporativo institucional, badges de mensajes no leídos y filtros por rol.
+- **Reporte Oficial AL20** (listado de participantes a titularse, exclusivo para alumnos aprobados $\ge 7.00$) con plantilla Word oficial de la Junta Nacional de Defensa del Artesano.
+- **Reportes AL16** (certificado de promoción, por estudiante) y **AL22** (cuadro de aprobados/no aprobados, por curso).
 - **Autocompletado de matrícula por cédula** (integración con API ApiConsult).
 - **Módulo de Examen de Grado** con documentos AL19 y AL23.
 - **Recuperación y cambio obligatorio de contraseña** (EmailJS).
@@ -58,6 +61,7 @@
 | **Supletorio** | ✅ | ✅ | ✅ | — | Individual y masivo (upsert). |
 | **Examen de Grado** | ✅ | ✅ | ✅ | — | Guardado masivo (upsert). |
 | **Anuncio** | ✅ | ✅ | ✅ | ✅ | CRUD completo con subida de imagen (multer). |
+| **Mensaje Interno (Chat)** | ✅ | ✅ | ✅* | ❌ | Comunicación interna; *actualización automática de estado `leido`. |
 
 **Lectura clave para la defensa:** las entidades de "núcleo" (Usuario, Matrícula, Anuncio) tienen **CRUD completo**. Las entidades de calificaciones (Notas, Disciplina, Supletorio, Examen) usan patrón **upsert** (crear/actualizar en una sola operación gracias a restricciones únicas `@@unique` en Prisma), que es la forma correcta para datos que se editan repetidamente.
 
@@ -155,7 +159,23 @@
 
 ## 7. CAMBIOS RECIENTES (últimas ~3 semanas, según `git log`)
 
-**Junio 14 (lo más nuevo):**
+**Noviembre 14 (lo más nuevo):**
+
+- **Módulo de Chat y Mensajería Institucional Guadalupana:**
+  - Sistema de comunicación bidireccional Estudiante ↔ Docente ↔ Administrador.
+  - Modelo `MensajeInterno` con relaciones para remitente, destinatario y materia referenciada.
+  - Migración SQL `20261114120000_mensajeria_institucional` lista para aplicación automática en producción.
+  - Controlador `/api/chat` con directorio seguro contextual por rol, paginación, envío de mensajes y recuento de no leídos.
+  - Componente Angular standalone `/chat` con interfaz corporativa Guadalupana (Azul Marino `#1a2a5e` y Dorado `#c8a84b`), autoscroll, badges en tiempo real y filtros rápidos por rol.
+  - Integración de accesos directos en los tres dashboards (Administrador, Profesor y Estudiante).
+  - Suite de pruebas de backend ampliada a 71 pruebas exitosas (0 fallos).
+- **Reporte Oficial AL20 (`LISTADO PARTICIPANTES A TITULARSE`):**
+  - Plantilla oficial Word (.docx) basada en el formato físico de la Junta Nacional de Defensa del Artesano.
+  - Cuatro columnas: No., Apellidos y Nombres (mayúsculas), Nro. de Cédula de Ciudadanía, Nacionalidad.
+  - Filtro estricto de aprobación: solo incluye estudiantes que superaron todas las materias con nota $\ge 7.00$.
+  - Endpoint `GET /api/supletorios/al20/:cursoId` y tarjeta de descarga en el módulo de Reportes.
+
+**Junio 14:**
 
 - Reportes **AL16** (certificado de promoción) y **AL22** (cuadro de aprobados/no aprobados de grados).
 
