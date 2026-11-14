@@ -13,7 +13,15 @@ Actualizado: **14 de noviembre de 2026**. La sección 1 resume el estado actual.
   - Endpoint `GET /api/supletorios/al20/:cursoId` en el backend y servicio `descargarAL20()` en Angular con tarjeta de descarga en `components/reportes/reportes/`.
   - Commit subido a GitHub: `2767b75`.
 
-- **Módulo de Mensajería Institucional y Chat Interno (Estudiante ↔ Docente ↔ Administrador):**
+- **Campana de Notificaciones Institucional:**
+  - Componente `CampanaNotificaciones` (`frontend/src/app/shared/notificaciones/`) integrado en las cabeceras de Admin, Profesor y Estudiante.
+  - Alertas en vivo para mensajes internos no leídos, tareas pendientes de entrega, anuncios y prospectos.
+  - Endpoint backend `GET /api/notificaciones/resumen` y servicio `CentroNotificacionesService`.
+
+- **Carnet Digital Estudiantil Interactivo 3D:**
+  - Componente modal `CarnetDigitalDialog` (`frontend/src/app/shared/carnet-digital/`) con estética de credencial física PVC en colores corporativos (Azul Marino y Oro Guadalupana).
+  - Rotación tridimensional 3D (Flip Card) para alternar entre anverso (fotografía, nombre, rama artesanal, cédula, número de matrícula y código de barras) y reverso (información institucional, período, firma y datos de contacto).
+  - Accesible para el estudiante desde su panel y para el administrador desde el listado de cada curso (`detalle-curso`).
   - **Base de Datos y Migraciones:** Nuevo modelo `MensajeInterno` en Prisma (`backend/prisma/schema.prisma`) con relaciones a `Usuario` (remitente, destinatario) y `Materia` opcional.
   - **Manejo Seguro de Base de Datos:** Debido a que `backend/.env` apunta a Supabase (producción), **NUNCA** se ejecuta `prisma db push`, `migrate dev` ni `migrate reset` localmente. Se generó la migración SQL versionada `backend/prisma/migrations/20261114120000_mensajeria_institucional/migration.sql`, la cual se aplica automáticamente en Render mediante `npx prisma migrate deploy` durante el arranque.
   - **Backend (`/api/chat`):** Controlador `backend/src/controllers/chat.controller.ts` con listado de contactos contextual y seguro según el rol, historial de mensajes con paginación y marcado automático de leídos, envío con validación y conteo global de no leídos.
