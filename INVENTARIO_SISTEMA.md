@@ -8,7 +8,7 @@
 - **Frontend:** Angular 21 (componentes standalone) + Angular Material
 - **Backend:** Node.js + Express 4 + TypeScript (API REST)
 - **Base de datos:** PostgreSQL gestionada con el ORM Prisma 6
-- **Despliegue:** Backend en Railway, Frontend en Netlify (auto-despliegue al hacer push a `main`)
+- **Despliegue:** Backend en Render, Frontend en Vercel, Base de datos en Supabase (auto-despliegue al hacer push a `main`)
 
 ---
 
@@ -143,7 +143,7 @@
 4. **Separación en capas:** rutas → controladores → cliente Prisma compartido (singleton). Frontend separado en componentes/servicios.
 5. **Modularización:** un archivo por entidad de dominio (rutas, controladores y servicios independientes).
 6. **TypeScript** en backend y frontend (tipado estático, menos errores en tiempo de ejecución).
-7. **Variables de entorno** (`.env` + Railway) para datos sensibles (`DATABASE_URL`, `JWT_SECRET`, `CEDULA_API_TOKEN`, `PORT`).
+7. **Variables de entorno** (`.env` + Render / Supabase / Vercel) para datos sensibles (`DATABASE_URL`, `JWT_SECRET`, `CEDULA_API_TOKEN`, `PORT`).
 8. **Control de versiones con Git** (historial claro con prefijos `feat:`, `fix:`, `chore:`).
 9. **Transacciones de base de datos** (`prisma.$transaction`) en operaciones críticas (ej. matrícula crea usuario + matrícula + datos en una sola transacción atómica).
 10. **Componentes standalone de Angular** (arquitectura moderna, sin NgModules).
@@ -156,11 +156,11 @@
 
 ```
 [ Angular 21 SPA ]  --HTTP/JSON + JWT-->  [ Express API REST ]  --Prisma-->  [ PostgreSQL ]
-   (Netlify)                                  (Railway)                         (Railway)
-        |                                         |
-        |                                         +--> API externa de Cédula (apiconsult.zampisoft.com)
-        |                                         +--> Generación de Word (.docx) con docxtemplater + pizzip
-        +--> Envío de correos de recuperación (EmailJS, cliente)
+    (Vercel)                                   (Render)                        (Supabase)
+         |                                         |
+         |                                         +--> API externa de Cédula (apiconsult.zampisoft.com)
+         |                                         +--> Generación de Word (.docx) con docxtemplater + pizzip
+         +--> Envío de correos de recuperación (EmailJS, cliente)
 ```
 
 - **Frontend ↔ Backend:** cada servicio Angular (`*.service.ts`) consume la API REST enviando el token JWT en la cabecera `Authorization`. No hay interceptor: cada servicio arma sus propias cabeceras (`getHeaders()`).
@@ -222,4 +222,4 @@
 - **Middleware anti-DoS**.
 - **Cambio obligatorio y recuperación de contraseña** con EmailJS.
 - Opción "Otro" en el campo sexo de matrícula/documentos.
-- Preparación para **producción** (Railway/Netlify, scripts de build, migraciones).
+- Preparación para **producción** (Render / Vercel / Supabase, scripts de build, migraciones).
