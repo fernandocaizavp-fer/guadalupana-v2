@@ -4,7 +4,21 @@ Actualizado: **14 de noviembre de 2026**. La sección 1 resume el estado actual.
 
 ## 1. Leer esto primero al retomar
 
-### Cambios más recientes (14 de noviembre de 2026): Buscador Global, Semáforo de Riesgo, Repositorio de Recursos, Carnet 3D, Anuncios Segmentados y Chat
+### Cambios más recientes (16 de noviembre de 2026): Enlaces Directos de Preinscripción, Recuperación Rápida de Contraseña, Carnet Digital 3D con Firma, Semáforo y Recursos
+
+- **Enlaces Directos de Captación de Prospectos y Preinscripción Inteligente:**
+  - Rutas directas añadidas en el enrutador de Angular: `/inscribirse`, `/preinscripcion` y anclaje con scroll suave `#preinscripcion`.
+  - Desplazamiento animado instantáneo hacia el formulario `#preinscripcion` y foco automático en el primer campo (`Nombres`).
+  - Preselección automática del dropdown de especialidad mediante parámetros en la URL: `?especialidad=belleza`, `?especialidad=maquillaje` o `?especialidad=fotografia` (soporta también `?esp=` y `?carrera=`).
+  - Cero duplicación de código ni creación de páginas redundantes: reutiliza el componente `Landing` existente con `ActivatedRoute` y `withInMemoryScrolling({ anchorScrolling: 'enabled' })`.
+  - Los prospectos registrados se canalizan al panel de administración en `/portal-web/prospectos` y activan alertas en la campana de notificaciones.
+
+- **Flujo Inmediato de Recuperación de Contraseña (Cero Clics y Autofoco):**
+  - Avance reactivo inmediato al paso 2 (ingreso de código) en `recuperar-password.ts` sin necesidad de clics manuales ni esperas, forzando la detección de cambios de Angular (`ChangeDetectorRef.detectChanges()`).
+  - Autofoco automático en el campo del código de verificación al renderizarse el paso 2.
+  - Salto automático al paso de nueva contraseña tan pronto como el usuario ingresa el sexto dígito.
+  - Indicador claro de vigencia del código (15 minutos) según las reglas del backend.
+  - Desacoplamiento de `@emailjs/browser` hacia `fetch` nativo para robustez en entornos de producción.
 
 - **Carnet Digital Estudiantil Visual con Firma Digital y Sello Oficial:**
   - Dimensiones del carnet aumentadas a 490px × 315px (con modal ampliado a 560px) para visualización holgada y cómoda en pantalla.

@@ -36,6 +36,8 @@
 
 ### Funcionalidades NUEVAS / RECIENTES (a destacar)
 
+- **Enlaces Directos de Captación de Prospectos y Preinscripción Rápida (`/inscribirse`, `/preinscripcion`, `?especialidad=...`)** — Rutas directas (`/inscribirse`, `/preinscripcion` y `/#preinscripcion`) con desplazamiento suave automático (*smooth scroll*) y autofoco inmediato en el formulario de inscripción. Permite preseleccionar automáticamente la especialidad de interés desde la URL (ej. `?especialidad=belleza`, `?especialidad=maquillaje`, `?especialidad=fotografia`), facilitando campañas de captación por WhatsApp y redes sociales sin duplicar vistas ni recargar componentes.
+- **Recuperación Inmediata de Contraseña Optimizada (Cero Clics y Autofoco)** — Flujo ágil de recuperación de credenciales por código de 6 dígitos: avance instantáneo al paso del código mediante detección reactiva de cambios (`ChangeDetectorRef`), autofoco automático en el campo de código, salto automático a nueva contraseña al completar los 6 dígitos y recordatorio visual de vigencia de 15 minutos.
 - **Buscador Global Rápido (`Ctrl + K`)** — Diálogo accesible por atajo de teclado o botón en la cabecera que busca en tiempo real estudiantes activos (por apellido, nombre, cédula o N.º matrícula) y especialidades de taller, permitiendo abrir directamente el Carnet Digital 3D o navegar al curso.
 - **Semáforo de Riesgo Académico y de Asistencia (Diseño Institucional Armónico)** — Indicador en tiempo real que evalúa la permanencia y titulación artesanal con diseño sobrio y profesional (tarjetas métricas con referencias normativas y diagnóstico institucional):
   - 🟢 **Verde (Rendimiento Óptimo)**: Asistencia $\ge 85\%$ y promedio general $\ge 7.00$.

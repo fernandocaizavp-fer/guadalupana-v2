@@ -8,6 +8,8 @@ import { cambiosSinGuardarGuard } from './shared/cambios-sin-guardar';
 // Landing y Login quedan en el paquete inicial porque son las puertas de entrada.
 export const routes: Routes = [
   { path: '', component: Landing },
+  { path: 'inscribirse', component: Landing },
+  { path: 'preinscripcion', component: Landing },
   { path: 'login', component: Login },
   { path: 'dashboard', loadComponent: () => import('./components/dashboard/dashboard').then(m => m.Dashboard), canActivate: [AuthGuard] },
   { path: 'cursos', loadComponent: () => import('./components/cursos/lista-cursos/lista-cursos').then(m => m.ListaCursos), canActivate: [AuthGuard], data: { roles: ['ADMIN'] } },

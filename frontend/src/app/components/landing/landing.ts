@@ -1,6 +1,6 @@
 import { VoiceflowChat } from './voiceflow-chat';
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, HostListener, ElementRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -118,10 +118,14 @@ export class Landing implements OnInit, OnDestroy {
   constructor(
     private portalService: PortalService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    // Si viene por enlace directo (/inscribirse, /preinscripcion o /#preinscripcion), desplazarse al formulario
+    this.revisarEnlaceDirectoPreinscripcion();
+
     // Si alguna petición falla (o el servidor tarda en despertar), la página
     // sigue mostrando su contenido fijo: aquí los errores son silenciosos.
     this.portalService.galeriaPublicada().subscribe({
@@ -147,6 +151,47 @@ export class Landing implements OnInit, OnDestroy {
       next: (eventos) => { this.eventos = eventos; terminar(); },
       error: () => terminar()
     });
+  }
+
+  private revisarEnlaceDirectoPreinscripcion() {
+    // 1. Detectar si especificaron especialidad en el enlace (ej: ?especialidad=belleza o ?esp=maquillaje)
+    this.route.queryParams.subscribe((params) => {
+      const espParam = params['especialidad'] || params['esp'] || params['carrera'];
+      if (espParam) {
+        const buscada = String(espParam).trim().toLowerCase();
+        const encontrada = this.opcionesEspecialidad.find(
+          (op) => op.toLowerCase().includes(buscada) || buscada.includes(op.toLowerCase())
+        );
+        if (encontrada) {
+          this.datos.especialidadInteres = encontrada;
+          this.cdr.detectChanges();
+        }
+      }
+    });
+
+    // 2. Si el enlace trae fragmento #preinscripcion o #formulario
+    this.route.fragment.subscribe((fragment) => {
+      if (fragment === 'preinscripcion' || fragment === 'formulario' || fragment === 'prospectos') {
+        setTimeout(() => this.hacerScrollYFocoEnFormulario(), 350);
+      }
+    });
+
+    // 3. Si la ruta es directa (/inscribirse, /preinscripcion)
+    const urlActual = this.router.url;
+    if (urlActual.includes('inscribir') || urlActual.includes('preinscrip') || urlActual.includes('prospecto')) {
+      setTimeout(() => this.hacerScrollYFocoEnFormulario(), 400);
+    }
+  }
+
+  private hacerScrollYFocoEnFormulario() {
+    const el = document.getElementById('preinscripcion');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        const inputNombres = document.getElementById('pre-nombres') as HTMLInputElement | null;
+        inputNombres?.focus();
+      }, 650);
+    }
   }
 
   ngOnDestroy() {
